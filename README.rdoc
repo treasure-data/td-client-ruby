@@ -1,0 +1,12 @@
+= Treasure Data API library for Ruby
+
+= Getting Started
+
+    > gem install td-client
+
+
+== Copyright
+
+Copyright:: Copyright (c) 2011 Treasure Data Inc.
+License::   Apache License, Version 2.0
+
