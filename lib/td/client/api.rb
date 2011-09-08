@@ -274,6 +274,17 @@ class API
     return body
   end
 
+  def kill(job_id)
+    code, body, res = post("/v3/job/kill/#{e job_id}")
+    if code != "200"
+      raise_error("Get job result failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    former_status = js['former_status']
+    return former_status
+  end
+
   # => jobId:String
   def hive_query(q, db=nil)
     code, body, res = post("/v3/job/issue/hive/#{e db}", {'query'=>q})

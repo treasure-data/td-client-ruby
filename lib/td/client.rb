@@ -141,6 +141,11 @@ class Client
     @api.job_result_each(job_id, &block)
   end
 
+  # => former_status:String
+  def kill(job_id)
+    @api.kill(job_id)
+  end
+
   # => time:Flaot
   def import(db_name, table_name, format, stream, size)
     @api.import(db_name, table_name, format, stream, size)

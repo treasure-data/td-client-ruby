@@ -126,6 +126,14 @@ class Schema
 end
 
 class Job < Model
+  STATUS_QUEUED = "queued"
+  STATUS_BOOTING = "booting"
+  STATUS_RUNNING = "running"
+  STATUS_SUCCESS = "success"
+  STATUS_ERROR = "error"
+  STATUS_KILLED = "killed"
+  FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
+
   def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil)
     super(client)
     @job_id = job_id
@@ -142,6 +150,10 @@ class Job < Model
   attr_reader :job_id, :type
 
   def wait(timeout=nil)
+    # TODO
+  end
+
+  def kill!
     # TODO
   end
 
@@ -199,7 +211,7 @@ class Job < Model
 
   def finished?
     update_status! unless @status
-    if @status == "success" || @status == "error"
+    if FINISHED_STATUS.include?(@status)
       return true
     else
       return false
@@ -218,6 +230,11 @@ class Job < Model
   def error?
     update_status! unless @status
     @status == "error"
+  end
+
+  def killed?
+    update_status! unless @status
+    @status == "killed"
   end
 
   def update_status!
