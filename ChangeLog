@@ -1,0 +1,12 @@
+
+== 2011-09-09 version 0.8.1
+
+* Added Client#kill method
+* Client.authenticate throws AuthError instead of APIError when
+  status code is 400
+
+
+== 2011-08-21 version 0.8.0
+
+* First release
+
