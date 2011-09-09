@@ -322,7 +322,11 @@ class API
   def authenticate(user, password)
     code, body, res = post("/v3/user/authenticate", {'user'=>user, 'password'=>password})
     if code != "200"
-      raise_error("Authentication failed", res)
+      if code == "400"
+        raise_error("Authentication failed", res, AuthError)
+      else
+        raise_error("Authentication failed", res)
+      end
     end
     # TODO format check
     js = JSON.load(body)
@@ -434,13 +438,15 @@ class API
     return http, header
   end
 
-  def raise_error(msg, res)
+  def raise_error(msg, res, klass=nil)
     begin
       js = JSON.load(res.body)
       msg = js['message']
       error_code = js['error_code']
 
-      if res.code == "404"
+      if klass
+        raise klass, "#{error_code}: #{msg}"
+      elsif res.code == "404"
         raise NotFoundError, "#{error_code}: #{msg}"
       elsif res.code == "409"
         raise AlreadyExistsError, "#{error_code}: #{msg}"
@@ -449,7 +455,9 @@ class API
       end
 
     rescue
-      if res.code == "404"
+      if klass
+        raise klass, "#{error_code}: #{msg}"
+      elsif res.code == "404"
         raise NotFoundError, "#{msg}: #{res.body}"
       elsif res.code == "409"
         raise AlreadyExistsError, "#{msg}: #{res.body}"
