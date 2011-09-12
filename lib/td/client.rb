@@ -159,8 +159,9 @@ class Client
     @api.delete_schedule(name)
   end
 
-  def schedules(from=nil, to=nil)
-    result = @api.list_schedules(from, to)
+  # [Schedule]
+  def schedules
+    result = @api.list_schedules
     result.map {|name,cron,query,database|
       Schedule.new(self, name, cron, query, database)
     }
@@ -170,7 +171,7 @@ class Client
   def history(name, from=nil, to=nil)
     result = @api.history(name, from, to)
     result.map {|scheduled_at,job_id,type,status,query,start_at,end_at|
-      ScheduledJob.new(self, scheduled_at, job_id type, query, status, nil, nil, start_at, end_at)
+      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at)
     }
   end
 

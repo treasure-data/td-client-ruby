@@ -302,7 +302,8 @@ class API
   ##
 
   # => start:String
-  def create_schedule(name, params)
+  def create_schedule(name, opts)
+    params = opts.update({'type'=>'hive'})
     code, body, res = post("/v3/schedule/create/#{e name}", params)
     if code != "200"
       raise_error("Create schedule failed", res)
@@ -323,11 +324,8 @@ class API
     return js['cron'], js["query"]
   end
 
-  def list_schedules(from=0, to=nil)
-    params = {}
-    params['from'] = from.to_s if from
-    params['to'] = to.to_s if to
-    code, body, res = get("/v3/schedule/list", params)
+  def list_schedules
+    code, body, res = get("/v3/schedule/list")
     if code != "200"
       raise_error("List schedules failed", res)
     end
