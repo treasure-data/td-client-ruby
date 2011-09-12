@@ -105,10 +105,10 @@ class Client
     Job.new(self, job_id, :hive, q)  # TODO url
   end
 
-  # => [Job=]
+  # => [Job]
   def jobs(from=nil, to=nil)
-    js = @api.list_jobs(from, to)
-    js.map {|job_id,type,status,query,start_at,end_at|
+    result = @api.list_jobs(from, to)
+    result.map {|job_id,type,status,query,start_at,end_at|
       Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at)
     }
   end
@@ -144,6 +144,34 @@ class Client
   # => former_status:String
   def kill(job_id)
     @api.kill(job_id)
+  end
+
+  # => first_time:Time
+  def create_schedule(name, opts)
+    raise ArgumentError, "'cron' option is required" unless opts[:cron] || opts['cron']
+    raise ArgumentError, "'query' option is required" unless opts[:query] || opts['query']
+    start = @api.create_schedule(name, opts)
+    return Time.parse(start)
+  end
+
+  # => true
+  def delete_schedule(name)
+    @api.delete_schedule(name)
+  end
+
+  def schedules(from=nil, to=nil)
+    result = @api.list_schedules(from, to)
+    result.map {|name,cron,query,database|
+      Schedule.new(self, name, cron, query, database)
+    }
+  end
+
+  # [ScheduledJob]
+  def history(name, from=nil, to=nil)
+    result = @api.history(name, from, to)
+    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at|
+      ScheduledJob.new(self, scheduled_at, job_id type, query, status, nil, nil, start_at, end_at)
+    }
   end
 
   # => time:Flaot

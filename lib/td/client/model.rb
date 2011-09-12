@@ -250,5 +250,30 @@ class Job < Model
 end
 
 
+class ScheduledJob < Job
+  def initialize(client, scheduled_at, *super_args)
+    super(client, *super_args)
+    @scheduled_at = scheduled_at
+  end
+
+  def scheduled_at
+    @scheduled_at ? Time.parse(@scheduled_at) : nil
+  end
+end
+
+
+class Schedule < Model
+  def initialize(client, name, cron, query, database=nil)
+    super(client)
+    @name = name
+    @cron = cron
+    @query = query
+    @database = database
+  end
+
+  attr_reader :name, :cron, :query, :database
+end
+
+
 end
 

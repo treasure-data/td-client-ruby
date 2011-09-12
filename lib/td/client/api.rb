@@ -298,6 +298,78 @@ class API
 
 
   ####
+  ## Schedule API
+  ##
+
+  # => start:String
+  def create_schedule(name, params)
+    code, body, res = post("/v3/schedule/create/#{e name}", params)
+    if code != "200"
+      raise_error("Create schedule failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    return js['start']
+  end
+
+  # => cron:String, query:String
+  def delete_schedule(name)
+    code, body, res = post("/v3/schedule/delete/#{e name}")
+    if code != "200"
+      raise_error("Delete schedule failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    return js['cron'], js["query"]
+  end
+
+  def list_schedules(from=0, to=nil)
+    params = {}
+    params['from'] = from.to_s if from
+    params['to'] = to.to_s if to
+    code, body, res = get("/v3/schedule/list", params)
+    if code != "200"
+      raise_error("List schedules failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    result = []
+    js['schedules'].each {|m|
+      name = m['name']
+      cron = m['cron']
+      query = m['query']
+      database = m['database']
+      result << [name, cron, query, database]
+    }
+    return result
+  end
+
+  def history(name, from=0, to=nil)
+    params = {}
+    params['from'] = from.to_s if from
+    params['to'] = to.to_s if to
+    code, body, res = get("/v3/schedule/history/#{e name}", params)
+    if code != "200"
+      raise_error("List history failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    result = []
+    js['history'].each {|m|
+      job_id = m['job_id']
+      type = (m['type'] || '?').to_sym
+      status = m['status']
+      query = m['query']
+      start_at = m['start_at']
+      end_at = m['end_at']
+      scheduled_at = m['scheduled_at']
+      result << [scheduled_at, job_id, type, status, query, start_at, end_at]
+    }
+    return result
+  end
+
+
+  ####
   ## Import API
   ##
 
