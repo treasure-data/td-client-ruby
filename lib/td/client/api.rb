@@ -455,8 +455,13 @@ class API
 
     path = BASE_URL + url
 
-    request = Net::HTTP::Post.new(path, header)
-    request.set_form_data(params) if params
+    if params && !params.empty?
+      request = Net::HTTP::Post.new(path, header)
+      request.set_form_data(params)
+    else
+      header['Content-Length'] = 0.to_s
+      request = Net::HTTP::Post.new(path, header)
+    end
 
     response = http.request(request)
     return [response.code, response.body, response]
