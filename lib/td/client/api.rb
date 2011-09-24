@@ -190,6 +190,7 @@ class API
     if code != "200"
       raise_error("Tail table failed", res)
     end
+    require 'msgpack'
     result = []
     MessagePack::Unpacker.new.feed_each(body) {|row|
       result << row

@@ -100,7 +100,7 @@ class Client
   end
 
   def tail(db_name, table_name, num, to=nil, from=nil)
-    @api.tail(db_name, table_name, num, to, from)
+    @api.tail(db_name, table_name, from, to, num)
   end
 
   # => Job
