@@ -71,6 +71,10 @@ class Table < Model
   def delete
     @client.delete_table(@db_name, @table_name)
   end
+
+  def tail(num, to=nil, from=nil)
+    @client.tail(@db_name, @table_name, num, to, from)
+  end
 end
 
 class Schema

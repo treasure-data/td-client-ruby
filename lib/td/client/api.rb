@@ -182,6 +182,21 @@ class API
     return type
   end
 
+  def tail(db, table, from, to, num)
+    params = {'format' => 'msgpack'}
+    params['from'] = from.to_s if from
+    params['to'] = to.to_s if to
+    code, body, res = get("/v3/table/tail/#{e db}/#{e table}", params)
+    if code != "200"
+      raise_error("Tail table failed", res)
+    end
+    result = []
+    MessagePack::Unpacker.new.feed_each(body) {|row|
+      result << row
+    }
+    return result
+  end
+
 
   ####
   ## Job API

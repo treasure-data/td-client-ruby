@@ -99,6 +99,10 @@ class Client
     raise NotFoundError, "Table '#{db_name}.#{table_name}' does not exist"
   end
 
+  def tail(db_name, table_name, num, to=nil, from=nil)
+    @api.tail(db_name, table_name, num, to, from)
+  end
+
   # => Job
   def query(db_name, q)
     job_id = @api.hive_query(q, db_name)
