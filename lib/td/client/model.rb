@@ -72,8 +72,8 @@ class Table < Model
     @client.delete_table(@db_name, @table_name)
   end
 
-  def tail(num, to=nil, from=nil)
-    @client.tail(@db_name, @table_name, num, to, from)
+  def tail(count, to=nil, from=nil)
+    @client.tail(@db_name, @table_name, count, to, from)
   end
 end
 

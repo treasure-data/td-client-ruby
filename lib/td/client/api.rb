@@ -182,10 +182,11 @@ class API
     return type
   end
 
-  def tail(db, table, from, to, num)
+  def tail(db, table, count, to, from)
     params = {'format' => 'msgpack'}
-    params['from'] = from.to_s if from
+    params['count'] = count.to_s if count
     params['to'] = to.to_s if to
+    params['from'] = from.to_s if from
     code, body, res = get("/v3/table/tail/#{e db}/#{e table}", params)
     if code != "200"
       raise_error("Tail table failed", res)
