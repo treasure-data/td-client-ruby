@@ -1,4 +1,9 @@
 
+== 2011-10-03 version 0.8.3
+
+* Added Client#tail method
+
+
 == 2011-09-13 version 0.8.2
 
 * Added APIs for scheduled queries
