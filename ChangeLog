@@ -1,4 +1,12 @@
 
+== 2011-11-11 version 0.8.4
+
+* Added Model#client
+* Added Database#query
+* Added Table#import
+* Increased http.read_timeout on Client#import
+
+
 == 2011-10-03 version 0.8.3
 
 * Added Client#tail method
