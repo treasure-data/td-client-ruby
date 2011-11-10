@@ -81,6 +81,10 @@ class Table < Model
   def tail(count, to=nil, from=nil)
     @client.tail(@db_name, @table_name, count, to, from)
   end
+
+  def import(format, stream, size)
+    @api.import(@db_name, @table_name, format, stream, size)
+  end
 end
 
 class Schema
