@@ -42,6 +42,10 @@ class Database < Model
     @client.delete_database(@db_name)
   end
 
+  def query(q)
+    @client.query(@db_name, q)
+  end
+
   def update_tables!
     @tables = @client.tables(@db_name)
   end
