@@ -6,6 +6,8 @@ class Model
   def initialize(client)
     @client = client
   end
+
+  attr_reader :client
 end
 
 class Database < Model
