@@ -487,6 +487,8 @@ class API
   def put(url, stream, size)
     http, header = new_http
 
+    http.read_timeout = 600
+
     path = BASE_URL + url
 
     header['Content-Type'] = 'application/octet-stream'
@@ -518,8 +520,6 @@ class API
       store = OpenSSL::X509::Store.new
       http.cert_store = store
     end
-
-    #http.read_timeout = options[:read_timeout]
 
     header = {}
     if @apikey
