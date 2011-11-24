@@ -183,6 +183,60 @@ class Client
   def import(db_name, table_name, format, stream, size)
     @api.import(db_name, table_name, format, stream, size)
   end
+
+  # => [AggregationSchema]
+  def aggregation_schemas
+    list = @api.list_aggregation_schema
+    list.map {|name,relation_key|
+      AggregationSchema.new(self, name, relation_key)
+    }
+  end
+
+  # => true
+  def create_aggregation_schema(name, relation_key)
+    @api.create_aggregation_schema(name, relation_key)
+  end
+
+  # => true
+  def delete_aggregation_schema(name)
+    @api.delete_aggregation_schema(name)
+  end
+
+  # => AggregationSchema
+  def aggregation_schema(name)
+    relation_key, logs, attrs = @api.show_aggregation_schema(name)
+    logs.map! {|name,comment,database,table,okeys,value_key,count_key|
+      table = Table.new(self, database, table, 'log', nil, nil)
+      LogAggregationSchemaEntry.new(self, name, comment, table,
+                                    okeys, value_key, count_key)
+    }
+    attrs.map! {|name,comment,database,table,method_name,parameters|
+      table = Table.new(self, database, table, 'log', nil, nil)
+      AttributeAggregationSchemaEntry.new(self, name, comment, table,
+                                          method_name, parameters)
+    }
+    AggregationSchema.new(self, name, relation_key, logs, attrs)
+  end
+
+  # => true
+  def create_aggregation_log_entry(name, entry_name, comment, db, table, okeys, value_key, count_key)
+    @api.create_aggregation_log_entry(name, entry_name, comment, db, table, okeys, value_key, count_key)
+  end
+
+  # => true
+  def delete_aggregation_log_entry(name, entry_name)
+    @api.delete_aggregation_log_entry(name, entry_name)
+  end
+
+  # => true
+  def create_aggregation_attr_entry(name, entry_name, comment, db, table, method_name, parameters)
+    @api.create_aggregation_attr_entry(name, entry_name, comment, db, table, method_name, parameters)
+  end
+
+  # => true
+  def delete_aggregation_attr_entry(name, entry_name)
+    @api.delete_aggregation_attr_entry(name, entry_name)
+  end
 end
 
 

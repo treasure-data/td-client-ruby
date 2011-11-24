@@ -289,5 +289,67 @@ class Schedule < Model
 end
 
 
+class AggregationSchema < Model
+  def initialize(client, name, relation_key, logs=nil, attributes=nil)
+    super(client)
+    @name = name
+    @relation_key = relation_key
+    @logs = logs
+    @attributes = attributes
+  end
+
+  attr_reader :name, :relation_key
+
+  def logs
+    update_entries! unless @logs
+    @logs
+  end
+
+  def attributes
+    update_entries! unless @attributes
+    @attributes
+  end
+
+  def update_entries!
+    sc = @client.show_aggregation_schema(@name)
+    @relation_key = sc.relation_key
+    @logs = sc.logs
+    @attributes = sc.attributes
+    self
+  end
+end
+
+
+class LogAggregationSchemaEntry < Model
+  def initialize(client, name, comment, table, okeys, value_key, count_key)
+    super(client)
+    @name = name
+    @comment = comment
+    @table = table
+    @okeys = okeys
+    @value_key = value_key
+    @count_key = count_key
+  end
+
+  attr_reader :name, :comment, :table
+  attr_reader :okeys, :value_key, :count_key
+end
+
+
+class AttributeAggregationSchemaEntry < Model
+  def initialize(client, name, comment, table, method_name, parameters)
+    super(client)
+    @name = name
+    @comment = comment
+    @table = table
+    @method_name = method_name
+    @parameters = parameters
+  end
+
+  attr_reader :name, :comment, :table
+  attr_reader :method_name, :parameters
+end
+
+
 end
 
