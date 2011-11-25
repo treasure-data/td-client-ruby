@@ -148,7 +148,7 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, rset=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -159,9 +159,10 @@ class Job < Model
     @start_at = start_at
     @end_at = end_at
     @result = result
+    @rset = rset
   end
 
-  attr_reader :job_id, :type
+  attr_reader :job_id, :type, :rset
 
   def wait(timeout=nil)
     # TODO
@@ -199,6 +200,10 @@ class Job < Model
   def end_at
     update_status! unless @end_at
     @end_at && !@end_at.empty? ? Time.parse(@end_at) : nil
+  end
+
+  def rset_name
+    @rset ? @rset.name : nil
   end
 
   def result
@@ -252,7 +257,7 @@ class Job < Model
   end
 
   def update_status!
-    query, status, url, debug, start_at, end_at = @client.job_status(@job_id)
+    query, status, url, debug, start_at, end_at, rset = @client.job_status(@job_id)
     @query = query
     @status = status
     @url = url
@@ -277,15 +282,20 @@ end
 
 
 class Schedule < Model
-  def initialize(client, name, cron, query, database=nil)
+  def initialize(client, name, cron, query, database=nil, rset=nil)
     super(client)
     @name = name
     @cron = cron
     @query = query
     @database = database
+    @rset = rset
   end
 
-  attr_reader :name, :cron, :query, :database
+  def rset_name
+    @rset ? @rset.name : nil
+  end
+
+  attr_reader :name, :cron, :query, :database, :rset
 end
 
 

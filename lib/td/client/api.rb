@@ -208,7 +208,7 @@ class API
   ## Job API
   ##
 
-  # => [(jobId:String, type:Symbol, status:String, start_at:String, end_at:String)]
+  # => [(jobId:String, type:Symbol, status:String, start_at:String, end_at:String, rset:String)]
   def list_jobs(from=0, to=nil)
     params = {}
     params['from'] = from.to_s if from
@@ -227,12 +227,13 @@ class API
       query = m['query']
       start_at = m['start_at']
       end_at = m['end_at']
-      result << [job_id, type, status, query, start_at, end_at]
+      rset = m['result']
+      result << [job_id, type, status, query, start_at, end_at, rset]
     }
     return result
   end
 
-  # => (type:Symbol, status:String, result:String, url:String)
+  # => (type:Symbol, status:String, result:String, url:String, result:String)
   def show_job(job_id)
     code, body, res = get("/v3/job/show/#{e job_id}")
     if code != "200"
@@ -248,7 +249,8 @@ class API
     url = js['url']
     start_at = js['start_at']
     end_at = js['end_at']
-    return [type, query, status, url, debug, start_at, end_at]
+    result = js['result']
+    return [type, query, status, url, debug, start_at, end_at, result]
   end
 
   def job_result(job_id)
@@ -307,8 +309,10 @@ class API
   end
 
   # => jobId:String
-  def hive_query(q, db=nil)
-    code, body, res = post("/v3/job/issue/hive/#{e db}", {'query'=>q})
+  def hive_query(q, db=nil, rset=nil)
+    params = {'query' => q}
+    params['result'] = rset if rset
+    code, body, res = post("/v3/job/issue/hive/#{e db}", params)
     if code != "200"
       raise_error("Query failed", res)
     end

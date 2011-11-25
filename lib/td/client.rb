@@ -104,30 +104,33 @@ class Client
   end
 
   # => Job
-  def query(db_name, q)
-    job_id = @api.hive_query(q, db_name)
+  def query(db_name, q, rset=nil)
+    job_id = @api.hive_query(q, db_name, rset)
     Job.new(self, job_id, :hive, q)  # TODO url
   end
 
   # => [Job]
   def jobs(from=nil, to=nil)
     result = @api.list_jobs(from, to)
-    result.map {|job_id,type,status,query,start_at,end_at|
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at)
+    result.map {|job_id,type,status,query,start_at,end_at,rset|
+      rset = ResultSet.new(self, rset) if rset
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, rset)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at = @api.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at)
+    type, query, status, url, debug, start_at, end_at, rset = @api.show_job(job_id)
+    rset = ResultSet.new(self, rset) if rset
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, rset)
   end
 
   # => type:Symbol, url:String
   def job_status(job_id)
-    type, query, status, url, debug, start_at, end_at = @api.show_job(job_id)
-    return query, status, url, debug, start_at, end_at
+    type, query, status, url, debug, start_at, end_at, rset = @api.show_job(job_id)
+    rset = ResultSet.new(self, rset) if rset
+    return query, status, url, debug, start_at, end_at, rset
   end
 
   # => result:[{column:String=>value:Object]
