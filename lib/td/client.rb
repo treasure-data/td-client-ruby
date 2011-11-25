@@ -184,6 +184,32 @@ class Client
     @api.import(db_name, table_name, format, stream, size)
   end
 
+  # => [ResultSet]
+  def result_sets
+    info, names = @api.list_result_set
+    sets = names.map {|name|
+      ResultSet.new(self, name)
+    }
+    return sets
+  end
+
+  # => ResultSetInfo
+  def result_set_info
+    info, names = @api.list_result_set
+    info = ResultSetInfo.new(self, *info)
+    return info
+  end
+
+  # => true
+  def create_result_set(name)
+    @api.create_result_set(name)
+  end
+
+  # => true
+  def delete_result_set(name)
+    @api.delete_result_set(name)
+  end
+
   # => [AggregationSchema]
   def aggregation_schemas
     list = @api.list_aggregation_schema

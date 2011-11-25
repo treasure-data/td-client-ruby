@@ -44,6 +44,10 @@ class API
     validate_database_name(name)
   end
 
+  def self.validate_result_set_name(name)
+    validate_database_name(name)
+  end
+
   def self.validate_column_name(name)
     name = name.to_s
     if name.empty?
@@ -402,6 +406,52 @@ class API
 
 
   ####
+  ## Result set API
+  ##
+
+  # => (
+  #   info:(type:String, host:String, port:Integer, user:String, pass:String)
+  #   entries:[name:String]
+  # )
+  def list_result_set
+    code, body, res = get("/v3/result/list")
+    if code != "200"
+      raise_error("List result set failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    type = (js["type"] || 'unknown').to_s
+    host = js["host"].to_s
+    port = js["port"].to_i
+    user = js["user"].to_s
+    pass = js["pass"].to_s
+    names = (js["results"] || []).map {|rsets|
+      rsets['name'].to_s
+    }
+    info = [type, host, port, user, pass]
+    return info, names
+  end
+
+  # => true
+  def create_result_set(db)
+    code, body, res = post("/v3/result/create/#{e db}")
+    if code != "200"
+      raise_error("Create result set failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def delete_result_set(db)
+    code, body, res = post("/v3/result/delete/#{e db}")
+    if code != "200"
+      raise_error("Delete result set failed", res)
+    end
+    return true
+  end
+
+
+  ####
   ## Aggregation Schema API
   ##
 
@@ -413,12 +463,12 @@ class API
     end
     # TODO format check
     js = JSON.load(body)
-    names = js["aggrs"].map {|aggrinfo|
+    result = js["aggrs"].map {|aggrinfo|
       name = aggrinfo['name'].to_s
       relation_key = aggrinfo['relation_key'].to_s
       [name, relation_key]
     }
-    return names
+    return result
   end
 
   # => true

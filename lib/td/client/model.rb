@@ -289,6 +289,30 @@ class Schedule < Model
 end
 
 
+class ResultSetInfo < Model
+  def initialize(client, type, host, port, user, password)
+    super(client)
+    @type = type
+    @host = host
+    @port = port
+    @user = user
+    @password = password
+  end
+
+  attr_reader :type, :host, :port, :user, :password
+end
+
+
+class ResultSet < Model
+  def initialize(client, name)
+    super(client)
+    @name = name
+  end
+
+  attr_reader :name
+end
+
+
 class AggregationSchema < Model
   def initialize(client, name, relation_key, logs=nil, attributes=nil)
     super(client)
