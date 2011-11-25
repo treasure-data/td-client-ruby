@@ -169,8 +169,9 @@ class Client
   # [Schedule]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database|
-      Schedule.new(self, name, cron, query, database)
+    result.map {|name,cron,query,database,rset|
+      rset = ResultSet.new(self, rset) if rset
+      Schedule.new(self, name, cron, query, database, rset)
     }
   end
 

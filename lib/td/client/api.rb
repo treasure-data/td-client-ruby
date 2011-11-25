@@ -349,6 +349,7 @@ class API
     return js['cron'], js["query"]
   end
 
+  # => [(name:String, cron:String, query:String, database:String, rset:String)]
   def list_schedules
     code, body, res = get("/v3/schedule/list")
     if code != "200"
@@ -362,7 +363,8 @@ class API
       cron = m['cron']
       query = m['query']
       database = m['database']
-      result << [name, cron, query, database]
+      rset = m['result']
+      result << [name, cron, query, database, rset]
     }
     return result
   end
