@@ -114,7 +114,7 @@ class Client
     result = @api.list_jobs(from, to)
     result.map {|job_id,type,status,query,start_at,end_at,rset|
       rset = ResultSet.new(self, rset) if rset
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, rset)
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, rset)
     }
   end
 
@@ -123,7 +123,7 @@ class Client
     job_id = job_id.to_s
     type, query, status, url, debug, start_at, end_at, rset = @api.show_job(job_id)
     rset = ResultSet.new(self, rset) if rset
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, rset)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, rset)
   end
 
   # => type:Symbol, url:String
@@ -177,8 +177,9 @@ class Client
   # [ScheduledJob]
   def history(name, from=nil, to=nil)
     result = @api.history(name, from, to)
-    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at|
-      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at)
+    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,rset|
+      rset = ResultSet.new(self, rset) if rset
+      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, rset)
     }
   end
 

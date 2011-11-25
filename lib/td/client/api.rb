@@ -386,7 +386,8 @@ class API
       start_at = m['start_at']
       end_at = m['end_at']
       scheduled_at = m['scheduled_at']
-      result << [scheduled_at, job_id, type, status, query, start_at, end_at]
+      rset = m['result']
+      result << [scheduled_at, job_id, type, status, query, start_at, end_at, rset]
     }
     return result
   end
