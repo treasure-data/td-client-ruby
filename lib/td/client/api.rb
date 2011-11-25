@@ -410,7 +410,7 @@ class API
   ##
 
   # => (
-  #   info:(type:String, host:String, port:Integer, user:String, pass:String)
+  #   info:(type:String, host:String, port:Integer, database:String, user:String, pass:String)
   #   entries:[name:String]
   # )
   def list_result_set
@@ -423,12 +423,13 @@ class API
     type = (js["type"] || 'unknown').to_s
     host = js["host"].to_s
     port = js["port"].to_i
+    database = js["database"].to_s
     user = js["user"].to_s
     pass = js["pass"].to_s
     names = (js["results"] || []).map {|rsets|
       rsets['name'].to_s
     }
-    info = [type, host, port, user, pass]
+    info = [type, host, port, database, user, pass]
     return info, names
   end
 

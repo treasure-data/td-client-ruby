@@ -290,16 +290,17 @@ end
 
 
 class ResultSetInfo < Model
-  def initialize(client, type, host, port, user, password)
+  def initialize(client, type, host, port, database, user, password)
     super(client)
     @type = type
     @host = host
     @port = port
+    @database = database
     @user = user
     @password = password
   end
 
-  attr_reader :type, :host, :port, :user, :password
+  attr_reader :type, :host, :port, :database, :user, :password
 end
 
 
