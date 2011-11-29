@@ -1,4 +1,11 @@
 
+== 2011-11-28 version 0.8.5
+
+* added new feature: ResultSet
+* added new feature: AggregationSchema
+* added Job#rset and Schedule#rset to get associated ResultSet
+
+
 == 2011-11-11 version 0.8.4
 
 * Added Model#client
