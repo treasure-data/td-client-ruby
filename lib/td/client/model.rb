@@ -346,7 +346,7 @@ class AggregationSchema < Model
   end
 
   def update_entries!
-    sc = @client.show_aggregation_schema(@name)
+    sc = @client.aggregation_schema(@name)
     @relation_key = sc.relation_key
     @logs = sc.logs
     @attributes = sc.attributes
