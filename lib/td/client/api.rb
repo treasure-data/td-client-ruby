@@ -88,8 +88,7 @@ class API
     if code != "200"
       raise_error("List databases failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[databases])
     names = js["databases"].map {|dbinfo| dbinfo['name'] }
     return names
   end
@@ -123,8 +122,7 @@ class API
     if code != "200"
       raise_error("List tables failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[tables])
     result = {}
     js["tables"].map {|m|
       name = m['name']
@@ -180,8 +178,7 @@ class API
     if code != "200"
       raise_error("Drop table failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[])
     type = (js['type'] || '?').to_sym
     return type
   end
@@ -217,8 +214,7 @@ class API
     if code != "200"
       raise_error("List jobs failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[jobs])
     result = []
     js['jobs'].each {|m|
       job_id = m['job_id']
@@ -239,8 +235,7 @@ class API
     if code != "200"
       raise_error("Show job failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[status])
     # TODO debug
     type = (js['type'] || '?').to_sym  # TODO
     query = js['query']
@@ -302,8 +297,7 @@ class API
     if code != "200"
       raise_error("Get job result failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[])
     former_status = js['former_status']
     return former_status
   end
@@ -316,8 +310,7 @@ class API
     if code != "200"
       raise_error("Query failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[job_id])
     return js['job_id'].to_s
   end
 
@@ -333,8 +326,7 @@ class API
     if code != "200"
       raise_error("Create schedule failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[start])
     return js['start']
   end
 
@@ -344,8 +336,7 @@ class API
     if code != "200"
       raise_error("Delete schedule failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[])
     return js['cron'], js["query"]
   end
 
@@ -355,8 +346,7 @@ class API
     if code != "200"
       raise_error("List schedules failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[schedules])
     result = []
     js['schedules'].each {|m|
       name = m['name']
@@ -377,8 +367,7 @@ class API
     if code != "200"
       raise_error("List history failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[history])
     result = []
     js['history'].each {|m|
       job_id = m['job_id']
@@ -405,8 +394,7 @@ class API
     if code[0] != ?2
       raise_error("Import failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[])
     time = js['time'].to_f
     return time
   end
@@ -425,8 +413,7 @@ class API
     if code != "200"
       raise_error("List result set failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[host port user pass])
     type = (js["type"] || 'unknown').to_s
     host = js["host"].to_s
     port = js["port"].to_i
@@ -469,8 +456,7 @@ class API
     if code != "200"
       raise_error("List aggregation schema failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[aggrs])
     result = js["aggrs"].map {|aggrinfo|
       name = aggrinfo['name'].to_s
       relation_key = aggrinfo['relation_key'].to_s
@@ -513,8 +499,7 @@ class API
     if code != "200"
       raise_error("Show job failed", res)
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[relation_key logs attrs])
     relation_key = js['relation_key']
     logs = js['logs'].map {|loginfo|
       entry_name = loginfo['name'].to_s
@@ -605,8 +590,7 @@ class API
         raise_error("Authentication failed", res)
       end
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[apikey])
     apikey = js['apikey']
     return apikey
   end
@@ -621,8 +605,7 @@ class API
     if code != "200"
       return "Server is down (#{code})"
     end
-    # TODO format check
-    js = JSON.load(body)
+    js = checked_json(body, %w[status])
     status = js['status']
     return status
   end
@@ -753,6 +736,24 @@ class API
   def e(s)
     require 'cgi'
     CGI.escape(s.to_s)
+  end
+
+  def checked_json(body, required)
+    js = nil
+    begin
+      js = JSON.load(body)
+    rescue
+      raise "Unexpected API response: #{$!}"
+    end
+    unless js.is_a?(Hash)
+      raise "Unexpected API response: #{body}"
+    end
+    required.each {|k|
+      unless js[k]
+        raise "Unexpected API response: #{body}"
+      end
+    }
+    js
   end
 end
 
