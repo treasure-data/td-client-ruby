@@ -1,4 +1,9 @@
 
+== 2012-01-19 version 0.8.6
+
+* Check JSON format of HTTP responses
+
+
 == 2011-12-04 version 0.8.5
 
 * added new feature: ResultSet
