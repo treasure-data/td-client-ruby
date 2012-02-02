@@ -708,6 +708,7 @@ class API
 
   def new_http
     require 'net/http'
+    require 'net/https'
     require 'time'
 
     http = Net::HTTP.new(@host, @port)
