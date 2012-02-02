@@ -16,10 +16,30 @@ end
 
 
 class API
-  def initialize(apikey)
+  def initialize(apikey, opts={})
     require 'json'
     require 'time'
+    require 'uri'
     @apikey = apikey
+    endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || 'http://api.treasure-data.com'
+    uri = URI.parse(endpoint)
+    case uri.scheme
+    when 'http', 'https'
+      @host = uri.host
+      @port = uri.port
+      @ssl = uri.scheme == 'https'
+      @base_path = uri.path.to_s
+    else
+      if uri.port
+        raise "Invalid endpoint: #{endpoint}"
+      end
+      # generic specification
+      @host, @port = endpoint.split(':', 2)
+      @port = @port.to_i
+      @port = 80 if @port == 0
+      @ssl = false
+      @base_path = ''
+    end
   end
 
   # TODO error check & raise appropriate errors
@@ -617,31 +637,11 @@ class API
   end
 
   private
-  host = 'api.treasure-data.com'
-  port = 443
-  ssl = true
-  #port = 80
-  #ssl = false
-  if e = ENV['TD_API_SERVER']
-    host, ports = e.split(':',2)
-    ports = ports.to_i
-    if ports != 0
-      port = ports
-    else
-      port = 80
-    end
-    ssl = false
-  end
-
-  HOST = host
-  PORT = port
-  USE_SSL = ssl
-  BASE_URL = ''
 
   def get(url, params=nil)
     http, header = new_http
 
-    path = BASE_URL + url
+    path = @base_path + url
     if params && !params.empty?
       path << "?"+params.map {|k,v|
         "#{k}=#{e v}"
@@ -657,7 +657,7 @@ class API
   def post(url, params=nil)
     http, header = new_http
 
-    path = BASE_URL + url
+    path = @base_path + url
 
     if params && !params.empty?
       request = Net::HTTP::Post.new(path, header)
@@ -676,7 +676,7 @@ class API
 
     http.read_timeout = 600
 
-    path = BASE_URL + url
+    path = @base_path + url
 
     header['Content-Type'] = 'application/octet-stream'
     header['Content-Length'] = size.to_s
@@ -700,8 +700,8 @@ class API
     require 'net/http'
     require 'time'
 
-    http = Net::HTTP.new(HOST, PORT)
-    if USE_SSL
+    http = Net::HTTP.new(@host, @port)
+    if @ssl
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       store = OpenSSL::X509::Store.new

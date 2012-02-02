@@ -6,19 +6,19 @@ require 'td/client/model'
 
 
 class Client
-  def self.authenticate(user, password)
-    api = API.new(nil)
+  def self.authenticate(user, password, opts={})
+    api = API.new(nil, opts)
     apikey = api.authenticate(user, password)
     new(apikey)
   end
 
-  def self.server_status
-    api = API.new(nil)
+  def self.server_status(opts={})
+    api = API.new(nil, opts)
     api.server_status
   end
 
-  def initialize(apikey)
-    @api = API.new(apikey)
+  def initialize(apikey, opts={})
+    @api = API.new(apikey, opts)
   end
 
   attr_reader :api
