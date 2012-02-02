@@ -618,16 +618,24 @@ class API
 
   private
   host = 'api.treasure-data.com'
-  port = 80
+  port = 443
+  ssl = true
+  #port = 80
+  #ssl = false
   if e = ENV['TD_API_SERVER']
-    host, port_ = e.split(':',2)
-    port_ = port_.to_i
-    port = port_ if port_ != 0
+    host, ports = e.split(':',2)
+    ports = ports.to_i
+    if ports != 0
+      port = ports
+    else
+      port = 80
+    end
+    ssl = false
   end
 
   HOST = host
   PORT = port
-  USE_SSL = false
+  USE_SSL = ssl
   BASE_URL = ''
 
   def get(url, params=nil)
