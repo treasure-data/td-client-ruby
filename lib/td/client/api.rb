@@ -21,23 +21,33 @@ class API
     require 'time'
     require 'uri'
     @apikey = apikey
-    endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || 'http://api.treasure-data.com'
+
+    endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || 'api.treasure-data.com'
     uri = URI.parse(endpoint)
+
     case uri.scheme
     when 'http', 'https'
       @host = uri.host
       @port = uri.port
       @ssl = uri.scheme == 'https'
       @base_path = uri.path.to_s
+
     else
       if uri.port
+        # invalid URI
         raise "Invalid endpoint: #{endpoint}"
       end
-      # generic specification
+
+      # generic URI
       @host, @port = endpoint.split(':', 2)
       @port = @port.to_i
-      @port = 80 if @port == 0
-      @ssl = false
+      if opts[:ssl]
+        @port = 443 if @port == 0
+        @ssl = true
+      else
+        @port = 80 if @port == 0
+        @ssl = false
+      end
       @base_path = ''
     end
   end
