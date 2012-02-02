@@ -99,8 +99,8 @@ class Client
     raise NotFoundError, "Table '#{db_name}.#{table_name}' does not exist"
   end
 
-  def tail(db_name, table_name, count, to=nil, from=nil)
-    @api.tail(db_name, table_name, count, to, from)
+  def tail(db_name, table_name, count, to=nil, from=nil, &block)
+    @api.tail(db_name, table_name, count, to, from, &block)
   end
 
   # => Job

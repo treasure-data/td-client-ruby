@@ -61,6 +61,7 @@ class API
     end
   end
 
+  # TODO support array types
   def self.normalize_type_name(name)
     case name
     when /int/i, /integer/i
@@ -183,7 +184,7 @@ class API
     return type
   end
 
-  def tail(db, table, count, to, from)
+  def tail(db, table, count, to, from, &block)
     params = {'format' => 'msgpack'}
     params['count'] = count.to_s if count
     params['to'] = to.to_s if to
@@ -193,11 +194,16 @@ class API
       raise_error("Tail table failed", res)
     end
     require 'msgpack'
-    result = []
-    MessagePack::Unpacker.new.feed_each(body) {|row|
-      result << row
-    }
-    return result
+    if block
+      MessagePack::Unpacker.new.feed_each(body, &block)
+      nil
+    else
+      result = []
+      MessagePack::Unpacker.new.feed_each(body) {|row|
+        result << row
+      }
+      return result
+    end
   end
 
 
