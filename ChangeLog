@@ -1,4 +1,9 @@
 
+== 2012-02-02 version 0.8.8
+
+* Fixed SSL support
+
+
 == 2012-02-02 version 0.8.7
 
 * Added SSL support
