@@ -282,7 +282,7 @@ end
 
 
 class Schedule < Model
-  def initialize(client, name, cron, query, database=nil, rset=nil, timezone=nil, delay=>nil, next_time=nil)
+  def initialize(client, name, cron, query, database=nil, rset=nil, timezone=nil, delay=nil, next_time=nil)
     super(client)
     @name = name
     @cron = cron
@@ -336,7 +336,7 @@ end
 
 
 class AggregationSchema < Model
-  def initialize(client, name, relation_key, logs=nil, attributes=nil, timezone=>nil)
+  def initialize(client, name, relation_key, logs=nil, attributes=nil, timezone=nil)
     super(client)
     @name = name
     @relation_key = relation_key
