@@ -184,6 +184,12 @@ class Client
     }
   end
 
+  # TODO nil -> [ScheduledJob] or [Job]
+  def run_schedule(name, time, num)
+    @api.run_schedule(name, time, num)
+    nil
+  end
+
   # => time:Flaot
   def import(db_name, table_name, format, stream, size)
     @api.import(db_name, table_name, format, stream, size)

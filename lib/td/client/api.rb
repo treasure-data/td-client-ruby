@@ -422,6 +422,22 @@ class API
     return result
   end
 
+  def run_schedule(name, time, num)
+    params = {}
+    params = {'num' => num} if num
+    code, body, res = post("/v3/schedule/run/#{e name}/#{e time}", params)
+    if code != "200"
+      raise_error("Run schedule failed", res)
+    end
+    js = checked_json(body, %w[jobs])
+    result = []
+    js['jobs'].each {|m|
+      job_id = m['job_id']
+      scheduled_at = m['scheduled_at']
+      result << [job_id, scheduled_at]
+    }
+    return result
+  end
 
   ####
   ## Import API

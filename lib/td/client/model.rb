@@ -303,6 +303,10 @@ class Schedule < Model
   def next_time
     @next_time ? Time.parse(@next_time) : nil
   end
+
+  def run(time, num)
+    @client.run_schedule(time, num)
+  end
 end
 
 
