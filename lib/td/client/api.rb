@@ -390,7 +390,10 @@ class API
       query = m['query']
       database = m['database']
       rset = m['result']
-      result << [name, cron, query, database, rset]
+      timezone = m['timezone']
+      delay = m['delay']
+      next_time = m['next_time']
+      result << [name, cron, query, database, rset, timezone, delay, next_time]
     }
     return result
   end
@@ -496,14 +499,14 @@ class API
     result = js["aggrs"].map {|aggrinfo|
       name = aggrinfo['name'].to_s
       relation_key = aggrinfo['relation_key'].to_s
-      [name, relation_key]
+      timezone = aggrinfo['timezone'].to_s
+      [name, relation_key, timezone]
     }
     return result
   end
 
   # => true
-  def create_aggregation_schema(name, relation_key)
-    params = {}
+  def create_aggregation_schema(name, relation_key, params={})
     params['relation_key'] = relation_key if relation_key
     code, body, res = post("/v3/aggr/create/#{e name}", params)
     if code != "200"

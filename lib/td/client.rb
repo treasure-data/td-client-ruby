@@ -169,9 +169,9 @@ class Client
   # [Schedule]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database,rset|
+    result.map {|name,cron,query,database,rset,timezone,delay,next_time|
       rset = ResultSet.new(self, rset) if rset
-      Schedule.new(self, name, cron, query, database, rset)
+      Schedule.new(self, name, cron, query, database, rset, timezone, delay, next_time)
     }
   end
 
@@ -218,14 +218,14 @@ class Client
   # => [AggregationSchema]
   def aggregation_schemas
     list = @api.list_aggregation_schema
-    list.map {|name,relation_key|
-      AggregationSchema.new(self, name, relation_key)
+    list.map {|name,relation_key,timezone|
+      AggregationSchema.new(self, name, relation_key, nil, nil, timezone)
     }
   end
 
   # => true
-  def create_aggregation_schema(name, relation_key)
-    @api.create_aggregation_schema(name, relation_key)
+  def create_aggregation_schema(name, relation_key, params={})
+    @api.create_aggregation_schema(name, relation_key, params)
   end
 
   # => true

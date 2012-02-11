@@ -282,20 +282,27 @@ end
 
 
 class Schedule < Model
-  def initialize(client, name, cron, query, database=nil, rset=nil)
+  def initialize(client, name, cron, query, database=nil, rset=nil, timezone=nil, delay=>nil, next_time=nil)
     super(client)
     @name = name
     @cron = cron
     @query = query
     @database = database
     @rset = rset
+    @timezone = timezone
+    @delay = delay
+    @next_time = next_time
   end
 
   def rset_name
     @rset ? @rset.name : nil
   end
 
-  attr_reader :name, :cron, :query, :database, :rset
+  attr_reader :name, :cron, :query, :database, :rset, :timezone, :delay
+
+  def next_time
+    @next_time ? Time.parse(@next_time) : nil
+  end
 end
 
 
@@ -325,15 +332,16 @@ end
 
 
 class AggregationSchema < Model
-  def initialize(client, name, relation_key, logs=nil, attributes=nil)
+  def initialize(client, name, relation_key, logs=nil, attributes=nil, timezone=>nil)
     super(client)
     @name = name
     @relation_key = relation_key
     @logs = logs
     @attributes = attributes
+    @timezone = timezone
   end
 
-  attr_reader :name, :relation_key
+  attr_reader :name, :relation_key, :timezone
 
   def logs
     update_entries! unless @logs
