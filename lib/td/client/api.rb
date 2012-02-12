@@ -91,6 +91,26 @@ class API
     end
   end
 
+  def self.normalize_database_name(name)
+    name = name.to_s
+    if name.empty?
+      raise "Empty name is not allowed"
+    end
+    if name.length < 3
+      name += "_"*(3-name.length)
+    end
+    if 32 < name.length
+      name = name[0,30]+"__"
+    end
+    name = name.downcase
+    name = name.gsub(/[^a-z0-9_]/, '_')
+    name
+  end
+
+  def self.normalize_table_name(name)
+    normalize_database_name(name)
+  end
+
   # TODO support array types
   def self.normalize_type_name(name)
     case name
