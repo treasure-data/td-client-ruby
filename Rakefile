@@ -1,6 +1,7 @@
 require 'rake'
 require 'rake/testtask'
 require 'rake/clean'
+require 'rspec/core/rake_task'
 
 begin
   require 'jeweler'
@@ -14,8 +15,9 @@ begin
     gemspec.require_paths = ["lib"]
     gemspec.add_dependency "msgpack", "~> 0.4.4"
     gemspec.add_dependency "json", ">= 1.4.3"
-    gemspec.test_files = Dir["test/**/*.rt"]
-    gemspec.files = Dir["lib/**/*", "ext/**/*", "test/**/*.rb", "test/**/*.rt"]
+    gemspec.add_development_dependency "rspec", "~> 2.8.0"
+    gemspec.test_files = Dir["spec/**/*_spec.rb"]
+    gemspec.files = Dir["lib/**/*", "ext/**/*", "spec/**/*.rb"]
     gemspec.executables = []
   end
   Jeweler::GemcutterTasks.new
@@ -37,6 +39,10 @@ end
 EOF
   }
 end
+
+RSpec::Core::RakeTask.new(:spec)
+
+task :test  => :spec
 
 task :default => [VERSION_FILE, :build]
 
