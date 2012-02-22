@@ -418,6 +418,14 @@ class API
     return result
   end
 
+  def update_schedule(name, params)
+    code, body, res = get("/v3/schedule/update/#{e name}", params)
+    if code != "200"
+      raise_error("Update schedule failed", res)
+    end
+    return nil
+  end
+
   def history(name, from=0, to=nil)
     params = {}
     params['from'] = from.to_s if from

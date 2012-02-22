@@ -175,6 +175,11 @@ class Client
     }
   end
 
+  def update_schedule(name, params)
+    @api.update_schedule(name, params)
+    nil
+  end
+
   # [ScheduledJob]
   def history(name, from=nil, to=nil)
     result = @api.history(name, from, to)
