@@ -1,4 +1,11 @@
 
+== 2012-02-22 version 0.8.10
+
+* Added Client#run_schedule and update_schedule
+* Added timezone, delay and next_time fields to the Schedule model
+* create_aggregation_schema accepts params argument
+
+
 == 2012-02-12 version 0.8.9
 
 * Added API#normalize_table_name and API#normalize_database_name
