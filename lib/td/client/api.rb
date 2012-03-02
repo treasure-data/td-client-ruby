@@ -762,8 +762,9 @@ class API
     if @ssl
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      store = OpenSSL::X509::Store.new
-      http.cert_store = store
+      #store = OpenSSL::X509::Store.new
+      #http.cert_store = store
+      http.ca_file = File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt')
     end
 
     header = {}
