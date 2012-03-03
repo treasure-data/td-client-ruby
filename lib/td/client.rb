@@ -153,6 +153,12 @@ class Client
     @api.kill(job_id)
   end
 
+  # => Job
+  def export(db_name, tbl_name, format=nil, from=nil, to=nil,rset=nil)
+    job_id = @api.export(db_name, tbl_name, format, from, to, rset)
+    Job.new(self, job_id, :export, nil)
+  end
+
   # => first_time:Time
   def create_schedule(name, opts)
     raise ArgumentError, "'cron' option is required" unless opts[:cron] || opts['cron']

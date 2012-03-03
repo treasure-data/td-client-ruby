@@ -370,6 +370,24 @@ class API
     return js['job_id'].to_s
   end
 
+  ####
+  ## Export API
+  ##
+
+  # => jobId:String
+  def export(db=nil, tbl=nil, format=nil, from=nil, to=nil, rset=nil)
+    params = {}
+    params['output_format'] = format if format
+    params['from'] = from if from
+    params['to'] = to if to
+    params['result'] = rset if rset
+    code, body, res = post("/v3/export/run/#{e db}/#{e tbl}/#{e format}", params)
+    if code != "200"
+      raise_error("Export failed", res)
+    end
+    js = checked_json(body, %w[job_id])
+    return js['job_id'].to_s
+  end
 
   ####
   ## Schedule API
