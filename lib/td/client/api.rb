@@ -375,13 +375,13 @@ class API
   ##
 
   # => jobId:String
-  def export(db=nil, tbl=nil, format=nil, from=nil, to=nil, rset=nil)
+  def export(db=nil, tbl=nil, output_storage, output_format, from=nil, to=nil)
     params = {}
-    params['output_format'] = format if format
+    params['output_storage'] = output_storage
+    params['output_format'] = output_format
     params['from'] = from if from
     params['to'] = to if to
-    params['result'] = rset if rset
-    code, body, res = post("/v3/export/run/#{e db}/#{e tbl}/#{e format}", params)
+    code, body, res = post("/v3/export/run/#{e db}/#{e tbl}", params)
     if code != "200"
       raise_error("Export failed", res)
     end
