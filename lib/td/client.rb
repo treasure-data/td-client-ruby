@@ -154,8 +154,8 @@ class Client
   end
 
   # => Job
-  def export(db_name, tbl_name, output_storage, output_format, from=nil, to=nil)
-    job_id = @api.export(db_name, tbl_name, output_storage, output_format, from, to)
+  def export(db_name, tbl_name, storage_type, opts={})
+    job_id = @api.export(db_name, tbl_name, storage_type, opts)
     Job.new(self, job_id, :export, nil)
   end
 

@@ -83,7 +83,11 @@ class Table < Model
   end
 
   def import(format, stream, size)
-    @api.import(@db_name, @table_name, format, stream, size)
+    @client.import(@db_name, @table_name, format, stream, size)
+  end
+
+  def export(storage_type, opts={})
+    @client.export(@db_name, @table_name, storage_type, opts)
   end
 end
 
