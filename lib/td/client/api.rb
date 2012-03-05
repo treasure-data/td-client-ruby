@@ -375,7 +375,7 @@ class API
   ##
 
   # => jobId:String
-  def export(db=nil, tbl=nil, output_storage, output_format, from=nil, to=nil)
+  def export(db, tbl, output_storage, output_format, from=nil, to=nil)
     params = {}
     params['output_storage'] = output_storage
     params['output_format'] = output_format
