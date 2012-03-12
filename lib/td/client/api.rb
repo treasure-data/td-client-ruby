@@ -477,7 +477,8 @@ class API
     js['jobs'].each {|m|
       job_id = m['job_id']
       scheduled_at = m['scheduled_at']
-      result << [job_id, scheduled_at]
+      type = (m['type'] || '?').to_sym
+      result << [job_id, type, scheduled_at]
     }
     return result
   end

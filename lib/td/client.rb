@@ -195,10 +195,12 @@ class Client
     }
   end
 
-  # TODO nil -> [ScheduledJob] or [Job]
+  # [ScheduledJob]
   def run_schedule(name, time, num)
-    @api.run_schedule(name, time, num)
-    nil
+    results = @api.run_schedule(name, time, num)
+    results.map {|job_id,type,scheduled_at|
+      ScheduledJob.new(self, scheduled_at, job_id, type, nil)
+    }
   end
 
   # => time:Flaot
