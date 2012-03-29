@@ -263,13 +263,14 @@ class Job < Model
   end
 
   def update_status!
-    query, status, url, debug, start_at, end_at, rset = @client.job_status(@job_id)
+    query, status, url, debug, start_at, end_at, rset, hive_result_schema = @client.job_status(@job_id)
     @query = query
     @status = status
     @url = url
     @debug = debug
     @start_at = start_at
     @end_at = end_at
+    @hive_result_schema = hive_result_schema
     self
   end
 end

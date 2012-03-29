@@ -128,9 +128,9 @@ class Client
 
   # => type:Symbol, url:String
   def job_status(job_id)
-    type, query, status, url, debug, start_at, end_at, rset = @api.show_job(job_id)
+    type, query, status, url, debug, start_at, end_at, rset, hive_result_schema = @api.show_job(job_id)
     rset = ResultSet.new(self, rset) if rset
-    return query, status, url, debug, start_at, end_at, rset
+    return query, status, url, debug, start_at, end_at, rset, hive_result_schema
   end
 
   # => result:[{column:String=>value:Object]
