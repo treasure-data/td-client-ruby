@@ -152,7 +152,7 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, rset=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, rset=nil, hive_result_schema=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -164,9 +164,11 @@ class Job < Model
     @end_at = end_at
     @result = result
     @rset = rset
+    @hive_result_schema = hive_result_schema
   end
 
   attr_reader :job_id, :type, :rset
+  attr_reader :hive_result_schema
 
   def wait(timeout=nil)
     # TODO

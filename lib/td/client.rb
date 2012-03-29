@@ -121,9 +121,9 @@ class Client
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at, rset = @api.show_job(job_id)
+    type, query, status, url, debug, start_at, end_at, rset, hive_result_schema = @api.show_job(job_id)
     rset = ResultSet.new(self, rset) if rset
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, rset)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, rset, hive_result_schema)
   end
 
   # => type:Symbol, url:String

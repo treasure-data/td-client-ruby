@@ -301,7 +301,13 @@ class API
     start_at = js['start_at']
     end_at = js['end_at']
     result = js['result']
-    return [type, query, status, url, debug, start_at, end_at, result]
+    hive_result_schema = (js['hive_result_schema'] || '')
+    if hive_result_schema.empty?
+      hive_result_schema = nil
+    else
+      hive_result_schema = JSON.parse(hive_result_schema)
+    end
+    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema]
   end
 
   def job_result(job_id)
