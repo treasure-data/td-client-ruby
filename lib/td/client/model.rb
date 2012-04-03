@@ -11,10 +11,13 @@ class Model
 end
 
 class Database < Model
-  def initialize(client, db_name, tables=nil)
+  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil)
     super(client)
     @db_name = db_name
     @tables = tables
+    @count = count
+    @created_at = created_at
+    @updated_at = updated_at
   end
 
   def name
@@ -46,25 +49,45 @@ class Database < Model
     @client.query(@db_name, q)
   end
 
+  attr_reader :count
+
+  def created_at
+    @created_at && !@created_at.empty? ? Time.parse(@created_at) : nil
+  end
+
+  def updated_at
+    @updated_at && !@updated_at.empty? ? Time.parse(@updated_at) : nil
+  end
+
   def update_tables!
     @tables = @client.tables(@db_name)
   end
 end
 
 class Table < Model
-  def initialize(client, db_name, table_name, type, schema, count)
+  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil)
     super(client)
     @db_name = db_name
     @table_name = table_name
     @type = type
     @schema = schema
     @count = count
+    @created_at = created_at
+    @updated_at = updated_at
   end
 
   attr_reader :type, :db_name, :table_name, :schema, :count
 
   alias database_name db_name
   alias name table_name
+
+  def created_at
+    @created_at && !@created_at.empty? ? Time.parse(@created_at) : nil
+  end
+
+  def updated_at
+    @updated_at && !@updated_at.empty? ? Time.parse(@updated_at) : nil
+  end
 
   def database
     @client.database(@db_name)

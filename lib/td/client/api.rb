@@ -140,8 +140,15 @@ class API
       raise_error("List databases failed", res)
     end
     js = checked_json(body, %w[databases])
-    names = js["databases"].map {|dbinfo| dbinfo['name'] }
-    return names
+    result = {}
+    js["databases"].each {|m|
+      name = m['name']
+      count = m['count']
+      created_at = m['created_at']
+      updated_at = m['updated_at']
+      result[name] = [count, created_at, updated_at]
+    }
+    return result
   end
 
   # => true
@@ -179,8 +186,10 @@ class API
       name = m['name']
       type = (m['type'] || '?').to_sym
       count = (m['count'] || 0).to_i  # TODO?
+      created_at = m['created_at']
+      updated_at = m['updated_at']
       schema = JSON.parse(m['schema'] || '[]')
-      result[name] = [type, schema, count]
+      result[name] = [type, schema, count, created_at, updated_at]
     }
     return result
   end
