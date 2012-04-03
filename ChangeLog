@@ -1,4 +1,9 @@
 
+== 2012-04-03 version 0.8.13
+
+* Added Job#hive_result_schema
+
+
 == 2012-03-12 version 0.8.12
 
 * Client#run_schedule returns an array of ScheduledJob
