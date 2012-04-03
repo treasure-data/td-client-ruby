@@ -1,4 +1,10 @@
 
+== 2012-04-03 version 0.8.14
+
+* Added Database#count, #created_at and #updated_at
+* Added Table#created_at and #updated_at
+
+
 == 2012-04-03 version 0.8.13
 
 * Added Job#hive_result_schema
