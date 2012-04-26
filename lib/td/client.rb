@@ -104,33 +104,30 @@ class Client
   end
 
   # => Job
-  def query(db_name, q, rset=nil)
-    job_id = @api.hive_query(q, db_name, rset)
-    Job.new(self, job_id, :hive, q)  # TODO url
+  def query(db_name, q, result_url=nil)
+    job_id = @api.hive_query(q, db_name, result_url)
+    Job.new(self, job_id, :hive, q)
   end
 
   # => [Job]
   def jobs(from=nil, to=nil)
     result = @api.list_jobs(from, to)
-    result.map {|job_id,type,status,query,start_at,end_at,rset|
-      rset = ResultSet.new(self, rset) if rset
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, rset)
+    result.map {|job_id,type,status,query,start_at,end_at,result_url|
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at, rset, hive_result_schema = @api.show_job(job_id)
-    rset = ResultSet.new(self, rset) if rset
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, rset, hive_result_schema)
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema = @api.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema)
   end
 
   # => type:Symbol, url:String
   def job_status(job_id)
-    type, query, status, url, debug, start_at, end_at, rset, hive_result_schema = @api.show_job(job_id)
-    rset = ResultSet.new(self, rset) if rset
-    return query, status, url, debug, start_at, end_at, rset, hive_result_schema
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema = @api.show_job(job_id)
+    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema
   end
 
   # => result:[{column:String=>value:Object]
@@ -154,8 +151,8 @@ class Client
   end
 
   # => Job
-  def export(db_name, tbl_name, storage_type, opts={})
-    job_id = @api.export(db_name, tbl_name, storage_type, opts)
+  def export(db_name, table_name, storage_type, opts={})
+    job_id = @api.export(db_name, table_name, storage_type, opts)
     Job.new(self, job_id, :export, nil)
   end
 
@@ -175,9 +172,8 @@ class Client
   # [Schedule]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database,rset,timezone,delay,next_time|
-      rset = ResultSet.new(self, rset) if rset
-      Schedule.new(self, name, cron, query, database, rset, timezone, delay, next_time)
+    result.map {|name,cron,query,database,result_url,timezone,delay,next_time|
+      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time)
     }
   end
 
@@ -189,9 +185,8 @@ class Client
   # [ScheduledJob]
   def history(name, from=nil, to=nil)
     result = @api.history(name, from, to)
-    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,rset|
-      rset = ResultSet.new(self, rset) if rset
-      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, rset)
+    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,result_url|
+      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url)
     }
   end
 
@@ -208,30 +203,23 @@ class Client
     @api.import(db_name, table_name, format, stream, size)
   end
 
-  # => [ResultSet]
-  def result_sets
-    info, names = @api.list_result_set
-    sets = names.map {|name|
-      ResultSet.new(self, name)
+  # => [Result]
+  def results
+    results = @api.list_result
+    rs = results.map {|name,url|
+      Result.new(self, name, url)
     }
-    return sets
-  end
-
-  # => ResultSetInfo
-  def result_set_info
-    info, names = @api.list_result_set
-    info = ResultSetInfo.new(self, *info)
-    return info
+    return rs
   end
 
   # => true
-  def create_result_set(name)
-    @api.create_result_set(name)
+  def create_result(name, url)
+    @api.create_result(name, url)
   end
 
   # => true
-  def delete_result_set(name)
-    @api.delete_result_set(name)
+  def delete_result(name)
+    @api.delete_result(name)
   end
 
   # => [AggregationSchema]

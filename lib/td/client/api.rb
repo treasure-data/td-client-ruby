@@ -270,7 +270,7 @@ class API
   ## Job API
   ##
 
-  # => [(jobId:String, type:Symbol, status:String, start_at:String, end_at:String, rset:String)]
+  # => [(jobId:String, type:Symbol, status:String, start_at:String, end_at:String, result_url:String)]
   def list_jobs(from=0, to=nil)
     params = {}
     params['from'] = from.to_s if from
@@ -288,8 +288,8 @@ class API
       query = m['query']
       start_at = m['start_at']
       end_at = m['end_at']
-      rset = m['result']
-      result << [job_id, type, status, query, start_at, end_at, rset]
+      result_url = m['result']
+      result << [job_id, type, status, query, start_at, end_at, result_url]
     }
     return result
   end
@@ -374,9 +374,9 @@ class API
   end
 
   # => jobId:String
-  def hive_query(q, db=nil, rset=nil)
+  def hive_query(q, db=nil, result_url=nil)
     params = {'query' => q}
-    params['result'] = rset if rset
+    params['result'] = result_url if result_url
     code, body, res = post("/v3/job/issue/hive/#{e db}", params)
     if code != "200"
       raise_error("Query failed", res)
@@ -390,10 +390,10 @@ class API
   ##
 
   # => jobId:String
-  def export(db, tbl, storage_type, opts={})
+  def export(db, table, storage_type, opts={})
     params = opts.dup
     params['storage_type'] = storage_type
-    code, body, res = post("/v3/export/run/#{e db}/#{e tbl}", params)
+    code, body, res = post("/v3/export/run/#{e db}/#{e table}", params)
     if code != "200"
       raise_error("Export failed", res)
     end
@@ -426,7 +426,7 @@ class API
     return js['cron'], js["query"]
   end
 
-  # => [(name:String, cron:String, query:String, database:String, rset:String)]
+  # => [(name:String, cron:String, query:String, database:String, result_url:String)]
   def list_schedules
     code, body, res = get("/v3/schedule/list")
     if code != "200"
@@ -439,11 +439,11 @@ class API
       cron = m['cron']
       query = m['query']
       database = m['database']
-      rset = m['result']
+      result_url = m['result']
       timezone = m['timezone']
       delay = m['delay']
       next_time = m['next_time']
-      result << [name, cron, query, database, rset, timezone, delay, next_time]
+      result << [name, cron, query, database, result_url, timezone, delay, next_time]
     }
     return result
   end
@@ -474,8 +474,8 @@ class API
       start_at = m['start_at']
       end_at = m['end_at']
       scheduled_at = m['scheduled_at']
-      rset = m['result']
-      result << [scheduled_at, job_id, type, status, query, start_at, end_at, rset]
+      result_url = m['result']
+      result << [scheduled_at, job_id, type, status, query, start_at, end_at, result_url]
     }
     return result
   end
@@ -515,46 +515,36 @@ class API
 
 
   ####
-  ## Result set API
+  ## Result API
   ##
 
-  # => (
-  #   info:(type:String, host:String, port:Integer, database:String, user:String, pass:String)
-  #   entries:[name:String]
-  # )
-  def list_result_set
+  def list_result
     code, body, res = get("/v3/result/list")
     if code != "200"
-      raise_error("List result set failed", res)
+      raise_error("List result table failed", res)
     end
-    js = checked_json(body, %w[host port user pass])
-    type = (js["type"] || 'unknown').to_s
-    host = js["host"].to_s
-    port = js["port"].to_i
-    database = js["database"].to_s
-    user = js["user"].to_s
-    pass = js["pass"].to_s
-    names = (js["results"] || []).map {|rsets|
-      rsets['name'].to_s
+    js = checked_json(body, %w[results])
+    result = []
+    js['results'].map {|m|
+      result << [m['name'], m['url']]
     }
-    info = [type, host, port, database, user, pass]
-    return info, names
+    return result
   end
 
   # => true
-  def create_result_set(db)
-    code, body, res = post("/v3/result/create/#{e db}")
+  def create_result(name, url)
+    code, body, res = post("/v3/result/create/#{e name}", {'url'=>url})
     if code != "200"
-      raise_error("Create result set failed", res)
+      raise_error("Create result table failed", res)
     end
     return true
   end
 
   # => true
-  def delete_result_set(db)
-    code, body, res = post("/v3/result/delete/#{e db}")
+  def delete_result(name)
+    code, body, res = post("/v3/result/delete/#{e name}")
     if code != "200"
-      raise_error("Delete result set failed", res)
+      raise_error("Delete result table failed", res)
     end
     return true
   end

@@ -175,7 +175,7 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, rset=nil, hive_result_schema=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -186,11 +186,11 @@ class Job < Model
     @start_at = start_at
     @end_at = end_at
     @result = result
-    @rset = rset
+    @result_url = result_url
     @hive_result_schema = hive_result_schema
   end
 
-  attr_reader :job_id, :type, :rset
+  attr_reader :job_id, :type, :result_url
   attr_reader :hive_result_schema
 
   def wait(timeout=nil)
@@ -229,10 +229,6 @@ class Job < Model
   def end_at
     update_status! unless @end_at
     @end_at && !@end_at.empty? ? Time.parse(@end_at) : nil
-  end
-
-  def rset_name
-    @rset ? @rset.name : nil
   end
 
   def result
@@ -286,7 +282,7 @@ class Job < Model
   end
 
   def update_status!
-    query, status, url, debug, start_at, end_at, rset, hive_result_schema = @client.job_status(@job_id)
+    query, status, url, debug, start_at, end_at, result_url, hive_result_schema = @client.job_status(@job_id)
     @query = query
     @status = status
     @url = url
@@ -312,23 +308,19 @@ end
 
 
 class Schedule < Model
-  def initialize(client, name, cron, query, database=nil, rset=nil, timezone=nil, delay=nil, next_time=nil)
+  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil)
     super(client)
     @name = name
     @cron = cron
     @query = query
     @database = database
-    @rset = rset
+    @result_url = result_url
     @timezone = timezone
     @delay = delay
     @next_time = next_time
   end
 
-  def rset_name
-    @rset ? @rset.name : nil
-  end
-
-  attr_reader :name, :cron, :query, :database, :rset, :timezone, :delay
+  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay
 
   def next_time
     @next_time ? Time.parse(@next_time) : nil
@@ -340,28 +332,14 @@ class Schedule < Model
 end
 
 
-class ResultSetInfo < Model
-  def initialize(client, type, host, port, database, user, password)
-    super(client)
-    @type = type
-    @host = host
-    @port = port
-    @database = database
-    @user = user
-    @password = password
-  end
-
-  attr_reader :type, :host, :port, :database, :user, :password
-end
-
-
-class ResultSet < Model
-  def initialize(client, name)
+class Result < Model
+  def initialize(client, name, url)
     super(client)
     @name = name
+    @url = url
   end
 
-  attr_reader :name
+  attr_reader :name, :url
 end
 
 
