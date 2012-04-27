@@ -1,4 +1,11 @@
 
+== 2012-04-26 version 0.8.15
+
+* Result model replaces ResultSet model
+* Removed methods related to ResultSet from Job and Schedule models
+* Added methods related to Result to Job and Schedule models
+
+
 == 2012-04-03 version 0.8.14
 
 * Added Database#count, #created_at and #updated_at
