@@ -156,6 +156,47 @@ class Client
     Job.new(self, job_id, :export, nil)
   end
 
+  # => nil
+  def create_bulk_import(name, database, table)
+    @api.create_bulk_import(name, database, table)
+  end
+
+  # => nil
+  def delete_bulk_import(name)
+    @api.delete_bulk_import(name)
+  end
+
+  # => nil
+  def freeze_bulk_import(name)
+    @api.freeze_bulk_import(name)
+  end
+
+  # => nil
+  def unfreeze_bulk_import(name)
+    @api.unfreeze_bulk_import(name)
+  end
+
+  # => nil
+  def perform_bulk_import(name)
+    @api.perform_bulk_import(name)
+  end
+
+  # => nil
+  def commit_bulk_import(name)
+    @api.commit_bulk_import(name)
+  end
+
+  # => records:[row:Hash]
+  def bulk_import_error_records(name, &block)
+    @api.bulk_import_error_records(name, &block)
+  end
+
+  def bulk_imports
+    @api.list_bulk_imports.map {|data|
+      BulkImport.new(self, data)
+    }
+  end
+
   # => first_time:Time
   def create_schedule(name, opts)
     raise ArgumentError, "'cron' option is required" unless opts[:cron] || opts['cron']

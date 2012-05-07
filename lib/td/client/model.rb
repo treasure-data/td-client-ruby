@@ -343,6 +343,34 @@ class Result < Model
 end
 
 
+class BulkImport < Model
+  def initialize(client, data={})
+    super(client)
+    @name = data['name']
+    @database = data['database']
+    @table = data['table']
+    @status = data['status']
+    @upload_frozen = data['upload_frozen']
+    @job_id = data['job_id']
+    @valid_records = data['valid_records']
+    @error_records = data['error_records']
+    @valid_parts = data['valid_parts']
+    @error_parts = data['error_parts']
+  end
+
+  attr_reader :name
+  attr_reader :database
+  attr_reader :table
+  attr_reader :status
+  attr_reader :upload_frozen
+  attr_reader :job_id
+  attr_reader :valid_records
+  attr_reader :error_records
+  attr_reader :valid_parts
+  attr_reader :error_parts
+end
+
+
 class AggregationSchema < Model
   def initialize(client, name, relation_key, logs=nil, attributes=nil, timezone=nil)
     super(client)

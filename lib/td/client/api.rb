@@ -402,6 +402,102 @@ class API
   end
 
   ####
+  ## Bulk import API
+  ##
+
+  # => nil
+  def create_bulk_import(name, db, table, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/create/#{e name}/#{e db}/#{e table}", params)
+    if code != "200"
+      raise_error("Create bulk import failed", res)
+    end
+    return nil
+  end
+
+  # => nil
+  def delete_bulk_import(name, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/delete/#{e name}", params)
+    if code != "200"
+      raise_error("Delete bulk import failed", res)
+    end
+    return nil
+  end
+
+  # => result:[data:Hash]
+  def list_bulk_imports(name, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/list", params)
+    if code != "200"
+      raise_error("List bulk imports failed", res)
+    end
+    js = checked_json(body, %w[bulk_imports])
+    return js['bulk_imports']
+  end
+
+  # => nil
+  def freeze_bulk_import(name, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/freeze/#{e name}", params)
+    if code != "200"
+      raise_error("Freeze bulk import failed", res)
+    end
+    return nil
+  end
+
+  # => nil
+  def unfreeze_bulk_import(name, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/unfreeze/#{e name}", params)
+    if code != "200"
+      raise_error("Unfreeze bulk import failed", res)
+    end
+    return nil
+  end
+
+  # => jobId:String
+  def perform_bulk_import(name, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/perform/#{e name}", params)
+    if code != "200"
+      raise_error("Perform bulk import failed", res)
+    end
+    js = checked_json(body, %w[job_id])
+    return js['job_id'].to_s
+  end
+
+  # => nil
+  def commit_bulk_import(name, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/commit/#{e name}", params)
+    if code != "200"
+      raise_error("Commit bulk import failed", res)
+    end
+    return nil
+  end
+
+  # => data...
+  def bulk_import_error_records(name, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/commit/#{e name}", params)
+    if code != "200"
+      raise_error("Commit bulk import failed", res)
+    end
+    require 'msgpack'
+    if block
+      MessagePack::Unpacker.new.feed_each(body, &block)
+      nil
+    else
+      result = []
+      MessagePack::Unpacker.new.feed_each(body) {|row|
+        result << row
+      }
+      return result
+    end
+  end
+
+  ####
   ## Schedule API
   ##
 
