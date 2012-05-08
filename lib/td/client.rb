@@ -191,10 +191,20 @@ class Client
     @api.bulk_import_error_records(name, &block)
   end
 
+  # => [BulkImport]
   def bulk_imports
     @api.list_bulk_imports.map {|data|
       BulkImport.new(self, data)
     }
+  end
+
+  # => nil
+  def upload_bulk_import(name, part_name, straem, size)
+    @api.upload_bulk_import(name, part_name, stream, size)
+  end
+
+  def list_parts(name)
+    @api.list_bulk_import_parts(name)
   end
 
   # => first_time:Time

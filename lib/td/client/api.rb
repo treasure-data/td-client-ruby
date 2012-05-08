@@ -428,12 +428,31 @@ class API
   # => result:[data:Hash]
   def list_bulk_imports(name, opts={})
     params = opts.dup
-    code, body, res = post("/v3/bulk_import/list", params)
+    code, body, res = get("/v3/bulk_import/list", params)
     if code != "200"
       raise_error("List bulk imports failed", res)
     end
     js = checked_json(body, %w[bulk_imports])
     return js['bulk_imports']
+  end
+
+  def list_bulk_import_parts(name, opts={})
+    params = opts.dup
+    code, body, res = get("/v3/bulk_import/list_parts/#{e name}", params)
+    if code != "200"
+      raise_error("List bulk import parts failed", res)
+    end
+    js = checked_json(body, %w[parts])
+    return js['parts']
+  end
+
+  # => nil
+  def upload_bulk_import(name, part_name, stream, size, opts={})
+    code, body, res = put("/v3/bulk_import/upload/#{e db}/#{e part_name}", stream, size)
+    if code[0] != ?2
+      raise_error("Upload a part failed", res)
+    end
+    return nil
   end
 
   # => nil

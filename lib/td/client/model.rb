@@ -362,12 +362,15 @@ class BulkImport < Model
   attr_reader :database
   attr_reader :table
   attr_reader :status
-  attr_reader :upload_frozen
   attr_reader :job_id
   attr_reader :valid_records
   attr_reader :error_records
   attr_reader :valid_parts
   attr_reader :error_parts
+
+  def upload_frozen?
+    @upload_frozen
+  end
 end
 
 
