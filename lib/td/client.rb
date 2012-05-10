@@ -200,8 +200,13 @@ class Client
   end
 
   # => nil
-  def upload_bulk_import(name, part_name, stream, size)
-    @api.upload_bulk_import(name, part_name, stream, size)
+  def bulk_import_upload_part(name, part_name, stream, size)
+    @api.bulk_import_upload_part(name, part_name, stream, size)
+  end
+
+  # => nil
+  def bulk_import_delete_part(name, part_name)
+    @api.bulk_import_delete_part(name, part_name)
   end
 
   def list_bulk_import_parts(name)

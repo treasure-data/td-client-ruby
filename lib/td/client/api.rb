@@ -447,10 +447,20 @@ class API
   end
 
   # => nil
-  def upload_bulk_import(name, part_name, stream, size, opts={})
-    code, body, res = put("/v3/bulk_import/upload/#{e name}/#{e part_name}", stream, size)
+  def bulk_import_upload_part(name, part_name, stream, size, opts={})
+    code, body, res = put("/v3/bulk_import/upload_part/#{e name}/#{e part_name}", stream, size)
     if code[0] != ?2
       raise_error("Upload a part failed", res)
+    end
+    return nil
+  end
+
+  # => nil
+  def bulk_import_delete_part(name, part_name, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/bulk_import/delete_part/#{e name}/#{e part_name}", params)
+    if code[0] != ?2
+      raise_error("Delete a part failed", res)
     end
     return nil
   end
@@ -497,21 +507,37 @@ class API
   end
 
   # => data...
-  def bulk_import_error_records(name, opts={})
+  def bulk_import_error_records(name, opts={}, &block)
     params = opts.dup
-    code, body, res = post("/v3/bulk_import/commit/#{e name}", params)
+    code, body, res = get("/v3/bulk_import/error_records/#{e name}", params)
     if code != "200"
       raise_error("Commit bulk import failed", res)
     end
+    if body.empty?
+      if block
+        return nil
+      else
+        return []
+      end
+    end
+    require 'zlib'
+    require 'stringio'
     require 'msgpack'
+    u = MessagePack::Unpacker.new(Zlib::GzipReader.new(StringIO.new(body)))
     if block
-      MessagePack::Unpacker.new.feed_each(body, &block)
+      begin
+        u.each(&block)
+      rescue EOFError
+      end
       nil
     else
       result = []
-      MessagePack::Unpacker.new.feed_each(body) {|row|
-        result << row
-      }
+      begin
+        u.each {|row|
+          result << row
+        }
+      rescue EOFError
+      end
       return result
     end
   end
