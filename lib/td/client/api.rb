@@ -426,7 +426,7 @@ class API
   end
 
   # => result:[data:Hash]
-  def list_bulk_imports(name, opts={})
+  def list_bulk_imports(opts={})
     params = opts.dup
     code, body, res = get("/v3/bulk_import/list", params)
     if code != "200"
@@ -448,7 +448,7 @@ class API
 
   # => nil
   def upload_bulk_import(name, part_name, stream, size, opts={})
-    code, body, res = put("/v3/bulk_import/upload/#{e db}/#{e part_name}", stream, size)
+    code, body, res = put("/v3/bulk_import/upload/#{e name}/#{e part_name}", stream, size)
     if code[0] != ?2
       raise_error("Upload a part failed", res)
     end

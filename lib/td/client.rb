@@ -176,9 +176,10 @@ class Client
     @api.unfreeze_bulk_import(name)
   end
 
-  # => nil
+  # => Job
   def perform_bulk_import(name)
-    @api.perform_bulk_import(name)
+    job_id = @api.perform_bulk_import(name)
+    Job.new(self, job_id, :bulk_import, nil)
   end
 
   # => nil
@@ -199,11 +200,11 @@ class Client
   end
 
   # => nil
-  def upload_bulk_import(name, part_name, straem, size)
+  def upload_bulk_import(name, part_name, stream, size)
     @api.upload_bulk_import(name, part_name, stream, size)
   end
 
-  def list_parts(name)
+  def list_bulk_import_parts(name)
     @api.list_bulk_import_parts(name)
   end
 
