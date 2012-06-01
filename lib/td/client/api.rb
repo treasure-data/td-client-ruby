@@ -65,7 +65,7 @@ class API
       raise "Name must be 3 to 32 characters, got #{name.length} characters."
     end
     unless name =~ /^([a-z0-9_]+)$/
-      raise "Name must consist only of alphabets, numbers, '_'."
+      raise "Name must consist only of lower-case alphabets, numbers and '_'."
     end
     name
   end
