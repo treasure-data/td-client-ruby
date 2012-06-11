@@ -110,8 +110,8 @@ class Client
   end
 
   # => [Job]
-  def jobs(from=nil, to=nil)
-    result = @api.list_jobs(from, to)
+  def jobs(from=nil, to=nil, status=nil)
+    result = @api.list_jobs(from, to, status)
     result.map {|job_id,type,status,query,start_at,end_at,result_url|
       Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url)
     }
