@@ -1,4 +1,9 @@
 
+== 2012-06-11 version 0.8.17
+
+* Client#jobs supports status option
+
+
 == 2012-05-10 version 0.8.16
 
 * Added bulk import feature
