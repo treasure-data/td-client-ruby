@@ -1,4 +1,11 @@
 
+== 2012-06-26 version 0.8.18
+
+* Client#result_each(&block) uses streaming raed not to read all data into memory
+* Client#result_format(format, io=nil) supports second argument not to read
+all data into memory
+
+
 == 2012-06-11 version 0.8.17
 
 * Client#jobs supports status option
