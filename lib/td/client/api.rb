@@ -333,25 +333,32 @@ class API
     return result
   end
 
-  def job_result_format(job_id, format)
-    # TODO chunked encoding
-    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
-    if code != "200"
-      raise_error("Get job result failed", res)
+  def job_result_format(job_id, format, io=nil)
+    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
+      if res.code != "200"
+        raise_error("Get job result failed", res)
+      end
+      if io
+        res.read_body {|fragment|
+          io.write(fragment)
+        }
+      end
+    }
+    unless io
+      return body
     end
-    return body
   end
 
   def job_result_each(job_id, &block)
-    # TODO chunked encoding
     require 'msgpack'
-    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'})
-    if code != "200"
-      raise_error("Get job result failed", res)
-    end
-    result = []
-    MessagePack::Unpacker.new.feed_each(body) {|row|
-      yield row
+    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
+      if res.code != "200"
+        raise_error("Get job result failed", res)
+      end
+      u = MessagePack::Unpacker.new
+      res.read_body {|fragment|
+        u.feed_each(fragment, &block)
+      }
     }
     nil
   end
@@ -857,8 +864,7 @@ class API
   end
 
   private
-
-  def get(url, params=nil)
+  def get(url, params=nil, &block)
     http, header = new_http
 
     path = @base_path + url
@@ -870,7 +876,8 @@ class API
 
     request = Net::HTTP::Get.new(path, header)
 
-    response = http.request(request)
+    response = http.request(request, &block)
+
     return [response.code, response.body, response]
   end
 
