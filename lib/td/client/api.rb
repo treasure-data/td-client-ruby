@@ -290,7 +290,8 @@ class API
       start_at = m['start_at']
       end_at = m['end_at']
       result_url = m['result']
-      result << [job_id, type, status, query, start_at, end_at, result_url]
+      priority = m['priority']
+      result << [job_id, type, status, query, start_at, end_at, result_url, priority]
     }
     return result
   end
@@ -317,7 +318,8 @@ class API
     else
       hive_result_schema = JSON.parse(hive_result_schema)
     end
-    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema]
+    priority = js['priority']
+    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority]
   end
 
   def job_result(job_id)
@@ -382,9 +384,10 @@ class API
   end
 
   # => jobId:String
-  def hive_query(q, db=nil, result_url=nil)
+  def hive_query(q, db=nil, result_url=nil, priority=nil)
     params = {'query' => q}
     params['result'] = result_url if result_url
+    params['priority'] = priority if priority
     code, body, res = post("/v3/job/issue/hive/#{e db}", params)
     if code != "200"
       raise_error("Query failed", res)
@@ -592,7 +595,8 @@ class API
       timezone = m['timezone']
       delay = m['delay']
       next_time = m['next_time']
-      result << [name, cron, query, database, result_url, timezone, delay, next_time]
+      priority = m['priority']
+      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority]
     }
     return result
   end
@@ -624,7 +628,8 @@ class API
       end_at = m['end_at']
       scheduled_at = m['scheduled_at']
       result_url = m['result']
-      result << [scheduled_at, job_id, type, status, query, start_at, end_at, result_url]
+      priority = m['priority']
+      result << [scheduled_at, job_id, type, status, query, start_at, end_at, result_url, priority]
     }
     return result
   end

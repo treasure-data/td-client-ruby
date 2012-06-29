@@ -104,30 +104,30 @@ class Client
   end
 
   # => Job
-  def query(db_name, q, result_url=nil)
-    job_id = @api.hive_query(q, db_name, result_url)
+  def query(db_name, q, result_url=nil, priority=nil)
+    job_id = @api.hive_query(q, db_name, result_url, priority)
     Job.new(self, job_id, :hive, q)
   end
 
   # => [Job]
   def jobs(from=nil, to=nil, status=nil)
     result = @api.list_jobs(from, to, status)
-    result.map {|job_id,type,status,query,start_at,end_at,result_url|
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url)
+    result.map {|job_id,type,status,query,start_at,end_at,result_url,priority|
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema = @api.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema)
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority = @api.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema, priority)
   end
 
   # => type:Symbol, url:String
   def job_status(job_id)
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema = @api.show_job(job_id)
-    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority = @api.show_job(job_id)
+    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority
   end
 
   # => result:[{column:String=>value:Object]
@@ -229,8 +229,8 @@ class Client
   # [Schedule]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database,result_url,timezone,delay,next_time|
-      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time)
+    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority|
+      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time, priority)
     }
   end
 
@@ -242,8 +242,8 @@ class Client
   # [ScheduledJob]
   def history(name, from=nil, to=nil)
     result = @api.history(name, from, to)
-    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,result_url|
-      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url)
+    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,result_url,priority|
+      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority)
     }
   end
 

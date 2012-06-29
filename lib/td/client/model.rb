@@ -175,7 +175,7 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -188,10 +188,11 @@ class Job < Model
     @result = result
     @result_url = result_url
     @hive_result_schema = hive_result_schema
+    @priority = priority
   end
 
   attr_reader :job_id, :type, :result_url
-  attr_reader :hive_result_schema
+  attr_reader :hive_result_schema, :priority
 
   def wait(timeout=nil)
     # TODO
@@ -282,7 +283,7 @@ class Job < Model
   end
 
   def update_status!
-    query, status, url, debug, start_at, end_at, result_url, hive_result_schema = @client.job_status(@job_id)
+    query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority = @client.job_status(@job_id)
     @query = query
     @status = status
     @url = url
@@ -308,7 +309,7 @@ end
 
 
 class Schedule < Model
-  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil)
+  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil, priority=nil)
     super(client)
     @name = name
     @cron = cron
@@ -318,9 +319,10 @@ class Schedule < Model
     @timezone = timezone
     @delay = delay
     @next_time = next_time
+    @priority = priority
   end
 
-  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay
+  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority
 
   def next_time
     @next_time ? Time.parse(@next_time) : nil
