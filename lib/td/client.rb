@@ -156,6 +156,12 @@ class Client
     Job.new(self, job_id, :export, nil)
   end
 
+  # => Job
+  def partial_delete(db_name, table_name, to, from)
+    job_id = @api.partial_delete(db_name, table_name, to, from)
+    Job.new(self, job_id, :partialdelete, nil)
+  end
+
   # => nil
   def create_bulk_import(name, database, table)
     @api.create_bulk_import(name, database, table)
