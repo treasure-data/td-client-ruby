@@ -1,4 +1,10 @@
 
+== 2012-07-03 version 0.8.19
+
+* Added Client#partial_delete
+* Client#query and Client#create_schedule support 'priority' option
+
+
 == 2012-06-26 version 0.8.18
 
 * Client#result_each(&block) uses streaming raed not to read all data into memory
