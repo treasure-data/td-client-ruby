@@ -539,7 +539,7 @@ class API
     params = opts.dup
     code, body, res = get("/v3/bulk_import/error_records/#{e name}", params)
     if code != "200"
-      raise_error("Commit bulk import failed", res)
+      raise_error("Failed to get bulk import error records", res)
     end
     if body.empty?
       if block
