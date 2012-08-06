@@ -376,6 +376,53 @@ class BulkImport < Model
 end
 
 
+class Organization < Model
+  def initialize(client, name)
+    super(client)
+    @name = name
+  end
+
+  attr_reader :client, :name
+end
+
+
+class Role < Model
+  def initialize(client, name, org_name, user_names)
+    super(client)
+    @name = name
+    @org_name = org_name
+    @user_names = user_names
+  end
+
+  attr_reader :client, :name, :org_name, :user_names
+end
+
+
+class User < Model
+  def initialize(client, name, org_name, role_names, email)
+    super(client)
+    @name = name
+    @role_names = role_names
+    @email = email
+  end
+
+  attr_reader :client, :name, :org_name, :role_names, :email
+end
+
+
+class AccessControl < Model
+  def initialize(client, subject, action, scope, grant_option)
+    super(client)
+    @subject = subject
+    @action = action
+    @scope = scope
+    @grant_option = grant_option
+  end
+
+  attr_reader :subject, :action, :scope, :grant_option
+end
+
+
 class AggregationSchema < Model
   def initialize(client, name, relation_key, logs=nil, attributes=nil, timezone=nil)
     super(client)

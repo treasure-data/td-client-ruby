@@ -853,6 +853,101 @@ class API
 
 
   ####
+  ## Organization API
+  ##
+
+  # => [name:String]
+  def list_organizations
+    code, body, res = get("/v3/organization/list")
+    if code != "200"
+      raise_error("List aggregation schema failed", res)
+    end
+    js = checked_json(body, %w[organizations])
+    result = js["organizations"].map {|orginfo|
+      name = orginfo['name'].to_s
+      name
+    }
+    return result
+  end
+
+  # => true
+  def create_organization(org)
+    code, body, res = post("/v3/organization/create/#{e org}")
+    if code != "200"
+      raise_error("Creating organization failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def delete_organization(org)
+    code, body, res = post("/v3/organization/delete/#{e org}")
+    if code != "200"
+      raise_error("Deleting organization failed", res)
+    end
+    return true
+  end
+
+
+  ####
+  ## Role API
+  ##
+
+  # => [[name:String,organization:String,[user:String]]]
+  def list_roles
+    code, body, res = get("/v3/role/list")
+    if code != "200"
+      raise_error("List roles failed", res)
+    end
+    js = checked_json(body, %w[roles])
+    result = js["roles"].map {|roleinfo|
+      name = roleinfo['name']
+      organization = roleinfo['organization']
+      users = roleinfo['users']
+      [name, organization, users]
+    }
+    return result
+  end
+
+  # => true
+  def create_role(role, org)
+    params = {'organization'=>org}
+    code, body, res = post("/v3/role/create/#{e role}", params)
+    if code != "200"
+      raise_error("Creating role failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def delete_role(role)
+    code, body, res = post("/v3/role/delete/#{e role}")
+    if code != "200"
+      raise_error("Creating role failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def grant_role(role, user)
+    code, body, res = post("/v3/role/grant/#{e role}/#{e user}")
+    if code != "200"
+      raise_error("Granting role failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def revoke_role(role, user)
+    code, body, res = post("/v3/role/revoke/#{e role}/#{e user}")
+    if code != "200"
+      raise_error("Revoking role failed", res)
+    end
+    return true
+  end
+
+
+  ####
   ## User API
   ##
 
@@ -871,6 +966,150 @@ class API
     return apikey
   end
 
+  # => [[name:String,organization:String,[user:String]]
+  def list_users
+    code, body, res = get("/v3/user/list")
+    if code != "200"
+      raise_error("List aggregation schema failed", res)
+    end
+    js = checked_json(body, %w[users])
+    result = js["users"].map {|roleinfo|
+      name = roleinfo['name']
+      organization = roleinfo['organization']
+      roles = roleinfo['roles']
+      email = roleinfo['email']
+      [name, organization, roles, email]
+    }
+    return result
+  end
+
+  # => true
+  def add_user(user, org)
+    params = {'organization'=>org}
+    code, body, res = post("/v3/user/add/#{e user}", params)
+    if code != "200"
+      raise_error("Adding user failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def remove_user(user)
+    code, body, res = post("/v3/user/remove/#{e user}")
+    if code != "200"
+      raise_error("Removing user failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def change_email(user, email)
+    params = {'email' => email}
+    code, body, res = post("/v3/user/email/change/#{e user}", params)
+    if code != "200"
+      raise_error("Changing email failed", res)
+    end
+    return true
+  end
+
+  # => [apikey:String]
+  def list_apikeys(user)
+    code, body, res = get("/v3/user/apikey/list/#{e user}")
+    if code != "200"
+      raise_error("List API keys failed", res)
+    end
+    js = checked_json(body, %w[apikeys])
+    return js['apikeys']
+  end
+
+  # => true
+  def add_apikey(user)
+    code, body, res = post("/v3/user/apikey/add/#{e user}")
+    if code != "200"
+      raise_error("Adding API key failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def remove_apikey(user, apikey)
+    params = {'apikey' => apikey}
+    code, body, res = post("/v3/user/apikey/remove/#{e user}", params)
+    if code != "200"
+      raise_error("Removing API key failed", res)
+    end
+    return true
+  end
+
+  # => true
+  def change_password(user, password)
+    params = {'password' => password}
+    code, body, res = post("/v3/user/password/change/#{e user}", params)
+    if code != "200"
+      raise_error("Changing password failed", res)
+    end
+    return true
+  end
+
+
+  ####
+  ## Access Control API
+  ##
+
+  def grant_access_control(subject, action, scope, grant_option)
+    params = {'subject'=>subject, 'action'=>action, 'scope'=>scope, 'grant_option'=>grant_option.to_s}
+    code, body, res = post("/v3/acl/grant", params)
+    if code != "200"
+      raise_error("Granting access control failed", res)
+    end
+    return true
+  end
+
+  def revoke_access_control(subject, action, scope)
+    params = {'subject'=>subject, 'action'=>action, 'scope'=>scope}
+    code, body, res = post("/v3/acl/revoke", params)
+    if code != "200"
+      raise_error("Revoking access control failed", res)
+    end
+    return true
+  end
+
+  # [true, [{subject:String,action:String,scope:String}]]
+  def test_access_control(user, action, scope)
+    params = {'user'=>user, 'action'=>action, 'scope'=>scope}
+    code, body, res = get("/v3/acl/test", params)
+    if code != "200"
+      raise_error("Testing access control failed", res)
+    end
+    js = checked_json(body, %w[permission access_controls])
+    perm = js["permission"]
+    acl = js["access_controls"].map {|roleinfo|
+      subject = roleinfo['subject']
+      action = roleinfo['action']
+      scope = roleinfo['scope']
+      [name, action, scope]
+    }
+    return perm, acl
+  end
+
+  # [{subject:String,action:String,scope:String}]
+  def list_access_controls
+    code, body, res = get("/v3/acl/list")
+    if code != "200"
+      raise_error("Listing access control failed", res)
+    end
+    js = checked_json(body, %w[access_controls])
+    acl = js["access_controls"].map {|roleinfo|
+      subject = roleinfo['subject']
+      action = roleinfo['action']
+      scope = roleinfo['scope']
+      grant_option = roleinfo['grant_option']
+      [subject, action, scope, grant_option]
+    }
+    return acl
+  end
+
+
   ####
   ## Server Status API
   ##
@@ -885,6 +1124,7 @@ class API
     status = js['status']
     return status
   end
+
 
   private
   def get(url, params=nil, &block)

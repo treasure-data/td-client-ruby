@@ -285,6 +285,118 @@ class Client
     @api.delete_result(name)
   end
 
+  # => [Organization]
+  def organizations
+    list = @api.list_organizations
+    list.map {|name|
+      Organization.new(self, name)
+    }
+  end
+
+  # => true
+  def create_organization(organization)
+    @api.create_organization(organization)
+  end
+
+  # => true
+  def delete_organization(organization)
+    @api.delete_organization(organization)
+  end
+
+  # => [Role]
+  def roles
+    list = @api.list_roles
+    list.map {|name,org,users|
+      Role.new(self, name, org, users)
+    }
+  end
+
+  # => true
+  def create_role(role, org)
+    @api.create_role(role, org)
+  end
+
+  # => true
+  def delete_role(role)
+    @api.delete_role(role)
+  end
+
+  # => true
+  def grant_role(role, user)
+    @api.grant_role(role, user)
+  end
+
+  # => true
+  def revoke_role(role, user)
+    @api.revoke_role(role, user)
+  end
+
+  # => [User]
+  def users
+    list = @api.list_users
+    list.map {|name,org,roles,email|
+      User.new(self, name, org, roles, email)
+    }
+  end
+
+  # => true
+  def add_user(user, org)
+    @api.add_user(user, org)
+  end
+
+  # => true
+  def remove_user(user)
+    @api.remove_user(user)
+  end
+
+  # => true
+  def change_email(user, email)
+    @api.change_email(user, email)
+  end
+
+  # => [apikey:String]
+  def list_apikeys(user)
+    @api.list_apikeys(user)
+  end
+
+  # => true
+  def add_apikey(user)
+    @api.add_apikey(user)
+  end
+
+  # => true
+  def remove_apikey(user, apikey)
+    @api.remove_apikey(user, apikey)
+  end
+
+  # => true
+  def change_password(user, password)
+    @api.change_password(user, password)
+  end
+
+  # => [User]
+  def access_controls
+    list = @api.list_access_controls
+    list.map {|subject,action,scope,grant_option|
+      AccessControl.new(self, subject, action, scope, grant_option)
+    }
+  end
+
+  # => true
+  def grant_access_control(subject, action, scope, grant_option)
+    @api.grant_access_control(subject, action, scope, grant_option)
+  end
+
+  # => true
+  def revoke_access_control(subject, action, scope)
+    @api.revoke_access_control(subject, action, scope)
+  end
+
+  # => true
+  def test_access_control(user, action, scope)
+    @api.test_access_control(user, action, scope)
+  end
+
   # => [AggregationSchema]
   def aggregation_schemas
     list = @api.list_aggregation_schema
