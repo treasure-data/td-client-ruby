@@ -1,4 +1,10 @@
 
+== 2012-08-06 version 0.8.21
+
+* Added multiuser features: organizations, users, roles
+* Added access control
+
+
 == 2012-07-23 version 0.8.20
 
 * Implemented Zlib::GzipReader#readpartial for compatibility with ruby 1.8
