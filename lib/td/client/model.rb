@@ -402,6 +402,7 @@ class User < Model
   def initialize(client, name, org_name, role_names, email)
     super(client)
     @name = name
+    @org_name = org_name
     @role_names = role_names
     @email = email
   end
