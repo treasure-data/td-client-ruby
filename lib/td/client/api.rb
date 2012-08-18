@@ -356,7 +356,7 @@ class API
 
   def job_result_each(job_id, &block)
     require 'msgpack'
-    get("/v3/job/result/#{e job_id}", {'format'=>'json'}) {|res|
+    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
       if res.code != "200"
         raise_error("Get job result failed", res)
       end
