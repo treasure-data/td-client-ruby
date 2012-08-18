@@ -11,14 +11,17 @@ class Model
 end
 
 class Database < Model
-  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil)
+  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil)
     super(client)
     @db_name = db_name
     @tables = tables
     @count = count
     @created_at = created_at
     @updated_at = updated_at
+    @org_name = org_name
   end
+
+  attr_reader :org_name
 
   def name
     @db_name
@@ -175,7 +178,7 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, org_name=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -189,10 +192,11 @@ class Job < Model
     @result_url = result_url
     @hive_result_schema = hive_result_schema
     @priority = priority
+    @org_name = org_name
   end
 
   attr_reader :job_id, :type, :result_url
-  attr_reader :hive_result_schema, :priority
+  attr_reader :hive_result_schema, :priority, :org_name
 
   def wait(timeout=nil)
     # TODO
@@ -283,7 +287,7 @@ class Job < Model
   end
 
   def update_status!
-    query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority = @client.job_status(@job_id)
+    query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org_name = @client.job_status(@job_id)
     @query = query
     @status = status
     @url = url
@@ -291,6 +295,7 @@ class Job < Model
     @start_at = start_at
     @end_at = end_at
     @hive_result_schema = hive_result_schema
+    @org_name = org_name
     self
   end
 end
@@ -309,7 +314,7 @@ end
 
 
 class Schedule < Model
-  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil, priority=nil)
+  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil, priority=nil, org_name=nil)
     super(client)
     @name = name
     @cron = cron
@@ -320,9 +325,10 @@ class Schedule < Model
     @delay = delay
     @next_time = next_time
     @priority = priority
+    @org_name = org_name
   end
 
-  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority
+  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :org_name
 
   def next_time
     @next_time ? Time.parse(@next_time) : nil
@@ -335,13 +341,14 @@ end
 
 
 class Result < Model
-  def initialize(client, name, url)
+  def initialize(client, name, url, org_name)
     super(client)
     @name = name
     @url = url
+    @org_name = org_name
   end
 
-  attr_reader :name, :url
+  attr_reader :name, :url, :org_name
 end
 
 
@@ -358,6 +365,7 @@ class BulkImport < Model
     @error_records = data['error_records']
     @valid_parts = data['valid_parts']
     @error_parts = data['error_parts']
+    @org_name = data['organization']
   end
 
   attr_reader :name
@@ -369,6 +377,7 @@ class BulkImport < Model
   attr_reader :error_records
   attr_reader :valid_parts
   attr_reader :error_parts
+  attr_reader :org_name
 
   def upload_frozen?
     @upload_frozen

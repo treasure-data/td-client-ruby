@@ -44,17 +44,17 @@ class Client
   # => [Database]
   def databases
     m = @api.list_databases
-    m.map {|db_name,(count,created_at,updated_at)|
-      Database.new(self, db_name, nil, count, created_at, updated_at)
+    m.map {|db_name,(count,created_at,updated_at,org)|
+      Database.new(self, db_name, nil, count, created_at, updated_at, org)
     }
   end
 
   # => Database
   def database(db_name)
     m = @api.list_databases
-    m.each {|name,(count,created_at,updated_at)|
+    m.each {|name,(count,created_at,updated_at,org)|
       if name == db_name
-        return Database.new(self, name, nil, count, created_at, updated_at)
+        return Database.new(self, name, nil, count, created_at, updated_at, org)
       end
     }
     raise NotFoundError, "Database '#{db_name}' does not exist"
@@ -112,22 +112,22 @@ class Client
   # => [Job]
   def jobs(from=nil, to=nil, status=nil)
     result = @api.list_jobs(from, to, status)
-    result.map {|job_id,type,status,query,start_at,end_at,result_url,priority|
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority)
+    result.map {|job_id,type,status,query,start_at,end_at,result_url,priority,org|
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority, org)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority = @api.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema, priority)
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org = @api.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema, priority, org)
   end
 
   # => type:Symbol, url:String
   def job_status(job_id)
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority = @api.show_job(job_id)
-    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org = @api.show_job(job_id)
+    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org
   end
 
   # => result:[{column:String=>value:Object]
@@ -235,8 +235,8 @@ class Client
   # [Schedule]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority|
-      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time, priority)
+    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,org_name|
+      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time, priority, org_name)
     }
   end
 
@@ -249,6 +249,7 @@ class Client
   def history(name, from=nil, to=nil)
     result = @api.history(name, from, to)
     result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,result_url,priority|
+      # TODO org
       ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority)
     }
   end
@@ -269,8 +270,8 @@ class Client
   # => [Result]
   def results
     results = @api.list_result
-    rs = results.map {|name,url|
-      Result.new(self, name, url)
+    rs = results.map {|name,url,organizations|
+      Result.new(self, name, url, organizations)
     }
     return rs
   end

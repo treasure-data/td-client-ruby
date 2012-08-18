@@ -146,7 +146,8 @@ class API
       count = m['count']
       created_at = m['created_at']
       updated_at = m['updated_at']
-      result[name] = [count, created_at, updated_at]
+      organization = m['organization']
+      result[name] = [count, created_at, updated_at, organization]
     }
     return result
   end
@@ -291,7 +292,8 @@ class API
       end_at = m['end_at']
       result_url = m['result']
       priority = m['priority']
-      result << [job_id, type, status, query, start_at, end_at, result_url, priority]
+      organization = m['organization']
+      result << [job_id, type, status, query, start_at, end_at, result_url, priority, organization]
     }
     return result
   end
@@ -319,7 +321,8 @@ class API
       hive_result_schema = JSON.parse(hive_result_schema)
     end
     priority = js['priority']
-    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority]
+    organization = js['organization']
+    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, organization]
   end
 
   def job_result(job_id)
@@ -353,7 +356,7 @@ class API
 
   def job_result_each(job_id, &block)
     require 'msgpack'
-    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
+    get("/v3/job/result/#{e job_id}", {'format'=>'json'}) {|res|
       if res.code != "200"
         raise_error("Get job result failed", res)
       end
@@ -614,7 +617,8 @@ class API
       delay = m['delay']
       next_time = m['next_time']
       priority = m['priority']
-      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority]
+      organization = m['organization']
+      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority, organization]
     }
     return result
   end
@@ -698,7 +702,7 @@ class API
     js = checked_json(body, %w[results])
     result = []
     js['results'].map {|m|
-      result << [m['name'], m['url']]
+      result << [m['name'], m['url'], m['organization']]
     }
     return result
   end
