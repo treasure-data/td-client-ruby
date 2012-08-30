@@ -1,4 +1,9 @@
 
+== 2012-08-30 version 0.8.24
+
+* TreasureData::Client.new supports :http_proxy option
+
+
 == 2012-08-30 version 0.8.23
 
 * Supports HTTP_PROXY environment variable
