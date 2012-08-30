@@ -20,6 +20,10 @@ class API
     require 'json'
     require 'time'
     require 'uri'
+    require 'net/http'
+    require 'net/https'
+    require 'time'
+
     @apikey = apikey
 
     endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || 'api.treasure-data.com'
@@ -49,6 +53,18 @@ class API
         @ssl = false
       end
       @base_path = ''
+    end
+
+    @http_proxy = opts[:http_proxy] || ENV['HTTP_PROXY']
+    if @http_proxy = ENV['HTTP_PROXY']
+      if @http_proxy =~ /\Ahttp:\/\/(.*)\z/
+        @http_proxy = $~[1]
+      end
+      proxy_host, proxy_port = @http_proxy.split(':',2)
+      proxy_port = (proxy_port ? proxy_port.to_i : 80)
+      @http_class = Net::HTTP::Proxy(proxy_host, proxy_port)
+    else
+      @http_class = Net::HTTP
     end
   end
 
@@ -1191,22 +1207,7 @@ class API
   end
 
   def new_http
-    require 'net/http'
-    require 'net/https'
-    require 'time'
-
-    if proxy = ENV['HTTP_PROXY']
-      if proxy =~ /\Ahttp:\/\/(.*)\z/
-        proxy = $~[1]
-      end
-      proxy_host, proxy_port = proxy.split(':',2)
-      proxy_port = (proxy_port ? proxy_port.to_i : 80)
-      http_class = Net::HTTP::Proxy(proxy_host, proxy_port)
-    else
-      http_class = Net::HTTP
-    end
-
-    http = http_class.new(@host, @port)
+    http = @http_class.new(@host, @port)
     if @ssl
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
