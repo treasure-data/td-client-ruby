@@ -1195,7 +1195,18 @@ class API
     require 'net/https'
     require 'time'
 
-    http = Net::HTTP.new(@host, @port)
+    if proxy = ENV['HTTP_PROXY']
+      if proxy =~ /\Ahttp:\/\/(.*)\z/
+        proxy = $~[1]
+      end
+      proxy_host, proxy_port = proxy.split(':',2)
+      proxy_port = (proxy_port ? proxy_port.to_i : 80)
+      http_class = Net::HTTP::Proxy(proxy_host, proxy_port)
+    else
+      http_class = Net::HTTP
+    end
+
+    http = http_class.new(@host, @port)
     if @ssl
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
