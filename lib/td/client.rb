@@ -375,6 +375,11 @@ class Client
     @api.change_password(user, password)
   end
 
+  # => true
+  def change_my_password(old_password, password)
+    @api.change_my_password(old_password, password)
+  end
+
   # => [User]
   def access_controls
     list = @api.list_access_controls

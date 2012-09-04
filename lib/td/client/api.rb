@@ -1071,6 +1071,16 @@ class API
     return true
   end
 
+  # => true
+  def change_my_password(old_password, password)
+    params = {'old_password' => old_password, 'password' => password}
+    code, body, res = post("/v3/user/password/change", params)
+    if code != "200"
+      raise_error("Changing password failed", res)
+    end
+    return true
+  end
+
 
   ####
   ## Access Control API
