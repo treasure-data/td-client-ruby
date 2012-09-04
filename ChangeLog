@@ -1,4 +1,9 @@
 
+== 2012-09-04 version 0.8.25
+
+* Added Client#change_my_password(old_password, password)
+
+
 == 2012-08-30 version 0.8.24
 
 * TreasureData::Client.new supports :http_proxy option
