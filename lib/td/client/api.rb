@@ -77,8 +77,8 @@ class API
     if name.empty?
       raise "Empty name is not allowed"
     end
-    if name.length < 3 || 32 < name.length
-      raise "Name must be 3 to 32 characters, got #{name.length} characters."
+    if name.length < 3 || 256 < name.length
+      raise "Name must be 3 to 256 characters, got #{name.length} characters."
     end
     unless name =~ /^([a-z0-9_]+)$/
       raise "Name must consist only of lower-case alphabets, numbers and '_'."
@@ -99,8 +99,8 @@ class API
     if name.empty?
       raise "Empty column name is not allowed"
     end
-    if 32 < name.length
-      raise "Column name must be to 32 characters, got #{name.length} characters."
+    if 256 < name.length
+      raise "Column name must be to 256 characters, got #{name.length} characters."
     end
     unless name =~ /^([a-z0-9_]+)$/
       raise "Column name must consist only of alphabets, numbers, '_'."
