@@ -20,14 +20,14 @@ class Account < Model
   attr_reader :plan, :storage_size
 
   def storage_size_string
-    s = "%.1f GB" % (@storage_size / (1024*1024*1024))
-    if s == "0.0 GB"
-      if @storage_size <= 1024*1024
-        return "0.0 GB"
-      end
+    if @storage_size <= 1024*1024
+      return "0.0 GB"
+    elsif @storage_size <= 60*1024*1024
       return "0.01 GB"
+    elsif @storage_size <= 10*1024*1024*1024
+      "%.1f GB" % (@storage_size.to_f / (1024*1024*1024))
     else
-      return s
+      "%d GB" % (@storage_size.to_f / (1024*1024*1024)).to_i
     end
   end
 end
@@ -137,6 +137,18 @@ class Table < Model
 
   def export(storage_type, opts={})
     @client.export(@db_name, @table_name, storage_type, opts)
+  end
+
+  def estimated_storage_size_string
+    if @estimated_storage_size <= 1024*1024
+      return "0.0 GB"
+    elsif @estimated_storage_size <= 60*1024*1024
+      return "0.01 GB"
+    elsif @estimated_storage_size <= 10*1024*1024*1024
+      "%.1f GB" % (@estimated_storage_size.to_f / (1024*1024*1024))
+    else
+      "%d GB" % (@estimated_storage_size.to_f / (1024*1024*1024)).to_i
+    end
   end
 end
 

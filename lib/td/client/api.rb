@@ -158,7 +158,7 @@ class API
     js = checked_json(body, %w[account])
     a = js["account"]
     plan = a['plan'].to_i
-    storage_size = a['storage_size'].to_f
+    storage_size = a['storage_size'].to_i
     return [plan, storage_size]
   end
 
@@ -223,7 +223,7 @@ class API
       count = (m['count'] || 0).to_i  # TODO?
       created_at = m['created_at']
       updated_at = m['updated_at']
-      estimated_storage_size = m['estimated_storage_size']
+      estimated_storage_size = m['estimated_storage_size'].to_i
       schema = JSON.parse(m['schema'] || '[]')
       result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size]
     }
