@@ -1,4 +1,10 @@
 
+== 2012-09-13 version 0.8.26
+
+* Added Account model and Table#esetimated_storage_size method
+* Name length limit is changed from 32 characters to 256 characters
+
+
 == 2012-09-04 version 0.8.25
 
 * Added Client#change_my_password(old_password, password)
