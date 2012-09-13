@@ -10,6 +10,28 @@ class Model
   attr_reader :client
 end
 
+class Account < Model
+  def initialize(client, plan, storage_size=nil)
+    super(client)
+    @plan = plan
+    @storage_size = storage_size
+  end
+
+  attr_reader :plan, :storage_size
+
+  def storage_size_string
+    s = "%.1f GB" % (@storage_size / (1024*1024*1024))
+    if s == "0.0 GB"
+      if @storage_size <= 1024*1024
+        return "0.0 GB"
+      end
+      return "0.01 GB"
+    else
+      return s
+    end
+  end
+end
+
 class Database < Model
   def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil)
     super(client)
@@ -68,7 +90,7 @@ class Database < Model
 end
 
 class Table < Model
-  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil)
+  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil)
     super(client)
     @db_name = db_name
     @table_name = table_name
@@ -77,9 +99,10 @@ class Table < Model
     @count = count
     @created_at = created_at
     @updated_at = updated_at
+    @estimated_storage_size = estimated_storage_size
   end
 
-  attr_reader :type, :db_name, :table_name, :schema, :count
+  attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size
 
   alias database_name db_name
   alias name table_name

@@ -41,6 +41,12 @@ class Client
     @api.delete_database(db_name)
   end
 
+  # => Account
+  def account
+    plan, storage = @api.show_account
+    return Account.new(self, plan, storage)
+  end
+
   # => [Database]
   def databases
     m = @api.list_databases
@@ -83,9 +89,9 @@ class Client
   # => [Table]
   def tables(db_name)
     m = @api.list_tables(db_name)
-    m.map {|table_name,(type,schema,count,created_at,updated_at)|
+    m.map {|table_name,(type,schema,count,created_at,updated_at,estimated_storage_size)|
       schema = Schema.new.from_json(schema)
-      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at)
+      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at, estimated_storage_size)
     }
   end
 

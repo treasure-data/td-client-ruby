@@ -145,6 +145,24 @@ class API
     end
   end
 
+
+  ####
+  ## Account API
+  ##
+
+  def show_account
+    code, body, res = get("/v3/account/show")
+    if code != "200"
+      raise_error("Show account failed", res)
+    end
+    js = checked_json(body, %w[account])
+    a = js["account"]
+    plan = a['plan'].to_i
+    storage_size = a['storage_size'].to_f
+    return [plan, storage_size]
+  end
+
+
   ####
   ## Database API
   ##
@@ -205,8 +223,9 @@ class API
       count = (m['count'] || 0).to_i  # TODO?
       created_at = m['created_at']
       updated_at = m['updated_at']
+      estimated_storage_size = m['estimated_storage_size']
       schema = JSON.parse(m['schema'] || '[]')
-      result[name] = [type, schema, count, created_at, updated_at]
+      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size]
     }
     return result
   end
