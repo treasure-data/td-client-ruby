@@ -1,4 +1,9 @@
 
+== 2012-09-17 version 0.8.27
+
+* Added Table#estimated_storage_size_string
+
+
 == 2012-09-13 version 0.8.26
 
 * Added Account model and Table#esetimated_storage_size method
