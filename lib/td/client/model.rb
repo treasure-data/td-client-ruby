@@ -11,13 +11,15 @@ class Model
 end
 
 class Account < Model
-  def initialize(client, plan, storage_size=nil)
+  def initialize(client, plan, storage_size=nil, guaranteed_cores=nil, maximum_cores=nil)
     super(client)
     @plan = plan
     @storage_size = storage_size
+    @guaranteed_cores = guaranteed_cores
+    @maximum_cores = maximum_cores
   end
 
-  attr_reader :plan, :storage_size
+  attr_reader :plan, :storage_size, :guaranteed_cores, :maximum_cores
 
   def storage_size_string
     if @storage_size <= 1024*1024
