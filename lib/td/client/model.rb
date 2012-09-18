@@ -26,7 +26,7 @@ class Account < Model
       return "0.0 GB"
     elsif @storage_size <= 60*1024*1024
       return "0.01 GB"
-    elsif @storage_size <= 10*1024*1024*1024
+    elsif @storage_size <= 60*1024*1024*1024
       "%.1f GB" % (@storage_size.to_f / (1024*1024*1024))
     else
       "%d GB" % (@storage_size.to_f / (1024*1024*1024)).to_i
@@ -146,7 +146,7 @@ class Table < Model
       return "0.0 GB"
     elsif @estimated_storage_size <= 60*1024*1024
       return "0.01 GB"
-    elsif @estimated_storage_size <= 10*1024*1024*1024
+    elsif @estimated_storage_size <= 60*1024*1024*1024
       "%.1f GB" % (@estimated_storage_size.to_f / (1024*1024*1024))
     else
       "%d GB" % (@estimated_storage_size.to_f / (1024*1024*1024)).to_i
