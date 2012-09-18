@@ -1,4 +1,10 @@
 
+== 2012-09-17 version 0.8.28
+
+* Added Client#core_utilization method
+* Added Account#guaranteed_cores and #maximum_cores methods
+
+
 == 2012-09-17 version 0.8.27
 
 * Added Table#estimated_storage_size_string
