@@ -339,6 +339,7 @@ class API
     js['jobs'].each {|m|
       job_id = m['job_id']
       type = (m['type'] || '?').to_sym
+      database = m['database']
       status = m['status']
       query = m['query']
       start_at = m['start_at']
@@ -346,7 +347,7 @@ class API
       result_url = m['result']
       priority = m['priority']
       organization = m['organization']
-      result << [job_id, type, status, query, start_at, end_at, result_url, priority, organization]
+      result << [job_id, type, status, query, start_at, end_at, result_url, priority, organization, database]
     }
     return result
   end
@@ -360,6 +361,7 @@ class API
     js = checked_json(body, %w[status])
     # TODO debug
     type = (js['type'] || '?').to_sym  # TODO
+    database = js['database']
     query = js['query']
     status = js['status']
     debug = js['debug']
@@ -375,7 +377,7 @@ class API
     end
     priority = js['priority']
     organization = js['organization']
-    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, organization]
+    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, organization, database]
   end
 
   def job_result(job_id)
@@ -697,6 +699,7 @@ class API
     js['history'].each {|m|
       job_id = m['job_id']
       type = (m['type'] || '?').to_sym
+      database = m['database']
       status = m['status']
       query = m['query']
       start_at = m['start_at']
@@ -704,7 +707,7 @@ class API
       scheduled_at = m['scheduled_at']
       result_url = m['result']
       priority = m['priority']
-      result << [scheduled_at, job_id, type, status, query, start_at, end_at, result_url, priority]
+      result << [scheduled_at, job_id, type, status, query, start_at, end_at, result_url, priority, database]
     }
     return result
   end

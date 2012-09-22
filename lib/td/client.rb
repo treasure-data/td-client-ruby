@@ -123,22 +123,22 @@ class Client
   # => [Job]
   def jobs(from=nil, to=nil, status=nil)
     result = @api.list_jobs(from, to, status)
-    result.map {|job_id,type,status,query,start_at,end_at,result_url,priority,org|
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority, org)
+    result.map {|job_id,type,status,query,start_at,end_at,result_url,priority,org,db|
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority, org, db)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org = @api.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema, priority, org)
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db = @api.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema, priority, org, db)
   end
 
   # => type:Symbol, url:String
   def job_status(job_id)
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org = @api.show_job(job_id)
-    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db = @api.show_job(job_id)
+    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db
   end
 
   # => result:[{column:String=>value:Object]
@@ -259,9 +259,9 @@ class Client
   # [ScheduledJob]
   def history(name, from=nil, to=nil)
     result = @api.history(name, from, to)
-    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,result_url,priority|
+    result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,result_url,priority,database|
       # TODO org
-      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority)
+      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority,nil,database)
     }
   end
 

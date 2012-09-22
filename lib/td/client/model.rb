@@ -215,7 +215,7 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, org_name=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, org_name=nil, db_name=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -230,10 +230,11 @@ class Job < Model
     @hive_result_schema = hive_result_schema
     @priority = priority
     @org_name = org_name
+    @db_name = db_name
   end
 
   attr_reader :job_id, :type, :result_url
-  attr_reader :hive_result_schema, :priority, :org_name
+  attr_reader :hive_result_schema, :priority, :org_name, :db_name
 
   def wait(timeout=nil)
     # TODO
@@ -324,7 +325,7 @@ class Job < Model
   end
 
   def update_status!
-    query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org_name = @client.job_status(@job_id)
+    query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org_name, db_name = @client.job_status(@job_id)
     @query = query
     @status = status
     @url = url
@@ -333,6 +334,7 @@ class Job < Model
     @end_at = end_at
     @hive_result_schema = hive_result_schema
     @org_name = org_name
+    @db_name = db_name
     self
   end
 end
