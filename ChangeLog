@@ -1,4 +1,9 @@
 
+== 2012-09-21 version 0.8.31
+
+* Added Job#db_name
+
+
 == 2012-09-21 version 0.8.30
 
 * Fixed Account#storage_size_string and Table#estimated_storage_size_string
