@@ -1,4 +1,9 @@
 
+== 2012-09-21 version 0.8.30
+
+* Fixed Account#storage_size_string and Table#estimated_storage_size_string
+
+
 == 2012-09-17 version 0.8.29
 
 * Added Client#core_utilization method
