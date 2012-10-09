@@ -278,6 +278,15 @@ class API
   private :create_table
 
   # => true
+  def swap_table(db, table1, table2)
+    code, body, res = post("/v3/table/swap/#{e db}/#{e table1}/#{e table2}")
+    if code != "200"
+      raise_error("Swap tables failed", res)
+    end
+    return true
+  end
+
+  # => true
   def update_schema(db, table, schema_json)
     code, body, res = post("/v3/table/update-schema/#{e db}/#{e table}", {'schema'=>schema_json})
     if code != "200"

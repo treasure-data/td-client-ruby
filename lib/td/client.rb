@@ -82,6 +82,11 @@ class Client
   end
 
   # => true
+  def swap_table(db_name, table_name1, table_name2)
+    @api.swap_table(db_name, table_name1, table_name2)
+  end
+
+  # => true
   def update_schema(db_name, table_name, schema)
     @api.update_schema(db_name, table_name, schema.to_json)
   end
