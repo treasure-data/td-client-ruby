@@ -1,4 +1,9 @@
 
+== 2012-10-09 version 0.8.32
+
+* Added Client#swap_table
+
+
 == 2012-09-21 version 0.8.31
 
 * Added Job#db_name
