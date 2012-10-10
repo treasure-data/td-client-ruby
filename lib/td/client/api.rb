@@ -408,7 +408,7 @@ class API
         raise_error("Get job result failed", res)
       end
       if io
-        res.read_body {|fragment|
+        res.each_fragment {|fragment|
           io.write(fragment)
         }
       end
@@ -425,7 +425,7 @@ class API
         raise_error("Get job result failed", res)
       end
       u = MessagePack::Unpacker.new
-      res.read_body {|fragment|
+      res.each_fragment {|fragment|
         u.feed_each(fragment, &block)
       }
     }
@@ -1206,6 +1206,32 @@ class API
 
 
   private
+  module DeflateReadBodyMixin
+    attr_accessor :gzip
+
+    def each_fragment(&block)
+      if @gzip
+        infl = Zlib::Inflate.new(Zlib::MAX_WBITS+16)
+      else
+        infl = Zlib::Inflate.new
+      end
+      begin
+        read_body do |fragment|
+          block.call infl.inflate(fragment)
+        end
+      ensure
+        infl.close
+      end
+      nil
+    end
+  end
+
+  module DirectReadBodyMixin
+    def each_fragment(&block)
+      read_body(&block)
+    end
+  end
+
   def get(url, params=nil, &block)
     http, header = new_http
 
@@ -1216,11 +1242,42 @@ class API
       }.join('&')
     end
 
+    header['Accept-Encoding'] = 'deflate, gzip'
     request = Net::HTTP::Get.new(path, header)
 
-    response = http.request(request, &block)
+    if block
+      response = http.request(request) do |res|
+        if ce = res.header['Content-Encoding']
+          require 'zlib'
+          res.extend(DeflateReadBodyMixin)
+          res.gzip = true if ce == 'gzip'
+        else
+          res.extend(DirectReadBodyMixin)
+        end
+        block.call(res)
+      end
+    else
+      response = http.request(request)
+    end
 
-    return [response.code, response.body, response]
+    body = response.body
+    unless block
+      if ce = response.header['content-encoding']
+        require 'zlib'
+        if ce == 'gzip'
+          infl = Zlib::Inflate.new(Zlib::MAX_WBITS+16)
+          begin
+            body = infl.inflate(body)
+          ensure
+            infl.close
+          end
+        else
+          body = Zlib::Inflate.inflate(body)
+        end
+      end
+    end
+
+    return [response.code, body, response]
   end
 
   def post(url, params=nil)
