@@ -744,8 +744,13 @@ class API
   ##
 
   # => time:Float
-  def import(db, table, format, stream, size)
-    code, body, res = put("/v3/table/import/#{e db}/#{e table}/#{format}", stream, size)
+  def import(db, table, format, stream, size, unique_id=nil)
+    if unique_id
+      path = "/v3/table/import_with_id/#{e db}/#{e table}/#{unique_id}/#{format}"
+    else
+      path = "/v3/table/import/#{e db}/#{e table}/#{format}"
+    end
+    code, body, res = put(path, stream, size)
     if code[0] != ?2
       raise_error("Import failed", res)
     end

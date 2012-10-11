@@ -279,8 +279,8 @@ class Client
   end
 
   # => time:Flaot
-  def import(db_name, table_name, format, stream, size)
-    @api.import(db_name, table_name, format, stream, size)
+  def import(db_name, table_name, format, stream, size, unique_id=nil)
+    @api.import(db_name, table_name, format, stream, size, unique_id)
   end
 
   # => [Result]
