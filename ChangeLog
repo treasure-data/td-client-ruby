@@ -1,4 +1,10 @@
 
+== 2012-10-10 version 0.8.33
+
+* supports import_with_id API
+* supports deflate and gzip Content-Encodings and sends Accept-Encoding header
+
+
 == 2012-10-09 version 0.8.32
 
 * Added Client#swap_table
