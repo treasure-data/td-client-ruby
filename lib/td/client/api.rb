@@ -1329,6 +1329,7 @@ class API
 
   def new_http
     http = @http_class.new(@host, @port)
+    http.open_timeout = 60
     if @ssl
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
