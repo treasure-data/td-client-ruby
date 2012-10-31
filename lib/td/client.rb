@@ -142,6 +142,7 @@ class Client
 
   # => type:Symbol, url:String
   def job_status(job_id)
+    # use v3/job/status instead of v3/job/show to poll finish of a job
     type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db = @api.show_job(job_id)
     return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db
   end

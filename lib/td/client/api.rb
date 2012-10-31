@@ -363,6 +363,7 @@ class API
 
   # => (type:Symbol, status:String, result:String, url:String, result:String)
   def show_job(job_id)
+    # use v3/job/status instead of v3/job/show to poll finish of a job
     code, body, res = get("/v3/job/show/#{e job_id}")
     if code != "200"
       raise_error("Show job failed", res)
