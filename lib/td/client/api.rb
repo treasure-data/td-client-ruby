@@ -157,11 +157,12 @@ class API
     end
     js = checked_json(body, %w[account])
     a = js["account"]
+    account_id = a['id'].to_i
     plan = a['plan'].to_i
     storage_size = a['storage_size'].to_i
     guaranteed_cores = a['guaranteed_cores'].to_i
     maximum_cores = a['maximum_cores'].to_i
-    return [plan, storage_size, guaranteed_cores, maximum_cores]
+    return [account_id, plan, storage_size, guaranteed_cores, maximum_cores]
   end
 
   def account_core_utilization(from, to)
