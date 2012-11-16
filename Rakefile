@@ -14,7 +14,6 @@ begin
     gemspec.has_rdoc = false
     gemspec.require_paths = ["lib"]
     gemspec.add_dependency "msgpack", "~> 0.4.4"
-    gemspec.add_dependency "json", ">= 1.4.3"
     gemspec.add_development_dependency "rspec", "~> 2.8.0"
     gemspec.test_files = Dir["spec/**/*_spec.rb"]
     gemspec.files = Dir["lib/**/*", "ext/**/*", "data/**/*", "spec/**/*.rb"]
