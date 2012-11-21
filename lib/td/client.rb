@@ -43,8 +43,8 @@ class Client
 
   # => Account
   def account
-    account_id, plan, storage, guaranteed_cores, maximum_cores = @api.show_account
-    return Account.new(self, account_id, plan, storage, guaranteed_cores, maximum_cores)
+    account_id, plan, storage, guaranteed_cores, maximum_cores, created_at = @api.show_account
+    return Account.new(self, account_id, plan, storage, guaranteed_cores, maximum_cores, created_at)
   end
 
   def core_utilization(from, to)

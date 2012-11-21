@@ -162,7 +162,8 @@ class API
     storage_size = a['storage_size'].to_i
     guaranteed_cores = a['guaranteed_cores'].to_i
     maximum_cores = a['maximum_cores'].to_i
-    return [account_id, plan, storage_size, guaranteed_cores, maximum_cores]
+    created_at = a['created_at']
+    return [account_id, plan, storage_size, guaranteed_cores, maximum_cores, created_at]
   end
 
   def account_core_utilization(from, to)
