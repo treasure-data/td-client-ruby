@@ -1,3 +1,8 @@
+== 2012-11-21 version 0.8.38
+
+* Add Account#created_at
+
+
 == 2012-11-16 version 0.8.37
 
 * Remove json gem dependency again (previous version has bug)
