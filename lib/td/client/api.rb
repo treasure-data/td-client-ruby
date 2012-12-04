@@ -336,11 +336,12 @@ class API
   ##
 
   # => [(jobId:String, type:Symbol, status:String, start_at:String, end_at:String, result_url:String)]
-  def list_jobs(from=0, to=nil, status=nil)
+  def list_jobs(from=0, to=nil, status=nil, conditions=nil)
     params = {}
     params['from'] = from.to_s if from
     params['to'] = to.to_s if to
     params['status'] = status.to_s if status
+    params.merge!(conditions) if conditions
     code, body, res = get("/v3/job/list", params)
     if code != "200"
       raise_error("List jobs failed", res)
