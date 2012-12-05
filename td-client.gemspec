@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "td-client"
-  s.version = "0.8.36"
+  s.version = "0.8.39"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
-  s.date = "2012-04-27"
+  s.date = "2012-12-05"
   s.extra_rdoc_files = [
     "ChangeLog",
     "README.rdoc"
@@ -19,13 +19,14 @@ Gem::Specification.new do |s|
     "lib/td-client.rb",
     "lib/td/client.rb",
     "lib/td/client/api.rb",
+    "lib/td/client/compat_gzip_reader.rb",
     "lib/td/client/model.rb",
     "lib/td/client/version.rb",
     "spec/api_spec.rb",
     "spec/spec_helper.rb"
   ]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.12"
+  s.rubygems_version = "1.8.23"
   s.summary = "Treasure Data API library for Ruby"
   s.test_files = ["spec/api_spec.rb"]
 
