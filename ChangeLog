@@ -1,3 +1,8 @@
+== 2012-12-05 version 0.8.39
+
+* Add conditions argument to Client#list_jobs for slow query listing
+
+
 == 2012-11-21 version 0.8.38
 
 * Add Account#created_at
