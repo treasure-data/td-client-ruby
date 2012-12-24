@@ -243,9 +243,10 @@ class API
       count = (m['count'] || 0).to_i  # TODO?
       created_at = m['created_at']
       updated_at = m['updated_at']
+      last_import = m['counter_updated_at']
       estimated_storage_size = m['estimated_storage_size'].to_i
       schema = JSON.parse(m['schema'] || '[]')
-      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size]
+      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import]
     }
     return result
   end

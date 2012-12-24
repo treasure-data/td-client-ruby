@@ -98,7 +98,7 @@ class Database < Model
 end
 
 class Table < Model
-  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil)
+  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil, last_import=nil)
     super(client)
     @db_name = db_name
     @table_name = table_name
@@ -108,6 +108,7 @@ class Table < Model
     @created_at = created_at
     @updated_at = updated_at
     @estimated_storage_size = estimated_storage_size
+    @last_import = last_import
   end
 
   attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size
@@ -121,6 +122,10 @@ class Table < Model
 
   def updated_at
     @updated_at && !@updated_at.empty? ? Time.parse(@updated_at) : nil
+  end
+
+  def last_import
+    @last_import && !@last_import.empty? ? Time.parse(@last_import) : nil
   end
 
   def database

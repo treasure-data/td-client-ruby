@@ -99,9 +99,9 @@ class Client
   # => [Table]
   def tables(db_name)
     m = @api.list_tables(db_name)
-    m.map {|table_name,(type,schema,count,created_at,updated_at,estimated_storage_size)|
+    m.map {|table_name,(type,schema,count,created_at,updated_at,estimated_storage_size, last_import)|
       schema = Schema.new.from_json(schema)
-      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at, estimated_storage_size)
+      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at, estimated_storage_size, last_import)
     }
   end
 
