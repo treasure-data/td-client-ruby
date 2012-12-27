@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "td-client"
-  s.version = "0.8.39"
+  s.version = "0.8.40"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
-  s.date = "2012-12-05"
+  s.date = "2012-12-27"
   s.extra_rdoc_files = [
     "ChangeLog",
     "README.rdoc"
