@@ -1,3 +1,8 @@
+== 2012-01-10 version 0.8.41
+
+* Fix API#job_result_format to handle Content-Encoding properly
+
+
 == 2012-12-27 version 0.8.40
 
 * Add Table#last_import to use counter_updated_at column
