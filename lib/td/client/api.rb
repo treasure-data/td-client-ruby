@@ -115,8 +115,8 @@ class API
     if name.length < 3
       name += "_"*(3-name.length)
     end
-    if 32 < name.length
-      name = name[0,30]+"__"
+    if 256 < name.length
+      name = name[0,254]+"__"
     end
     name = name.downcase
     name = name.gsub(/[^a-z0-9_]/, '_')

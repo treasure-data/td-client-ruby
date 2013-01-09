@@ -12,7 +12,7 @@ describe API do
 
   INVALID_NAMES = {
     'a' => 'a__',
-    'a'*33 => 'a'*30+'__',
+    'a'*257 => 'a'*254+'__',
     'abcD' => 'abcd',
     'a-b*' => 'a_b_',
   }
