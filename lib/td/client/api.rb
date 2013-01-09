@@ -408,18 +408,22 @@ class API
   end
 
   def job_result_format(job_id, format, io=nil)
-    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
-      if res.code != "200"
-        raise_error("Get job result failed", res)
-      end
-      if io
+    if io
+      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
+        if res.code != "200"
+          raise_error("Get job result failed", res)
+        end
         res.each_fragment {|fragment|
           io.write(fragment)
         }
+      }
+      nil
+    else
+      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
+      if res.code != "200"
+        raise_error("Get job result failed", res)
       end
-    }
-    unless io
-      return body
+      body
     end
   end
 
