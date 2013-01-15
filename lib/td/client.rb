@@ -120,31 +120,31 @@ class Client
   end
 
   # => Job
-  def query(db_name, q, result_url=nil, priority=nil)
-    job_id = @api.hive_query(q, db_name, result_url, priority)
+  def query(db_name, q, result_url=nil, priority=nil, retry_limit=nil)
+    job_id = @api.hive_query(q, db_name, result_url, priority, retry_limit)
     Job.new(self, job_id, :hive, q)
   end
 
   # => [Job]
   def jobs(from=nil, to=nil, status=nil, conditions=nil)
     result = @api.list_jobs(from, to, status, conditions)
-    result.map {|job_id,type,status,query,start_at,end_at,result_url,priority,org,db|
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority, org, db)
+    result.map {|job_id,type,status,query,start_at,end_at,result_url,priority,retry_limit,org,db|
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority, retry_limit, org, db)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db = @api.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema, priority, org, db)
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org, db = @api.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema, priority, retry_limit, org, db)
   end
 
   # => type:Symbol, url:String
   def job_status(job_id)
     # use v3/job/status instead of v3/job/show to poll finish of a job
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db = @api.show_job(job_id)
-    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org, db = @api.show_job(job_id)
+    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org, db
   end
 
   # => result:[{column:String=>value:Object]
@@ -252,8 +252,8 @@ class Client
   # [Schedule]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,org_name|
-      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time, priority, org_name)
+    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,retry_limit,org_name|
+      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, org_name)
     }
   end
 
@@ -267,7 +267,7 @@ class Client
     result = @api.history(name, from, to)
     result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,result_url,priority,database|
       # TODO org
-      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority,nil,database)
+      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority,nil,nil,database)
     }
   end
 

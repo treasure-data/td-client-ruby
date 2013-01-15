@@ -226,7 +226,7 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, org_name=nil, db_name=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, retry_limit=nil, org_name=nil, db_name=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -240,12 +240,13 @@ class Job < Model
     @result_url = result_url
     @hive_result_schema = hive_result_schema
     @priority = priority
+    @retry_limit = retry_limit
     @org_name = org_name
     @db_name = db_name
   end
 
   attr_reader :job_id, :type, :result_url
-  attr_reader :hive_result_schema, :priority, :org_name, :db_name
+  attr_reader :hive_result_schema, :priority, :retry_limit, :org_name, :db_name
 
   def wait(timeout=nil)
     # TODO
@@ -336,7 +337,7 @@ class Job < Model
   end
 
   def update_status!
-    query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org_name, db_name = @client.job_status(@job_id)
+    query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org_name, db_name = @client.job_status(@job_id)
     @query = query
     @status = status
     @url = url
@@ -344,6 +345,8 @@ class Job < Model
     @start_at = start_at
     @end_at = end_at
     @hive_result_schema = hive_result_schema
+    @priority = priority
+    @retry_limit = retry_limit
     @org_name = org_name
     @db_name = db_name
     self
@@ -364,7 +367,7 @@ end
 
 
 class Schedule < Model
-  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil, priority=nil, org_name=nil)
+  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil, priority=nil, retry_limit=nil, org_name=nil)
     super(client)
     @name = name
     @cron = cron
@@ -375,10 +378,11 @@ class Schedule < Model
     @delay = delay
     @next_time = next_time
     @priority = priority
+    @retry_limit = retry_limit
     @org_name = org_name
   end
 
-  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :org_name
+  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :retry_limit, :org_name
 
   def next_time
     @next_time ? Time.parse(@next_time) : nil

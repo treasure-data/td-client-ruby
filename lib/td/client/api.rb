@@ -359,8 +359,9 @@ class API
       end_at = m['end_at']
       result_url = m['result']
       priority = m['priority']
+      retry_limit = m['retry_limit']
       organization = m['organization']
-      result << [job_id, type, status, query, start_at, end_at, result_url, priority, organization, database]
+      result << [job_id, type, status, query, start_at, end_at, result_url, priority, retry_limit, organization, database]
     }
     return result
   end
@@ -390,8 +391,9 @@ class API
       hive_result_schema = JSON.parse(hive_result_schema)
     end
     priority = js['priority']
+    retry_limit = js['retry_limit']
     organization = js['organization']
-    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, organization, database]
+    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, retry_limit, organization, database]
   end
 
   def job_result(job_id)
@@ -460,10 +462,11 @@ class API
   end
 
   # => jobId:String
-  def hive_query(q, db=nil, result_url=nil, priority=nil)
+  def hive_query(q, db=nil, result_url=nil, priority=nil, retry_limit=nil)
     params = {'query' => q}
     params['result'] = result_url if result_url
     params['priority'] = priority if priority
+    params['retry_limit'] = retry_limit if retry_limit
     code, body, res = post("/v3/job/issue/hive/#{e db}", params)
     if code != "200"
       raise_error("Query failed", res)
@@ -690,8 +693,9 @@ class API
       delay = m['delay']
       next_time = m['next_time']
       priority = m['priority']
+      retry_limit = m['retry_limit']
       organization = m['organization']
-      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority, organization]
+      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, organization]
     }
     return result
   end
