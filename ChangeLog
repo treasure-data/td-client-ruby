@@ -1,3 +1,9 @@
+== 2012-01-16 version 0.8.42
+
+* Added retry_limit to job and schedule APIs
+* Increased table/database name limit from 32 to 256
+
+
 == 2012-01-10 version 0.8.41
 
 * Fix API#job_result_format to handle Content-Encoding properly
