@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'td/client/spec_resources'
 
 describe 'Result API' do
+  include_context 'spec symbols'
   include_context 'common helper'
 
   let :api do
@@ -9,14 +10,6 @@ describe 'Result API' do
   end
 
   describe 'create_result' do
-    let :result_name do
-      'test'
-    end
-
-    let :result_url do
-      'td://@/test/table'
-    end
-
     it 'should create a new result' do
       params = {'url' => result_url}
       stub_api_request(:post, "/v3/result/create/#{e(result_name)}").with(:body => params).to_return(:body => {'result' => result_name})

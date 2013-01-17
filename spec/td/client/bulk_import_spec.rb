@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'td/client/spec_resources'
 
 describe 'BulkImport API' do
+  include_context 'spec symbols'
   include_context 'common helper'
 
   let :api do
@@ -9,18 +10,6 @@ describe 'BulkImport API' do
   end
 
   describe 'create_bulk_import' do
-    let :db_name do
-      'test'
-    end
-
-    let :table_name do
-      'table'
-    end
-
-    let :bi_name do
-      'bulker'
-    end
-
     it 'should create a new bulk_import' do
       stub_api_request(:post, "/v3/bulk_import/create/#{e(bi_name)}/#{e(db_name)}/#{e(table_name)}")
         .to_return(:body => {'bulk_import' => bi_name}.to_json)

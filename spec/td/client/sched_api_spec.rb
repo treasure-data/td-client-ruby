@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'td/client/spec_resources'
 
 describe 'Schedule API' do
+  include_context 'spec symbols'
   include_context 'common helper'
 
   let :api do
@@ -9,26 +10,6 @@ describe 'Schedule API' do
   end
 
   describe 'create_schedule' do
-    let :sched_name do
-      'test'
-    end
-
-    let :cron do
-      '* * * * *'
-    end
-
-    let :query do
-      'select 1'
-    end
-
-    let :db_name do
-      'test'
-    end
-
-    let :result_url do
-      'td://@/test/table'
-    end
-
     let :opts do
       {'cron' => cron, 'query' => query, 'database' => db_name}
     end

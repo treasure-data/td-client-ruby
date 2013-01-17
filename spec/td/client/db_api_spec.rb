@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'td/client/spec_resources'
 
 describe 'Database API' do
+  include_context 'spec symbols'
   include_context 'common helper'
 
   let :api do
@@ -9,10 +10,6 @@ describe 'Database API' do
   end
 
   describe 'create_database' do
-    let :db_name do
-      'test'
-    end
-
     it 'should create a new database' do
       stub_api_request(:post, "/v3/database/create/#{e(db_name)}").to_return(:body => {'database' => db_name}.to_json)
 

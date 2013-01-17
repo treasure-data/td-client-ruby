@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'td/client/spec_resources'
 
 describe 'Job API' do
+  include_context 'spec symbols'
   include_context 'job resources'
 
   let :api do
@@ -74,39 +75,31 @@ describe 'Job API' do
   end
 
   describe 'hive_query' do
-    let :db do
-      'test'
-    end
-
-    let :query do
-      'select 1'
-    end
-
     let :return_body do
       {:body => {'job_id' => '1'}.to_json}
     end
 
     it 'issue a query' do
       params =  {'query' => query}
-      stub_api_request(:post, "/v3/job/issue/hive/#{e(db)}").with(:body => params).to_return(return_body)
+      stub_api_request(:post, "/v3/job/issue/hive/#{e(db_name)}").with(:body => params).to_return(return_body)
 
-      job_id = api.hive_query(query, db)
+      job_id = api.hive_query(query, db_name)
       job_id.should == '1'
     end
 
     it 'issue a query with result_url' do
       params =  {'query' => query, 'result' => 'td://@/test/table'}
-      stub_api_request(:post, "/v3/job/issue/hive/#{e(db)}").with(:body => params).to_return(return_body)
+      stub_api_request(:post, "/v3/job/issue/hive/#{e(db_name)}").with(:body => params).to_return(return_body)
 
-      job_id = api.hive_query(query, db, 'td://@/test/table')
+      job_id = api.hive_query(query, db_name, 'td://@/test/table')
       job_id.should == '1'
     end
 
     it 'issue a query with priority' do
       params =  {'query' => query, 'priority' => '1'}
-      stub_api_request(:post, "/v3/job/issue/hive/#{e(db)}").with(:body => params).to_return(return_body)
+      stub_api_request(:post, "/v3/job/issue/hive/#{e(db_name)}").with(:body => params).to_return(return_body)
 
-      job_id = api.hive_query(query, db, nil, 1)
+      job_id = api.hive_query(query, db_name, nil, 1)
       job_id.should == '1'
     end
   end

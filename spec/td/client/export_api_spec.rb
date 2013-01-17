@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'td/client/spec_resources'
 
 describe 'Export API' do
+  include_context 'spec symbols'
   include_context 'common helper'
 
   let :api do
@@ -9,14 +10,6 @@ describe 'Export API' do
   end
 
   describe 'export' do
-    let :db_name do
-      'test'
-    end
-
-    let :table_name do
-      'table'
-    end
-
     let :storage_type do
       's3'
     end

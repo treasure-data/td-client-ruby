@@ -1,6 +1,39 @@
 require 'spec_helper'
 require 'td/client/model'
 
+shared_context 'spec symbols' do
+  let :db_name do
+    'db_test'
+  end
+
+  let :table_name do
+    'table_test'
+  end
+
+  let :sched_name do
+    'sched_test'
+  end
+
+  let :result_name do
+    'test'
+  end
+
+  let :bi_name do
+    'bi_test'
+  end
+
+  let :cron do
+    '* * * * *'
+  end
+
+  let :query do
+    'select 1'
+  end
+  let :result_url do
+    'td://@/test/table'
+  end
+end
+
 shared_context 'database resources' do
   include_context 'common helper'
 

@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'td/client/spec_resources'
 
 describe 'PartialDelete API' do
+  include_context 'spec symbols'
   include_context 'common helper'
 
   let :api do
@@ -9,14 +10,6 @@ describe 'PartialDelete API' do
   end
 
   describe 'partialdelete' do
-    let :db_name do
-      'test'
-    end
-
-    let :table_name do
-      'table'
-    end
-
     let :from do
       0
     end
