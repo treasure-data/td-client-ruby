@@ -216,8 +216,9 @@ class API
   end
 
   # => true
-  def create_database(db)
-    code, body, res = post("/v3/database/create/#{e db}")
+  def create_database(db, opts={})
+    params = opts.dup
+    code, body, res = post("/v3/database/create/#{e db}", params)
     if code != "200"
       raise_error("Create database failed", res)
     end
@@ -462,8 +463,8 @@ class API
   end
 
   # => jobId:String
-  def hive_query(q, db=nil, result_url=nil, priority=nil, retry_limit=nil)
-    params = {'query' => q}
+  def hive_query(q, db=nil, result_url=nil, priority=nil, retry_limit=nil, opts={})
+    params = {'query' => q}.merge(opts)
     params['result'] = result_url if result_url
     params['priority'] = priority if priority
     params['retry_limit'] = retry_limit if retry_limit
@@ -496,8 +497,8 @@ class API
   ## Partial delete API
   ##
 
-  def partial_delete(db, table, to, from)
-    params = {}
+  def partial_delete(db, table, to, from, opts={})
+    params = opts.dup
     params['to'] = to.to_s
     params['from'] = from.to_s
     code, body, res = post("/v3/table/partialdelete/#{e db}/#{e table}", params)
@@ -791,8 +792,9 @@ class API
   end
 
   # => true
-  def create_result(name, url)
-    code, body, res = post("/v3/result/create/#{e name}", {'url'=>url})
+  def create_result(name, url, opts)
+    params = {'url'=>url}.merge(opts)
+    code, body, res = post("/v3/result/create/#{e name}", params)
     if code != "200"
       raise_error("Create result table failed", res)
     end

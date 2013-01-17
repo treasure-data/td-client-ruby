@@ -32,8 +32,8 @@ class Client
   end
 
   # => true
-  def create_database(db_name)
-    @api.create_database(db_name)
+  def create_database(db_name, opts={})
+    @api.create_database(db_name, opts)
   end
 
   # => true
@@ -120,8 +120,8 @@ class Client
   end
 
   # => Job
-  def query(db_name, q, result_url=nil, priority=nil, retry_limit=nil)
-    job_id = @api.hive_query(q, db_name, result_url, priority, retry_limit)
+  def query(db_name, q, result_url=nil, priority=nil, retry_limit=nil, opts={})
+    job_id = @api.hive_query(q, db_name, result_url, priority, retry_limit, opts)
     Job.new(self, job_id, :hive, q)
   end
 
@@ -174,14 +174,14 @@ class Client
   end
 
   # => Job
-  def partial_delete(db_name, table_name, to, from)
-    job_id = @api.partial_delete(db_name, table_name, to, from)
+  def partial_delete(db_name, table_name, to, from, opts={})
+    job_id = @api.partial_delete(db_name, table_name, to, from, opts)
     Job.new(self, job_id, :partialdelete, nil)
   end
 
   # => nil
-  def create_bulk_import(name, database, table)
-    @api.create_bulk_import(name, database, table)
+  def create_bulk_import(name, database, table, opts={})
+    @api.create_bulk_import(name, database, table, opts)
   end
 
   # => nil
@@ -294,8 +294,8 @@ class Client
   end
 
   # => true
-  def create_result(name, url)
-    @api.create_result(name, url)
+  def create_result(name, url, opts={})
+    @api.create_result(name, url, opts)
   end
 
   # => true
