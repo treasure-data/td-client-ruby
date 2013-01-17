@@ -35,7 +35,7 @@ describe 'Job API' do
         job = raw_jobs[i]
         stub_api_request(:get, "/v3/job/show/#{e(i)}").to_return(:body => job.to_json)
 
-        type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, org, db = api.show_job(i)
+        type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org, db = api.show_job(i)
         type.should == job['type']
         query.should == job['query']
         status.should == job['status']

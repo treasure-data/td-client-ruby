@@ -45,6 +45,7 @@ shared_context 'job resources' do
         "updated_at"  => (created_at + (i * 10)).to_s,
         "start_at"    => (created_at + (i * 10 * 60)).to_s,
         "end_at"      => (created_at + (i * 10 * 3600)).to_s,
+        'retry_limit' => 10,
         'organization' => nil,
         'hive_result_schema' => nil,
         'debug' => { 
