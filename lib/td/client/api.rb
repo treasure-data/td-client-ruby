@@ -792,7 +792,7 @@ class API
   end
 
   # => true
-  def create_result(name, url, opts)
+  def create_result(name, url, opts={})
     params = {'url'=>url}.merge(opts)
     code, body, res = post("/v3/result/create/#{e name}", params)
     if code != "200"
