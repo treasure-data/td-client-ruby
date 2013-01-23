@@ -1,3 +1,9 @@
+== 2012-01-23 version 0.8.43
+
+* Add organization parameter support to create_database, query,
+  partial_delete, create_bulk_import, create_result
+
+
 == 2012-01-16 version 0.8.42
 
 * Added retry_limit to job and schedule APIs
