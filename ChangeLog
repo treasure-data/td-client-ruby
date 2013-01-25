@@ -1,3 +1,9 @@
+== 2012-01-25 version 0.8.45
+
+* Re-implement Client#job_status using /v3/job/status/job_id
+  instead of /v3/job/show/job_id to poll the progress of a job
+
+
 == 2012-01-23 version 0.8.44
 
 * Re-add json gem dependency
