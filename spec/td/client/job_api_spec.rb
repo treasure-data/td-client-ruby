@@ -74,6 +74,26 @@ describe 'Job API' do
     end
   end
 
+  describe 'job status' do
+    (0...MAX_JOB).each { |i|
+      it 'should return the status of a job #{i}' do
+        job_id = i.to_s
+        raw_job = raw_jobs[i]
+        result_job = {
+          'job_id' => raw_job['job_id'],
+          'status' => raw_job['status'],
+          'created_at' => raw_job['created_at'],
+          'start_at' => raw_job['start_at'],
+          'end_at' => raw_job['end_at'],
+        }
+        stub_api_request(:get, "/v3/job/status/#{e(job_id)}").to_return(:body => result_job.to_json)
+
+        status = api.job_status(job_id)
+        status.should == (i.odd? ? 'success' : 'error')
+      end
+    }
+  end
+
   describe 'hive_query' do
     let :return_body do
       {:body => {'job_id' => '1'}.to_json}

@@ -140,11 +140,9 @@ class Client
     Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, nil, result_url, hive_result_schema, priority, retry_limit, org, db)
   end
 
-  # => type:Symbol, url:String
+  # => status:String
   def job_status(job_id)
-    # use v3/job/status instead of v3/job/show to poll finish of a job
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org, db = @api.show_job(job_id)
-    return query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org, db
+    return @api.job_status(job_id)
   end
 
   # => result:[{column:String=>value:Object]

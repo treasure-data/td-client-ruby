@@ -309,8 +309,8 @@ class Job < Model
   end
 
   def finished?
-    update_status! unless @status
-    if FINISHED_STATUS.include?(@status)
+    update_progress! unless @status
+    if FINISHED_STATUS.include?(@status)      
       return true
     else
       return false
@@ -322,22 +322,26 @@ class Job < Model
   end
 
   def success?
-    update_status! unless @status
+    update_progress! unless @status
     @status == "success"
   end
 
   def error?
-    update_status! unless @status
+    update_progress! unless @status
     @status == "error"
   end
 
   def killed?
-    update_status! unless @status
+    update_progress! unless @status
     @status == "killed"
   end
 
+  def update_progress!
+    @status = @client.job_status(@job_id)
+  end
+
   def update_status!
-    query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org_name, db_name = @client.job_status(@job_id)
+    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org_name, db_name = @client.api.show_job(@job_id)
     @query = query
     @status = status
     @url = url

@@ -397,6 +397,16 @@ class API
     return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, retry_limit, organization, database]
   end
 
+  def job_status(job_id)
+    code, body, res = get("/v3/job/status/#{e job_id}")
+    if code != "200"
+      raise_error("Get job status failed", res)
+    end
+
+    js = checked_json(body, %w[status])
+    return js['status']
+  end
+
   def job_result(job_id)
     require 'msgpack'
     code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'})
