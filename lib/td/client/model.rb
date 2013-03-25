@@ -491,6 +491,22 @@ class AccessControl < Model
 end
 
 
+class IpLimit < Model
+  def initialize(client, org, address, mask)
+    super(client)
+    @org = org
+    @address = address
+    @mask = mask
+  end
+
+  def ip_range
+    "#{address}/#{mask}"
+  end
+
+  attr_reader :org, :address, :mask
+end
+
+
 class AggregationSchema < Model
   def initialize(client, name, relation_key, logs=nil, attributes=nil, timezone=nil)
     super(client)

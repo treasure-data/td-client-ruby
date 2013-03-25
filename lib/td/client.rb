@@ -418,6 +418,21 @@ class Client
     @api.test_access_control(user, action, scope)
   end
 
+  def ip_limits
+    ips = @api.list_ip_limits
+    ips.map { |org, ipaddr, mask|
+      IpLimit.new(self, org, ipaddr, mask)
+    }
+  end
+
+  def set_ip_limit(org, ip_ranges)
+    @api.set_ip_limit(org, ip_ranges.to_json)
+  end
+
+  def delete_ip_limit(org)
+    @api.delete_ip_limit(org)
+  end
+
   # => [AggregationSchema]
   def aggregation_schemas
     list = @api.list_aggregation_schema

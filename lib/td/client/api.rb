@@ -1218,6 +1218,42 @@ class API
     return acl
   end
 
+  ####
+  ## IP Range Limit API
+  ##
+
+  def list_ip_limits
+    code, body, res = get("/v3/ip_limit/list")
+    if code != "200"
+      raise_error("Listing IP limitations failed", res)
+    end
+    js = checked_json(body, %w[ip_limits])
+    lists = js["ip_limits"].map { |ip_limit|
+      organization = ip_limit['organization']
+      address = ip_limit['address']
+      mask = ip_limit['mask']
+      [organization, address, mask]
+    }
+    return lists
+  end
+
+  def set_ip_limit(organization, ip_ranges)
+    params = {'organization' => organization, 'ip_ranges' => ip_ranges}
+    code, body, res = post("/v3/ip_limit/set", params)
+    if code != "200"
+      raise_error("Setting IP limitation failed", res)
+    end
+    return true
+  end
+
+  def delete_ip_limit(organization)
+    params = {'organization' => organization}
+    code, body, res = post("/v3/ip_limit/delete", params)
+    if code != "200"
+      raise_error("Deleting IP range limitation failed", res)
+    end
+    return true
+  end
 
   ####
   ## Server Status API
