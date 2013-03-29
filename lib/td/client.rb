@@ -121,8 +121,11 @@ class Client
 
   # => Job
   def query(db_name, q, result_url=nil, priority=nil, retry_limit=nil, opts={})
-    job_id = @api.hive_query(q, db_name, result_url, priority, retry_limit, opts)
-    Job.new(self, job_id, :hive, q)
+    # for compatibility, assume type is hive unless specifically specified
+    type = :hive || opts[:type]
+    raise ArgumentError, "only 'hive' and 'pig' types are supported" unless [:hive, :pig].include? type
+    job_id = @api.query(q, type, db_name, result_url, priority, retry_limit, opts)
+    Job.new(self, job_id, type, q)
   end
 
   # => [Job]

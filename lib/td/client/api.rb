@@ -474,11 +474,21 @@ class API
 
   # => jobId:String
   def hive_query(q, db=nil, result_url=nil, priority=nil, retry_limit=nil, opts={})
+    query(q, :hive, db, result_url, priority, retry_limit, opts)
+  end
+
+  # => jobId:String
+  def pig_query(q, db=nil, result_url=nil, priority=nil, retry_limit=nil, opts={})
+    query(q, :pig, db, result_url, priority, retry_limit, opts)
+  end
+
+  # => jobId:String
+  def query(q, type=:hive, db=nil, result_url=nil, priority=nil, retry_limit=nil, opts={})
     params = {'query' => q}.merge(opts)
     params['result'] = result_url if result_url
     params['priority'] = priority if priority
     params['retry_limit'] = retry_limit if retry_limit
-    code, body, res = post("/v3/job/issue/hive/#{e db}", params)
+    code, body, res = post("/v3/job/issue/#{type}/#{e db}", params)
     if code != "200"
       raise_error("Query failed", res)
     end
