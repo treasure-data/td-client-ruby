@@ -4,6 +4,10 @@
 
     > gem install td-client
 
+== Running Tests
+    > gem install jeweler
+    > gem install webmock
+    > rake spec
 
 == Copyright
 
