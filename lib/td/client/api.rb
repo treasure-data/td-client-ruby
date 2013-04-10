@@ -677,7 +677,7 @@ class API
 
   # => start:String
   def create_schedule(name, opts)
-    params = opts.update({'type'=>'hive'})
+    params = opts.update({:type=> opts[:type] || opts['type'] || 'hive'})
     code, body, res = post("/v3/schedule/create/#{e name}", params)
     if code != "200"
       raise_error("Create schedule failed", res)
