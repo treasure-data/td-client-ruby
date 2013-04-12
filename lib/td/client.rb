@@ -203,11 +203,7 @@ class Client
   # => Job
   def perform_bulk_import(name)
     job_id = @api.perform_bulk_import(name)
-    if job_id
-      Job.new(self, job_id, :bulk_import, nil)
-    else
-      nil
-    end
+    Job.new(self, job_id, :bulk_import, nil)
   end
 
   # => nil

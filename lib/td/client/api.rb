@@ -620,12 +620,8 @@ class API
     if code != "200"
       raise_error("Perform bulk import failed", res)
     end
-    js = checked_json(body, %w[])
-    if jid = js['job_id']
-      return jid.to_s
-    else
-      return nil
-    end
+    js = checked_json(body, %w[job_id])
+    return js['job_id'].to_s
   end
 
   # => nil
