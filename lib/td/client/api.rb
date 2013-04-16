@@ -303,7 +303,7 @@ class API
   def delete_table(db, table)
     code, body, res = post("/v3/table/delete/#{e db}/#{e table}")
     if code != "200"
-      raise_error("Drop table failed", res)
+      raise_error("Delete table failed", res)
     end
     js = checked_json(body, %w[])
     type = (js['type'] || '?').to_sym
@@ -465,7 +465,7 @@ class API
   def kill(job_id)
     code, body, res = post("/v3/job/kill/#{e job_id}")
     if code != "200"
-      raise_error("Get job result failed", res)
+      raise_error("Kill job failed", res)
     end
     js = checked_json(body, %w[])
     former_status = js['former_status']
@@ -882,7 +882,7 @@ class API
   def show_aggregation_schema(name)
     code, body, res = get("/v3/aggr/show/#{e name}")
     if code != "200"
-      raise_error("Show job failed", res)
+      raise_error("Show aggregation schema failed", res)
     end
     js = checked_json(body, %w[relation_key logs attrs])
     relation_key = js['relation_key']
@@ -969,7 +969,7 @@ class API
   def list_organizations
     code, body, res = get("/v3/organization/list")
     if code != "200"
-      raise_error("List aggregation schema failed", res)
+      raise_error("List organizations failed", res)
     end
     js = checked_json(body, %w[organizations])
     result = js["organizations"].map {|orginfo|
@@ -1079,7 +1079,7 @@ class API
   def list_users
     code, body, res = get("/v3/user/list")
     if code != "200"
-      raise_error("List aggregation schema failed", res)
+      raise_error("List users failed", res)
     end
     js = checked_json(body, %w[users])
     result = js["users"].map {|roleinfo|
