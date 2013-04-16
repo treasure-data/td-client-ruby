@@ -359,8 +359,8 @@ class Client
   end
 
   # => true
-  def add_user(user, org)
-    @api.add_user(user, org)
+  def add_user(name, org, email, password)
+    @api.add_user(name, org, email, password)
   end
 
   # => true
