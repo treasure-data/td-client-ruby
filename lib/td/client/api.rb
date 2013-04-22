@@ -16,6 +16,9 @@ end
 
 
 class API
+  DEFAULT_ENDPOINT = 'api.treasure-data.com'
+  DEFAULT_IMPORT_ENDPOINT = 'api-import.treasure-data.com'
+
   def initialize(apikey, opts={})
     require 'json'
     require 'time'
@@ -26,7 +29,7 @@ class API
 
     @apikey = apikey
 
-    endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || 'api.treasure-data.com'
+    endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || DEFAULT_ENDPOINT
     uri = URI.parse(endpoint)
 
     case uri.scheme
@@ -784,7 +787,11 @@ class API
     else
       path = "/v3/table/import/#{e db}/#{e table}/#{format}"
     end
-    code, body, res = put(path, stream, size)
+    opts = {}
+    if @host == DEFAULT_ENDPOINT
+      opts[:host] = DEFAULT_IMPORT_ENDPOINT
+    end
+    code, body, res = put(path, stream, size, opts)
     if code[0] != ?2
       raise_error("Import failed", res)
     end
@@ -1373,8 +1380,8 @@ class API
     return [response.code, response.body, response]
   end
 
-  def put(url, stream, size)
-    http, header = new_http
+  def put(url, stream, size, opts = {})
+    http, header = new_http(opts)
 
     http.read_timeout = 600
 
@@ -1398,8 +1405,9 @@ class API
     return [response.code, response.body, response]
   end
 
-  def new_http
-    http = @http_class.new(@host, @port)
+  def new_http(opts = {})
+    host = opts[:host] || @host
+    http = @http_class.new(host, @port)
     http.open_timeout = 60
     if @ssl
       http.use_ssl = true
