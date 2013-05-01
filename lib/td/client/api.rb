@@ -1,3 +1,4 @@
+require 'td/client/version'
 
 module TreasureData
 
@@ -28,6 +29,7 @@ class API
     require 'time'
 
     @apikey = apikey
+    @user_agent = opts[:user_agent] || "TD Client Ruby: #{TreasureData::VERSION}"
 
     endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || DEFAULT_ENDPOINT
     uri = URI.parse(endpoint)
@@ -1422,6 +1424,7 @@ class API
       header['Authorization'] = "TD1 #{apikey}"
     end
     header['Date'] = Time.now.rfc2822
+    header['User-Agent'] = @user_agent
 
     return http, header
   end
