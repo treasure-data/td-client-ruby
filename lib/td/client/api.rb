@@ -29,7 +29,7 @@ class API
     require 'time'
 
     @apikey = apikey
-    @user_agent = opts[:user_agent] || "TD Client Ruby: #{TreasureData::VERSION}"
+    @user_agent = opts[:user_agent] || "TD Client Ruby: #{TreasureData::Client::VERSION}"
 
     endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || DEFAULT_ENDPOINT
     uri = URI.parse(endpoint)

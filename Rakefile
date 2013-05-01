@@ -33,9 +33,9 @@ file VERSION_FILE => ["VERSION"] do |t|
   File.open(VERSION_FILE, "w") {|f|
     f.write <<EOF
 module TreasureData
-
+  class Client
 VERSION = '#{version}'
-
+  end
 end
 EOF
   }
