@@ -1,8 +1,15 @@
+== 2012-05-06 version 0.8.49
+
+* Add User-Agent header
+* VERSION constant moved to under TreasureData::Client
+
+
 == 2012-04-22 version 0.8.48
 
 * create_schedule now takes :type option
 * Fix wrong error messages
 * Ues 'api-import' instead of 'api' on data import
+
 
 == 2012-04-09 version 0.8.47
 
