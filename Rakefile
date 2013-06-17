@@ -9,8 +9,8 @@ begin
     gemspec.name = "td-client"
     gemspec.summary = "Treasure Data API library for Ruby"
     gemspec.authors = ["Sadayuki Furuhashi"]
-    gem.email       = "support@treasure-data.com"
-    gem.homepage    = "http://treasure-data.com/"
+    #gem.email       = "support@treasure-data.com"
+    #gem.homepage    = "http://treasure-data.com/"
     gemspec.has_rdoc = false
     gemspec.require_paths = ["lib"]
     gemspec.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.6.0"]

@@ -1,3 +1,8 @@
+== 2012-05-27 version 0.8.51
+
+* Relax dependent gem versions
+
+
 == 2012-05-27 version 0.8.50
 
 * add_user now requires email and passowrd
