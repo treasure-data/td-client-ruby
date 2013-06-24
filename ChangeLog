@@ -1,4 +1,9 @@
-== 2012-05-27 version 0.8.51
+== 2012-06-24 version 0.8.52
+
+* Add last_log_timestamp to Table model
+
+
+== 2012-06-17 version 0.8.51
 
 * Relax dependent gem versions
 
