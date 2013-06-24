@@ -251,9 +251,10 @@ class API
       created_at = m['created_at']
       updated_at = m['updated_at']
       last_import = m['counter_updated_at']
+      last_log_timestamp = m['last_log_timestamp']
       estimated_storage_size = m['estimated_storage_size'].to_i
       schema = JSON.parse(m['schema'] || '[]')
-      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import]
+      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp]
     }
     return result
   end
