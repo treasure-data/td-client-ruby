@@ -24,6 +24,14 @@ describe API do
   }
 
   describe 'normalizer' do
+    it 'normalized_msgpack should convert Bignum into String' do
+      h = {'key' => 1111111111111111111111111111111111}
+      expect {
+        unpacked = MessagePack.unpack(API.normalized_msgpack(h))
+        expect(unpacked).to eq(h['key'].to_s)
+      }.not_to raise_error(RangeError)
+    end
+
     it 'normalize_database_name should return normalized data' do
       INVALID_NAMES.each_pair {|ng,ok|
         API.normalize_database_name(ng).should == ok

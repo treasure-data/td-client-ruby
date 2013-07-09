@@ -78,6 +78,16 @@ class API
 
   attr_reader :apikey
 
+  def self.normalized_msgpack(record)
+    record.keys.each { |k|
+      v = record[k]
+      if v.kind_of?(Bignum)
+        record[k] = v.to_s
+      end
+    }
+    record.to_msgpack
+  end
+
   def self.validate_database_name(name)
     name = name.to_s
     if name.empty?
