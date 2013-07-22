@@ -1,3 +1,8 @@
+== 2012-07-22 version 0.8.53
+
+* Add normalized_msgpack method to serialize Bignum type
+
+
 == 2012-06-24 version 0.8.52
 
 * Add last_log_timestamp to Table model
