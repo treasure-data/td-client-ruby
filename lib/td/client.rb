@@ -91,6 +91,11 @@ class Client
     @api.update_schema(db_name, table_name, schema.to_json)
   end
 
+  # => true
+  def update_expire(db_name, table_name, expire_days)
+    @api.update_expire(db_name, table_name, expire_days)
+  end
+
   # => type:Symbol
   def delete_table(db_name, table_name)
     @api.delete_table(db_name, table_name)

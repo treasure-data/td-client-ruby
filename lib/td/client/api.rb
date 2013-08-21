@@ -316,6 +316,14 @@ class API
     return true
   end
 
+  def update_expire(db, table, expire_days)
+    code, body, res = post("/v3/table/update/#{e db}/#{e table}", {'expire_days'=>expire_days})
+    if code != "200"
+      raise_error("Update table expiration failed", res)
+    end
+    return true
+  end  
+
   # => type:Symbol
   def delete_table(db, table)
     code, body, res = post("/v3/table/delete/#{e db}/#{e table}")
