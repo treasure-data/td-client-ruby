@@ -252,6 +252,7 @@ class API
     if code != "200"
       raise_error("List tables failed", res)
     end
+    puts body
     js = checked_json(body, %w[tables])
     result = {}
     js["tables"].map {|m|
@@ -264,7 +265,8 @@ class API
       last_log_timestamp = m['last_log_timestamp']
       estimated_storage_size = m['estimated_storage_size'].to_i
       schema = JSON.parse(m['schema'] || '[]')
-      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp]
+      expire_days = m['expire_days']
+      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days]
     }
     return result
   end
