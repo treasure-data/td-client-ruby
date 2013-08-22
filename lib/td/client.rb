@@ -104,7 +104,6 @@ class Client
   # => [Table]
   def tables(db_name)
     m = @api.list_tables(db_name)
-    puts m
     m.map {|table_name,(type,schema,count,created_at,updated_at,estimated_storage_size, last_import, last_log_timestamp, expire_days)|
       schema = Schema.new.from_json(schema)
       Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at,

@@ -252,7 +252,6 @@ class API
     if code != "200"
       raise_error("List tables failed", res)
     end
-    puts body
     js = checked_json(body, %w[tables])
     result = {}
     js["tables"].map {|m|
