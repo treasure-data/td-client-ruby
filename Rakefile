@@ -15,6 +15,7 @@ begin
     gemspec.require_paths = ["lib"]
     gemspec.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.6.0"]
     gemspec.add_dependency "json", ">= 1.7.6"
+    gemspec.add_dependency "httpclient", "~> 2.3.4"
     gemspec.add_development_dependency "rspec", "~> 2.8.0"
     gemspec.add_development_dependency "webmock", "~> 1.9.0"
     gemspec.test_files = Dir["spec/**/*_spec.rb"]

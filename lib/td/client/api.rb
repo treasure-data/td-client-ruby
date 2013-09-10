@@ -27,6 +27,8 @@ class API
     require 'net/http'
     require 'net/https'
     require 'time'
+    #require 'faraday' # faraday doesn't support streaming upload with httpclient yet so now disabled
+    require 'httpclient'
 
     @apikey = apikey
     @user_agent = "TD-Client-Ruby: #{TreasureData::Client::VERSION}"
@@ -1404,28 +1406,26 @@ class API
   end
 
   def put(url, stream, size, opts = {})
-    http, header = new_http(opts)
-
-    http.read_timeout = 600
-
-    path = @base_path + url
+    client, header = new_client(opts)
+    client.send_timeout = 600
+    client.receive_timeout = 600
 
     header['Content-Type'] = 'application/octet-stream'
     header['Content-Length'] = size.to_s
 
-    request = Net::HTTP::Put.new(url, header)
-    if stream.class.name == 'StringIO'
-      request.body = stream.string
-    else
-      if request.respond_to?(:body_stream=)
-        request.body_stream = stream
-      else  # Ruby 1.8
-        request.body = stream.read
-      end
-    end
+    body = if stream.class.name == 'StringIO'
+             stream.string
+           else
+             stream
+           end
+    target = build_endpoint(url, opts[:host] || @host)
+    response = client.put(target, body, header)
+    return [response.code.to_s, response.body, response]
+  end
 
-    response = http.request(request)
-    return [response.code, response.body, response]
+  def build_endpoint(url, host)
+    schema = @ssl ? 'https' : 'http'
+    "#{schema}://#{host}:#{@port}/#{@base_path + url}"
   end
 
   def new_http(opts = {})
@@ -1448,6 +1448,24 @@ class API
     header['User-Agent'] = @user_agent
 
     return http, header
+  end
+
+  def new_client(opts = {})
+    client = HTTPClient.new(@http_proxy, @user_agent)
+    client.connect_timeout = 60
+
+    if @ssl
+      client.ssl_config.add_trust_ca(File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt'))
+      client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    end
+
+    header = {}
+    if @apikey
+      header['Authorization'] = "TD1 #{apikey}"
+    end
+    header['Date'] = Time.now.rfc2822
+
+    return client, header
   end
 
   def raise_error(msg, res, klass=nil)
