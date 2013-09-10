@@ -37,6 +37,10 @@ class API
     endpoint = opts[:endpoint] || ENV['TD_API_SERVER'] || DEFAULT_ENDPOINT
     uri = URI.parse(endpoint)
 
+    @connect_timeout = opts[:connect_timeout] || 60
+    @read_timeout = opts[:read_timeout] || 600
+    @send_timeout = opts[:send_timeout] || 600
+
     case uri.scheme
     when 'http', 'https'
       @host = uri.host
@@ -65,10 +69,12 @@ class API
 
     @http_proxy = opts[:http_proxy] || ENV['HTTP_PROXY']
     if @http_proxy
-      if @http_proxy =~ /\Ahttp:\/\/(.*)\z/
-        @http_proxy = $~[1]
-      end
-      proxy_host, proxy_port = @http_proxy.split(':',2)
+      http_proxy = if @http_proxy =~ /\Ahttp:\/\/(.*)\z/
+                     $~[1]
+                   else
+                     @http_proxy
+                   end
+      proxy_host, proxy_port = http_proxy.split(':',2)
       proxy_port = (proxy_port ? proxy_port.to_i : 80)
       @http_class = Net::HTTP::Proxy(proxy_host, proxy_port)
     else
@@ -1407,8 +1413,8 @@ class API
 
   def put(url, stream, size, opts = {})
     client, header = new_client(opts)
-    client.send_timeout = 600
-    client.receive_timeout = 600
+    client.send_timeout = @send_timeout
+    client.receive_timeout = @read_timeout
 
     header['Content-Type'] = 'application/octet-stream'
     header['Content-Length'] = size.to_s
@@ -1452,7 +1458,7 @@ class API
 
   def new_client(opts = {})
     client = HTTPClient.new(@http_proxy, @user_agent)
-    client.connect_timeout = 60
+    client.connect_timeout = @connect_timeout
 
     if @ssl
       client.ssl_config.add_trust_ca(File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt'))
