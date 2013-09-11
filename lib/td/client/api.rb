@@ -1479,12 +1479,13 @@ class API
       js = JSON.load(res.body)
       msg = js['message']
       error_code = js['error_code']
+      status_code = res.code.to_s
 
       if klass
         raise klass, "#{error_code}: #{msg}"
-      elsif res.code == "404"
+      elsif status_code == "404"
         raise NotFoundError, "#{error_code}: #{msg}"
-      elsif res.code == "409"
+      elsif status_code == "409"
         raise AlreadyExistsError, "#{error_code}: #{msg}"
       else
         raise APIError, "#{error_code}: #{msg}"
@@ -1493,9 +1494,9 @@ class API
     rescue
       if klass
         raise klass, "#{error_code}: #{msg}"
-      elsif res.code == "404"
+      elsif status_code == "404"
         raise NotFoundError, "#{msg}: #{res.body}"
-      elsif res.code == "409"
+      elsif status_code == "409"
         raise AlreadyExistsError, "#{msg}: #{res.body}"
       else
         raise APIError, "#{msg}: #{res.body}"
