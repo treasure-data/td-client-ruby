@@ -1,75 +1,82 @@
-== 2012-08-23 version 0.8.54
+== 2013-09-13 version 0.8.55
+
+* Use httpclient gem for import and bulk_import upload
+* connect_timeout / read_timeout / send_timeout options are available.
+  * these options affect only import and bulk_import upload.
+
+
+== 2013-08-23 version 0.8.54
 
 * Support table's expire_days API
 
 
-== 2012-07-22 version 0.8.53
+== 2013-07-22 version 0.8.53
 
 * Add normalized_msgpack method to serialize Bignum type
 
 
-== 2012-06-24 version 0.8.52
+== 2013-06-24 version 0.8.52
 
 * Add last_log_timestamp to Table model
 
 
-== 2012-06-17 version 0.8.51
+== 2013-06-17 version 0.8.51
 
 * Relax dependent gem versions
 
 
-== 2012-05-27 version 0.8.50
+== 2013-05-27 version 0.8.50
 
 * add_user now requires email and passowrd
 
 
-== 2012-05-06 version 0.8.49
+== 2013-05-06 version 0.8.49
 
 * Add User-Agent header
 * VERSION constant moved to under TreasureData::Client
 
 
-== 2012-04-22 version 0.8.48
+== 2013-04-22 version 0.8.48
 
 * create_schedule now takes :type option
 * Fix wrong error messages
 * Ues 'api-import' instead of 'api' on data import
 
 
-== 2012-04-09 version 0.8.47
+== 2013-04-09 version 0.8.47
 
 * Fix HTTP proxy handlig issue which is overwritten with ENV['HTTP_PROXY']
 
 
-== 2012-03-29 version 0.8.46
+== 2013-03-29 version 0.8.46
 
 * Add IP limitation API
 
 
-== 2012-01-25 version 0.8.45
+== 2013-01-25 version 0.8.45
 
 * Re-implement Client#job_status using /v3/job/status/job_id
   instead of /v3/job/show/job_id to poll the progress of a job
 
 
-== 2012-01-23 version 0.8.44
+== 2013-01-23 version 0.8.44
 
 * Re-add json gem dependency
 
 
-== 2012-01-23 version 0.8.43
+== 2013-01-23 version 0.8.43
 
 * Add organization parameter support to create_database, query,
   partial_delete, create_bulk_import, create_result
 
 
-== 2012-01-16 version 0.8.42
+== 2013-01-16 version 0.8.42
 
 * Added retry_limit to job and schedule APIs
 * Increased table/database name limit from 32 to 256
 
 
-== 2012-01-10 version 0.8.41
+== 2013-01-10 version 0.8.41
 
 * Fix API#job_result_format to handle Content-Encoding properly
 
