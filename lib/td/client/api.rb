@@ -80,6 +80,8 @@ class API
     else
       @http_class = Net::HTTP
     end
+
+    @headers = opts[:headers] || {}
   end
 
   # TODO error check & raise appropriate errors
@@ -1453,6 +1455,8 @@ class API
     header['Date'] = Time.now.rfc2822
     header['User-Agent'] = @user_agent
 
+    header.merge!(@headers)
+
     return http, header
   end
 
@@ -1470,6 +1474,8 @@ class API
       header['Authorization'] = "TD1 #{apikey}"
     end
     header['Date'] = Time.now.rfc2822
+
+    header.merge!(@headers)
 
     return client, header
   end
