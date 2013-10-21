@@ -171,6 +171,15 @@ class API
     end
   end
 
+  # for fluent-plugin-td / td command to check table existence with import onlt user
+  def self.create_empty_gz_data
+    require 'zlib'
+    require 'stringio'
+
+    io = StringIO.new
+    Zlib::GzipWriter.new(io).close
+    io.string
+  end
 
   ####
   ## Account API
