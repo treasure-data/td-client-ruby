@@ -77,8 +77,8 @@ class Client
   end
 
   # => true
-  def create_item_table(db_name, table_name)
-    @api.create_item_table(db_name, table_name)
+  def create_item_table(db_name, table_name, primary_key, primary_key_type)
+    @api.create_item_table(db_name, table_name, primary_key, primary_key_type)
   end
 
   # => true
