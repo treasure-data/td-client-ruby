@@ -1010,44 +1010,6 @@ class API
     return true
   end
 
-
-  ####
-  ## Organization API
-  ##
-
-  # => [name:String]
-  def list_organizations
-    code, body, res = get("/v3/organization/list")
-    if code != "200"
-      raise_error("List organizations failed", res)
-    end
-    js = checked_json(body, %w[organizations])
-    result = js["organizations"].map {|orginfo|
-      name = orginfo['name'].to_s
-      name
-    }
-    return result
-  end
-
-  # => true
-  def create_organization(org)
-    code, body, res = post("/v3/organization/create/#{e org}")
-    if code != "200"
-      raise_error("Creating organization failed", res)
-    end
-    return true
-  end
-
-  # => true
-  def delete_organization(org)
-    code, body, res = post("/v3/organization/delete/#{e org}")
-    if code != "200"
-      raise_error("Deleting organization failed", res)
-    end
-    return true
-  end
-
-
   ####
   ## Role API
   ##

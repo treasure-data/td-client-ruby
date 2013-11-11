@@ -310,24 +310,6 @@ class Client
     @api.delete_result(name)
   end
 
-  # => [Organization]
-  def organizations
-    list = @api.list_organizations
-    list.map {|name|
-      Organization.new(self, name)
-    }
-  end
-
-  # => true
-  def create_organization(organization)
-    @api.create_organization(organization)
-  end
-
-  # => true
-  def delete_organization(organization)
-    @api.delete_organization(organization)
-  end
-
   # => [Role]
   def roles
     list = @api.list_roles

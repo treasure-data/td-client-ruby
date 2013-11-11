@@ -48,7 +48,6 @@ class Database < Model
     @count = count
     @created_at = created_at
     @updated_at = updated_at
-    @org_name = org_name
   end
 
   attr_reader :org_name
@@ -251,7 +250,6 @@ class Job < Model
     @hive_result_schema = hive_result_schema
     @priority = priority
     @retry_limit = retry_limit
-    @org_name = org_name
     @db_name = db_name
   end
 
@@ -361,7 +359,6 @@ class Job < Model
     @hive_result_schema = hive_result_schema
     @priority = priority
     @retry_limit = retry_limit
-    @org_name = org_name
     @db_name = db_name
     self
   end
@@ -393,7 +390,6 @@ class Schedule < Model
     @next_time = next_time
     @priority = priority
     @retry_limit = retry_limit
-    @org_name = org_name
   end
 
   attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :retry_limit, :org_name
@@ -413,7 +409,6 @@ class Result < Model
     super(client)
     @name = name
     @url = url
-    @org_name = org_name
   end
 
   attr_reader :name, :url, :org_name
@@ -433,7 +428,6 @@ class BulkImport < Model
     @error_records = data['error_records']
     @valid_parts = data['valid_parts']
     @error_parts = data['error_parts']
-    @org_name = data['organization']
   end
 
   attr_reader :name
@@ -453,21 +447,10 @@ class BulkImport < Model
 end
 
 
-class Organization < Model
-  def initialize(client, name)
-    super(client)
-    @name = name
-  end
-
-  attr_reader :client, :name
-end
-
-
 class Role < Model
   def initialize(client, name, org_name, user_names)
     super(client)
     @name = name
-    @org_name = org_name
     @user_names = user_names
   end
 
@@ -479,7 +462,6 @@ class User < Model
   def initialize(client, name, org_name, role_names, email)
     super(client)
     @name = name
-    @org_name = org_name
     @role_names = role_names
     @email = email
   end
