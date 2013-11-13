@@ -304,13 +304,14 @@ class API
   end
 
   # => true
-  def create_item_table(db, table)
-    create_table(db, table, :item)
+  def create_item_table(db, table, primary_key, primary_key_type)
+    params = {'primary_key' => primary_key, 'primary_key_type' => primary_key_type}
+    create_table(db, table, :item, params)
   end
 
-  def create_table(db, table, type)
+  def create_table(db, table, type, params={})
     schema = schema.to_s
-    code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}")
+    code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}", params)
     if code != "200"
       raise_error("Create #{type} table failed", res)
     end
