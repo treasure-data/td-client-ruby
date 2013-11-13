@@ -310,34 +310,6 @@ class Client
     @api.delete_result(name)
   end
 
-  # => [Role]
-  def roles
-    list = @api.list_roles
-    list.map {|name,org,users|
-      Role.new(self, name, org, users)
-    }
-  end
-
-  # => true
-  def create_role(role, org)
-    @api.create_role(role, org)
-  end
-
-  # => true
-  def delete_role(role)
-    @api.delete_role(role)
-  end
-
-  # => true
-  def grant_role(role, user)
-    @api.grant_role(role, user)
-  end
-
-  # => true
-  def revoke_role(role, user)
-    @api.revoke_role(role, user)
-  end
-
   # => [User]
   def users
     list = @api.list_users
@@ -407,21 +379,6 @@ class Client
   # => true
   def test_access_control(user, action, scope)
     @api.test_access_control(user, action, scope)
-  end
-
-  def ip_limits
-    ips = @api.list_ip_limits
-    ips.map { |org, ipaddr, mask|
-      IpLimit.new(self, org, ipaddr, mask)
-    }
-  end
-
-  def set_ip_limit(org, ip_ranges)
-    @api.set_ip_limit(org, ip_ranges.to_json)
-  end
-
-  def delete_ip_limit(org)
-    @api.delete_ip_limit(org)
   end
 
   # => [AggregationSchema]

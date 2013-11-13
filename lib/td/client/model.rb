@@ -447,22 +447,10 @@ class BulkImport < Model
 end
 
 
-class Role < Model
-  def initialize(client, name, org_name, user_names)
-    super(client)
-    @name = name
-    @user_names = user_names
-  end
-
-  attr_reader :client, :name, :org_name, :user_names
-end
-
-
 class User < Model
   def initialize(client, name, org_name, role_names, email)
     super(client)
     @name = name
-    @role_names = role_names
     @email = email
   end
 
@@ -480,22 +468,6 @@ class AccessControl < Model
   end
 
   attr_reader :subject, :action, :scope, :grant_option
-end
-
-
-class IpLimit < Model
-  def initialize(client, org, address, mask)
-    super(client)
-    @org = org
-    @address = address
-    @mask = mask
-  end
-
-  def ip_range
-    "#{address}/#{mask}"
-  end
-
-  attr_reader :org, :address, :mask
 end
 
 

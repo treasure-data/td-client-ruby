@@ -235,8 +235,7 @@ class API
       count = m['count']
       created_at = m['created_at']
       updated_at = m['updated_at']
-      organization = m['organization']
-      result[name] = [count, created_at, updated_at, organization]
+      result[name] = [count, created_at, updated_at, nil] # set nil to org for API compatibiilty
     }
     return result
   end
@@ -407,8 +406,7 @@ class API
       result_url = m['result']
       priority = m['priority']
       retry_limit = m['retry_limit']
-      organization = m['organization']
-      result << [job_id, type, status, query, start_at, end_at, result_url, priority, retry_limit, organization, database]
+      result << [job_id, type, status, query, start_at, end_at, result_url, priority, retry_limit, nil, database] # same as database
     }
     return result
   end
@@ -439,8 +437,7 @@ class API
     end
     priority = js['priority']
     retry_limit = js['retry_limit']
-    organization = js['organization']
-    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, retry_limit, organization, database]
+    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, retry_limit, nil, database] # same as above
   end
 
   def job_status(job_id)
@@ -761,8 +758,7 @@ class API
       next_time = m['next_time']
       priority = m['priority']
       retry_limit = m['retry_limit']
-      organization = m['organization']
-      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, organization]
+      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, nil] # same as database
     }
     return result
   end
@@ -856,7 +852,7 @@ class API
     js = checked_json(body, %w[results])
     result = []
     js['results'].map {|m|
-      result << [m['name'], m['url'], m['organization']]
+      result << [m['name'], m['url'], nil] # same as database
     }
     return result
   end
@@ -1010,63 +1006,6 @@ class API
     return true
   end
 
-  ####
-  ## Role API
-  ##
-
-  # => [[name:String,organization:String,[user:String]]]
-  def list_roles
-    code, body, res = get("/v3/role/list")
-    if code != "200"
-      raise_error("List roles failed", res)
-    end
-    js = checked_json(body, %w[roles])
-    result = js["roles"].map {|roleinfo|
-      name = roleinfo['name']
-      organization = roleinfo['organization']
-      users = roleinfo['users']
-      [name, organization, users]
-    }
-    return result
-  end
-
-  # => true
-  def create_role(role, org)
-    params = {'organization'=>org}
-    code, body, res = post("/v3/role/create/#{e role}", params)
-    if code != "200"
-      raise_error("Creating role failed", res)
-    end
-    return true
-  end
-
-  # => true
-  def delete_role(role)
-    code, body, res = post("/v3/role/delete/#{e role}")
-    if code != "200"
-      raise_error("Creating role failed", res)
-    end
-    return true
-  end
-
-  # => true
-  def grant_role(role, user)
-    code, body, res = post("/v3/role/grant/#{e role}/#{e user}")
-    if code != "200"
-      raise_error("Granting role failed", res)
-    end
-    return true
-  end
-
-  # => true
-  def revoke_role(role, user)
-    code, body, res = post("/v3/role/revoke/#{e role}/#{e user}")
-    if code != "200"
-      raise_error("Revoking role failed", res)
-    end
-    return true
-  end
-
 
   ####
   ## User API
@@ -1096,10 +1035,8 @@ class API
     js = checked_json(body, %w[users])
     result = js["users"].map {|roleinfo|
       name = roleinfo['name']
-      organization = roleinfo['organization']
-      roles = roleinfo['roles']
       email = roleinfo['email']
-      [name, organization, roles, email]
+      [name, nil, nil, email] # set nil to org and role for API compatibiilty
     }
     return result
   end
@@ -1238,43 +1175,6 @@ class API
       [subject, action, scope, grant_option]
     }
     return acl
-  end
-
-  ####
-  ## IP Range Limit API
-  ##
-
-  def list_ip_limits
-    code, body, res = get("/v3/ip_limit/list")
-    if code != "200"
-      raise_error("Listing IP limitations failed", res)
-    end
-    js = checked_json(body, %w[ip_limits])
-    lists = js["ip_limits"].map { |ip_limit|
-      organization = ip_limit['organization']
-      address = ip_limit['address']
-      mask = ip_limit['mask']
-      [organization, address, mask]
-    }
-    return lists
-  end
-
-  def set_ip_limit(organization, ip_ranges)
-    params = {'organization' => organization, 'ip_ranges' => ip_ranges}
-    code, body, res = post("/v3/ip_limit/set", params)
-    if code != "200"
-      raise_error("Setting IP limitation failed", res)
-    end
-    return true
-  end
-
-  def delete_ip_limit(organization)
-    params = {'organization' => organization}
-    code, body, res = post("/v3/ip_limit/delete", params)
-    if code != "200"
-      raise_error("Deleting IP range limitation failed", res)
-    end
-    return true
   end
 
   ####
