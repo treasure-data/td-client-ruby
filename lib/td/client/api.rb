@@ -1354,10 +1354,10 @@ class API
 
   def raise_error(msg, res, klass=nil)
     begin
+      status_code = res.code.to_s
       js = JSON.load(res.body)
       msg = js['message']
       error_code = js['error_code']
-      status_code = res.code.to_s
 
       if klass
         raise klass, "#{error_code}: #{msg}"
