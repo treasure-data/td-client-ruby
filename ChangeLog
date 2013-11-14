@@ -1,3 +1,9 @@
+== 2013-11-14 version 0.8.56
+
+* Remove organization, role and ip_limit subcommands
+* Change item_table parameter
+* Now accept :header option to set custom header
+
 == 2013-09-13 version 0.8.55
 
 * Use httpclient gem for import and bulk_import upload
