@@ -1,5 +1,5 @@
 require 'td/client/version'
-w
+
 module TreasureData
 
 
