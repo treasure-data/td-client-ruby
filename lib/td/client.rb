@@ -129,7 +129,7 @@ class Client
   def query(db_name, q, result_url=nil, priority=nil, retry_limit=nil, opts={})
     # for compatibility, assume type is hive unless specifically specified
     type = opts[:type] || opts['type'] || :hive
-    raise ArgumentError, "The specified query type is not supported: #{type}" unless [:hive, :pig, :impala].include? type
+    raise ArgumentError, "The specified query type is not supported: #{type}" unless [:hive, :pig, :impala, :presto].include? type
     job_id = @api.query(q, type, db_name, result_url, priority, retry_limit, opts)
     Job.new(self, job_id, type, q)
   end
