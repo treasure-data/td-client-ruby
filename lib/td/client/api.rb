@@ -596,6 +596,17 @@ class API
     return nil
   end
 
+  # => data:Hash
+  def show_bulk_import(name)
+    code, body, res = get("/v3/bulk_import/show/#{name}")
+    if code != "200"
+      raise_error("Show bulk import failed", res)
+    end
+    js = checked_json(body, %w[status])
+    puts js
+    return js
+  end
+
   # => result:[data:Hash]
   def list_bulk_imports(opts={})
     params = opts.dup

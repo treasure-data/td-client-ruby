@@ -222,6 +222,12 @@ class Client
     @api.bulk_import_error_records(name, &block)
   end
 
+  # => BulkImport
+  def bulk_import(name)
+    data = @api.show_bulk_import(name)
+    BulkImport.new(self, data)
+  end
+  
   # => [BulkImport]
   def bulk_imports
     @api.list_bulk_imports.map {|data|
