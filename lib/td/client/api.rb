@@ -603,7 +603,6 @@ class API
       raise_error("Show bulk import failed", res)
     end
     js = checked_json(body, %w[status])
-    puts js
     return js
   end
 
