@@ -1197,7 +1197,7 @@ class API
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       #store = OpenSSL::X509::Store.new
       #http.cert_store = store
-      http.ca_file = File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt')
+      http.ca_file = File.join(ssl_ca_file)
     end
 
     header = {}
@@ -1217,7 +1217,7 @@ class API
     client.connect_timeout = @connect_timeout
 
     if @ssl
-      client.ssl_config.add_trust_ca(File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt'))
+      client.ssl_config.add_trust_ca(ssl_ca_file)
       client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_PEER
     end
 
@@ -1230,6 +1230,10 @@ class API
     header.merge!(@headers)
 
     return client, header
+  end
+
+  def ssl_ca_file
+    @ssl_ca_file ||= File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt')
   end
 
   def raise_error(msg, res, klass=nil)
