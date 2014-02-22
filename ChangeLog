@@ -1,3 +1,9 @@
+== 2014-02-21 version 0.8.57
+
+* Remove Aggregation Schema
+* show_bulk_import uses new efficient endpoint
+* Update SSL certificate
+
 == 2013-11-14 version 0.8.56
 
 * Remove organization, role and ip_limit subcommands
