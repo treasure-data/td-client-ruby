@@ -1249,6 +1249,8 @@ class API
         raise NotFoundError, "#{error_code}: #{msg}"
       elsif status_code == "409"
         raise AlreadyExistsError, "#{error_code}: #{msg}"
+      elsif status_code == "401"
+        raise AuthError, "#{error_code}: #{msg}"
       else
         raise APIError, "#{error_code}: #{msg}"
       end
@@ -1260,6 +1262,8 @@ class API
         raise NotFoundError, "#{msg}: #{res.body}"
       elsif status_code == "409"
         raise AlreadyExistsError, "#{msg}: #{res.body}"
+      elsif status_code == "401"
+        raise AuthError, "#{msg}: #{res.body}"
       else
         raise APIError, "#{msg}: #{res.body}"
       end
