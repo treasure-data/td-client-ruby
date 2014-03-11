@@ -97,7 +97,7 @@ class Database < Model
 end
 
 class Table < Model
-  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil, last_import=nil, last_log_timestamp=nil, expire_days=nil)
+  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil, last_import=nil, last_log_timestamp=nil, expire_days=nil, primary_key=nil, primary_key_type=nil)
     super(client)
     @db_name = db_name
     @table_name = table_name
@@ -110,9 +110,11 @@ class Table < Model
     @last_import = last_import
     @last_log_timestamp = last_log_timestamp
     @expire_days = expire_days
+    @primary_key = primary_key
+    @primary_key_type = primary_key_type
   end
 
-  attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size
+  attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size, :primary_key, :primary_key_type
 
   alias database_name db_name
   alias name table_name
@@ -318,7 +320,7 @@ class Job < Model
 
   def finished?
     update_progress! unless @status
-    if FINISHED_STATUS.include?(@status)      
+    if FINISHED_STATUS.include?(@status)
       return true
     else
       return false
