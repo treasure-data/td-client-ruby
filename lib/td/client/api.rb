@@ -342,7 +342,7 @@ class API
       raise_error("Update table expiration failed", res)
     end
     return true
-  end  
+  end
 
   # => type:Symbol
   def delete_table(db, table)
@@ -1113,6 +1113,13 @@ class API
     header['Accept-Encoding'] = 'deflate, gzip'
     request = Net::HTTP::Get.new(path, header)
 
+    unless ENV['TD_CLIENT_DEBUG'].nil?
+      puts "DEBUG: REST GET call:"
+      puts "DEBUG:   header: " + header.to_s
+      puts "DEBUG:   path:   " + path.to_s
+      puts "DEBUG:   params: " + params.to_s
+    end
+
     if block
       response = http.request(request) do |res|
         if ce = res.header['Content-Encoding']
@@ -1153,6 +1160,13 @@ class API
 
     path = @base_path + url
 
+    unless ENV['TD_CLIENT_DEBUG'].nil?
+      puts "DEBUG: REST POST call:"
+      puts "DEBUG:   header: " + header.to_s
+      puts "DEBUG:   path:   " + path.to_s
+      puts "DEBUG:   params: " + params.to_s
+    end
+
     if params && !params.empty?
       request = Net::HTTP::Post.new(path, header)
       request.set_form_data(params)
@@ -1179,6 +1193,14 @@ class API
              stream
            end
     target = build_endpoint(url, opts[:host] || @host)
+
+    unless ENV['TD_CLIENT_DEBUG'].nil?
+      puts "DEBUG: REST PUT call:"
+      puts "DEBUG:   header: " + header.to_s
+      puts "DEBUG:   target: " + target.to_s
+      puts "DEBUG:   body:   " + body.to_s
+    end
+
     response = client.put(target, body, header)
     return [response.code.to_s, response.body, response]
   end
