@@ -20,6 +20,9 @@ class API
   DEFAULT_ENDPOINT = 'api.treasure-data.com'
   DEFAULT_IMPORT_ENDPOINT = 'api-import.treasure-data.com'
 
+  NEW_DEFAULT_ENDPOINT = 'api.treasuredata.com'
+  NEW_DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
+
   def initialize(apikey, opts={})
     require 'json'
     require 'time'
@@ -841,6 +844,8 @@ class API
     opts = {}
     if @host == DEFAULT_ENDPOINT
       opts[:host] = DEFAULT_IMPORT_ENDPOINT
+    elsif @host == NEW_DEFAULT_ENDPOINT
+      opts[:host] = NEW_DEFAULT_IMPORT_ENDPOINT
     end
     code, body, res = put(path, stream, size, opts)
     if code[0] != ?2
