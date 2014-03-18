@@ -1,3 +1,9 @@
+== 2014-03-18 version 0.8.58
+
+* Improved visualization of item tables
+* Replace api.treasuredata.com with api-import.treasuredata.com during imports
+* Raise AuthError exceptions if the API key failed to authenticate
+
 == 2014-02-21 version 0.8.57
 
 * Remove Aggregation Schema
