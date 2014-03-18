@@ -1261,31 +1261,34 @@ class API
   end
 
   def raise_error(msg, res, klass=nil)
+    status_code = res.code.to_s
     begin
-      status_code = res.code.to_s
       js = JSON.load(res.body)
-      msg = js['message']
-      error_code = js['error_code']
+      error_msg = js['message'] || js['error']
 
       if klass
-        raise klass, "#{error_code}: #{msg}"
+        raise klass, "#{status_code}: #{msg}: #{error_msg}"
       elsif status_code == "404"
-        raise NotFoundError, "#{error_code}: #{msg}"
+        raise NotFoundError, "#{msg}: #{error_msg}"
       elsif status_code == "409"
-        raise AlreadyExistsError, "#{error_code}: #{msg}"
+        raise AlreadyExistsError, "#{msg}: #{error_msg}"
+      elsif status_code == "401"
+        raise AuthError, "#{msg}: #{error_msg}"
       else
-        raise APIError, "#{error_code}: #{msg}"
+        raise APIError, "#{status_code}: #{msg}: #{error_msg}"
       end
 
-    rescue
+    rescue JSON::ParserError
       if klass
-        raise klass, "#{error_code}: #{msg}"
+        raise klass, "#{status_code}: #{msg}: #{res.body}"
       elsif status_code == "404"
         raise NotFoundError, "#{msg}: #{res.body}"
       elsif status_code == "409"
         raise AlreadyExistsError, "#{msg}: #{res.body}"
+      elsif status_code == "401"
+        raise AuthError, "#{msg}: #{res.body}"
       else
-        raise APIError, "#{msg}: #{res.body}"
+        raise APIError, "#{status_code}: #{msg}: #{res.body}"
       end
     end
     # TODO error
