@@ -104,7 +104,7 @@ class API
     record.to_msgpack(out)
   end
 
-  def self.validate_name(target, name)
+  def self.validate_name(target, min_len, max_len, name)
     if !target.instance_of?(String) || target.empty?
       raise ParameterValidationError,
             "A valid target name is required"
@@ -115,46 +115,33 @@ class API
       raise ParameterValidationError,
             "Empty #{target} name is not allowed"
     end
-    if name.length < 3 || name.length > 256
+    if name.length < min_len || name.length > max_len
       raise ParameterValidationError,
-            "#{target.capitalize} name must be 3 to 256 characters, got #{name.length} " +
+            "#{target.capitalize} name must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
             (name.length == 1 ? "character" : "characters") + "."
     end
     unless name =~ /^([a-z0-9_]+)$/
       raise ParameterValidationError,
-            "#{target.capitalize} name must consist only of lower-case alpha-numeric characters and '_'."
+            "#{target.capitalize} name must only consist of lower-case alpha-numeric characters and '_'."
     end
 
     name
   end
 
   def self.validate_database_name(name)
-    validate_name("database", name)
+    validate_name("database", 3, 256, name)
   end
 
   def self.validate_table_name(name)
-    validate_name("table", name)
+    validate_name("table", 3, 256, name)
   end
 
   def self.validate_result_set_name(name)
-    validate_name("result set" , name)
+    validate_name("result set", 3, 256, name)
   end
 
   def self.validate_column_name(name)
-    name = name.to_s
-    if name.empty?
-      raise ParameterValidationError,
-            "Empty column name is not allowed"
-    end
-    if name.length < 2 || name.length > 256
-      raise ParameterValidationError,
-            "Column name must be 2 to 256 characters, got #{name.length} " +
-            (name.length == 1 ? "character" : "characters") + "."
-    end
-    unless name =~ /^([a-z0-9_]+)$/
-      raise ParameterValidationError,
-            "Column name must consist only of alpha-numeric characters and '_'."
-    end
+    validate_name("column", 2, 256, name)
   end
 
   def self.normalize_database_name(name)
