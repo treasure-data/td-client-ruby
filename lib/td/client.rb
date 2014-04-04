@@ -227,7 +227,7 @@ class Client
     data = @api.show_bulk_import(name)
     BulkImport.new(self, data)
   end
-  
+
   # => [BulkImport]
   def bulk_imports
     @api.list_bulk_imports.map {|data|

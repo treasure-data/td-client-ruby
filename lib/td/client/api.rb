@@ -6,6 +6,9 @@ module TreasureData
 class APIError < StandardError
 end
 
+class ParameterValidationError < StandardError
+end
+
 class AuthError < APIError
 end
 
@@ -101,38 +104,56 @@ class API
     record.to_msgpack(out)
   end
 
-  def self.validate_database_name(name)
+  def self.validate_name(target, name)
+    if !target.instance_of?(String) || target.empty?
+      raise ParameterValidationError,
+            "A valid target name is required"
+    end
+
     name = name.to_s
     if name.empty?
-      raise "Empty name is not allowed"
+      raise ParameterValidationError,
+            "Empty #{target} name is not allowed"
     end
-    if name.length < 3 || 256 < name.length
-      raise "Name must be 3 to 256 characters, got #{name.length} characters."
+    if name.length < 3 || name.length > 256
+      raise ParameterValidationError,
+            "#{target.capitalize} name must be 3 to 256 characters, got #{name.length} " +
+            (name.length == 1 ? "character" : "characters") + "."
     end
     unless name =~ /^([a-z0-9_]+)$/
-      raise "Name must consist only of lower-case alphabets, numbers and '_'."
+      raise ParameterValidationError,
+            "#{target.capitalize} name must consist only of lower-case alpha-numeric characters and '_'."
     end
+
     name
   end
 
+  def self.validate_database_name(name)
+    validate_name("database", name)
+  end
+
   def self.validate_table_name(name)
-    validate_database_name(name)
+    validate_name("table", name)
   end
 
   def self.validate_result_set_name(name)
-    validate_database_name(name)
+    validate_name("result set" , name)
   end
 
   def self.validate_column_name(name)
     name = name.to_s
     if name.empty?
-      raise "Empty column name is not allowed"
+      raise ParameterValidationError,
+            "Empty column name is not allowed"
     end
-    if 256 < name.length
-      raise "Column name must be to 256 characters, got #{name.length} characters."
+    if name.length < 2 || name.length > 256
+      raise ParameterValidationError,
+            "Column name must be 2 to 256 characters, got #{name.length} " +
+            (name.length == 1 ? "character" : "characters") + "."
     end
     unless name =~ /^([a-z0-9_]+)$/
-      raise "Column name must consist only of alphabets, numbers, '_'."
+      raise ParameterValidationError,
+            "Column name must consist only of alpha-numeric characters and '_'."
     end
   end
 
@@ -1269,7 +1290,11 @@ class API
     status_code = res.code.to_s
     begin
       js = JSON.load(res.body)
-      error_msg = js['message'] || js['error']
+      if js.nil?
+        error_msg = res.message
+      else
+        error_msg = js['message'] || js['error']
+      end
 
       if klass
         raise klass, "#{status_code}: #{msg}: #{error_msg}"
