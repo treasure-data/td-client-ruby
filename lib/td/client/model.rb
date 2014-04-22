@@ -267,32 +267,32 @@ class Job < Model
   end
 
   def query
-    update_status! unless @query
+    update_status! unless @query || finished?
     @query
   end
 
   def status
-    update_status! unless @status
+    update_status! unless @status || finished?
     @status
   end
 
   def url
-    update_status! unless @url
+    update_status! unless @url || finished?
     @url
   end
 
   def debug
-    update_status! unless @debug
+    update_status! unless @debug || finished?
     @debug
   end
 
   def start_at
-    update_status! unless @start_at
+    update_status! unless @start_at || finished?
     @start_at && !@start_at.empty? ? Time.parse(@start_at) : nil
   end
 
   def end_at
-    update_status! unless @end_at
+    update_status! unless @end_at || finished?
     @end_at && !@end_at.empty? ? Time.parse(@end_at) : nil
   end
 
