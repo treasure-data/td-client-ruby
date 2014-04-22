@@ -237,7 +237,7 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, retry_limit=nil, org_name=nil, db_name=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, cpu_time=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, retry_limit=nil, org_name=nil, db_name=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -247,6 +247,7 @@ class Job < Model
     @debug = debug
     @start_at = start_at
     @end_at = end_at
+    @cpu_time = cpu_time
     @result = result
     @result_url = result_url
     @hive_result_schema = hive_result_schema
@@ -294,6 +295,11 @@ class Job < Model
   def end_at
     update_status! unless @end_at || finished?
     @end_at && !@end_at.empty? ? Time.parse(@end_at) : nil
+  end
+
+  def cpu_time
+    update_status! unless @cpu_time || finished?
+    @cpu_time
   end
 
   def result

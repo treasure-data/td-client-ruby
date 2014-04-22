@@ -416,10 +416,11 @@ class API
       query = m['query']
       start_at = m['start_at']
       end_at = m['end_at']
+      cpu_time = m['cpu_time']
       result_url = m['result']
       priority = m['priority']
       retry_limit = m['retry_limit']
-      result << [job_id, type, status, query, start_at, end_at, result_url, priority, retry_limit, nil, database] # same as database
+      result << [job_id, type, status, query, start_at, end_at, cpu_time, result_url, priority, retry_limit, nil, database] # same as database
     }
     return result
   end
@@ -441,6 +442,7 @@ class API
     url = js['url']
     start_at = js['start_at']
     end_at = js['end_at']
+    cpu_time = js['cpu_time']
     result = js['result']
     hive_result_schema = (js['hive_result_schema'] || '')
     if hive_result_schema.empty?
@@ -450,7 +452,7 @@ class API
     end
     priority = js['priority']
     retry_limit = js['retry_limit']
-    return [type, query, status, url, debug, start_at, end_at, result, hive_result_schema, priority, retry_limit, nil, database] # same as above
+    return [type, query, status, url, debug, start_at, end_at, cpu_time, result, hive_result_schema, priority, retry_limit, nil, database] # same as above
   end
 
   def job_status(job_id)
