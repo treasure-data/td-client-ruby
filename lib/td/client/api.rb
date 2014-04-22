@@ -1150,6 +1150,12 @@ class API
       response = http.request(request)
     end
 
+    unless ENV['TD_CLIENT_DEBUG'].nil?
+      puts "DEBUG: REST GET response:"
+      puts "DEBUG:   header: " + response.header.to_s
+      puts "DEBUG:   body:   " + response.body.to_s
+    end
+
     body = response.body
     unless block
       if ce = response.header['content-encoding']
