@@ -1,3 +1,13 @@
+== 2014-04-23 version 0.8.59
+
+* Improved client side validation methods for database, table, column, and
+  result set
+* show GET response body in debug mode (enabled with TD_CLIENT_DEBUG environment
+  variable)
+* optimized the job model self updating methods to avoid an update if the job
+  is in a 'finished' state
+* propagate the job show and job list CPU time field
+
 == 2014-03-18 version 0.8.58
 
 * Improved visualization of item tables
