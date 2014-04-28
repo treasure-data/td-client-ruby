@@ -257,7 +257,7 @@ class Job < Model
   end
 
   attr_reader :job_id, :type, :result_url
-  attr_reader :hive_result_schema, :priority, :retry_limit, :org_name, :db_name
+  attr_reader :priority, :retry_limit, :org_name, :db_name
 
   def wait(timeout=nil)
     # TODO
@@ -300,6 +300,11 @@ class Job < Model
   def cpu_time
     update_status! unless @cpu_time || finished?
     @cpu_time
+  end
+
+  def hive_result_schema
+    update_status! unless @hive_result_schema.instance_of? Array || finished?
+    @hive_result_schema
   end
 
   def result
@@ -357,13 +362,15 @@ class Job < Model
   end
 
   def update_status!
-    type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org_name, db_name = @client.api.show_job(@job_id)
+    type, query, status, url, debug, start_at, end_at, cpu_time, result_url, hive_result_schema, priority, retry_limit, org_name, db_name = @client.api.show_job(@job_id)
     @query = query
     @status = status
     @url = url
     @debug = debug
     @start_at = start_at
     @end_at = end_at
+    @cpu_time = cpu_time
+    @result_url = result_url
     @hive_result_schema = hive_result_schema
     @priority = priority
     @retry_limit = retry_limit

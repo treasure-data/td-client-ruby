@@ -443,7 +443,7 @@ class API
     start_at = js['start_at']
     end_at = js['end_at']
     cpu_time = js['cpu_time']
-    result = js['result']
+    result = js['result'] # result URL
     hive_result_schema = (js['hive_result_schema'] || '')
     if hive_result_schema.empty?
       hive_result_schema = nil
