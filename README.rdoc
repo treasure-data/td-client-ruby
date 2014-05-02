@@ -1,13 +1,24 @@
 = Treasure Data API library for Ruby
 
-= Getting Started
+== Getting Started
 
     > gem install td-client
 
-== Running Tests
+=== Running Tests
     > gem install jeweler
     > gem install webmock
     > rake spec
+
+== Testing Hooks
+
+Enable debugging mode: 
+
+    > TD_CLIENT_DEBUG=1
+
+Currently debugging mode consists of:
+
+* show request and response of `HTTP`(S) GET` REST API calls;
+* show request of `HTTP(S) POST/PUT` REST API calls.
 
 == Copyright
 
