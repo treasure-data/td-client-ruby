@@ -1286,7 +1286,11 @@ class API
     begin
       js = JSON.load(res.body)
       if js.nil?
-        error_msg = res.message
+        error_msg = if res.respond_to?(:message)
+                      res.message # Net::HTTP
+                    else
+                      res.reason # httpclient
+                    end
       else
         error_msg = js['message'] || js['error']
       end
