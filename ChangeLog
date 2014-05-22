@@ -1,3 +1,7 @@
+== 2014-05-22 version 0.8.61
+
+* Fix bug in raising error when response body is nil
+
 == 2014-04-28 version 0.8.60
 
 * Fix bug in fetching the query/job result schema
