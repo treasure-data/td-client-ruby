@@ -51,7 +51,7 @@ class API
     when 'http', 'https'
       @host = uri.host
       @port = uri.port
-      @ssl = uri.scheme == 'https'
+      @ssl = (uri.scheme == 'https')
       @base_path = uri.path.to_s
 
     else
@@ -117,12 +117,12 @@ class API
     end
     if name.length < min_len || name.length > max_len
       raise ParameterValidationError,
-            "#{target.capitalize} name must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
+            "#{target.capitalize} name '#{name}' must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
             (name.length == 1 ? "character" : "characters") + "."
     end
     unless name =~ /^([a-z0-9_]+)$/
       raise ParameterValidationError,
-            "#{target.capitalize} name must only consist of lower-case alpha-numeric characters and '_'."
+            "#{target.capitalize} name '#{name}' must only consist of lower-case alpha-numeric characters and '_'."
     end
 
     name
@@ -417,10 +417,11 @@ class API
       start_at = m['start_at']
       end_at = m['end_at']
       cpu_time = m['cpu_time']
+      result_size = m['result_size']
       result_url = m['result']
       priority = m['priority']
       retry_limit = m['retry_limit']
-      result << [job_id, type, status, query, start_at, end_at, cpu_time, result_url, priority, retry_limit, nil, database] # same as database
+      result << [job_id, type, status, query, start_at, end_at, cpu_time, result_size, result_url, priority, retry_limit, nil, database] # same as database
     }
     return result
   end
@@ -443,7 +444,8 @@ class API
     start_at = js['start_at']
     end_at = js['end_at']
     cpu_time = js['cpu_time']
-    result = js['result'] # result URL
+    result_size = js['result_size']
+    result_url = js['result']
     hive_result_schema = (js['hive_result_schema'] || '')
     if hive_result_schema.empty?
       hive_result_schema = nil
@@ -452,7 +454,7 @@ class API
     end
     priority = js['priority']
     retry_limit = js['retry_limit']
-    return [type, query, status, url, debug, start_at, end_at, cpu_time, result, hive_result_schema, priority, retry_limit, nil, database] # same as above
+    return [type, query, status, url, debug, start_at, end_at, cpu_time, result_size, result_url, hive_result_schema, priority, retry_limit, nil, database] # same as above
   end
 
   def job_status(job_id)
@@ -478,7 +480,7 @@ class API
     return result
   end
 
-  def job_result_format(job_id, format, io=nil)
+  def job_result_format(job_id, format, io=nil, &progress)
     if io
       code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
         if res.code != "200"
@@ -486,6 +488,7 @@ class API
         end
         res.each_fragment {|fragment|
           io.write(fragment)
+          progress.call if progress
         }
       }
       nil
@@ -1154,8 +1157,8 @@ class API
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST GET response:"
-      puts "DEBUG:   header: " + response.header.to_s
-      puts "DEBUG:   body:   " + response.body.to_s
+      puts "DEBUG:   header: " + response.header.to_hash.to_s if response.header
+      puts "DEBUG:   body:   " + response.body.to_s if response.body
     end
 
     body = response.body

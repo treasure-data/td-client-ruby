@@ -137,16 +137,16 @@ class Client
   # => [Job]
   def jobs(from=nil, to=nil, status=nil, conditions=nil)
     result = @api.list_jobs(from, to, status, conditions)
-    result.map {|job_id, type, status, query, start_at, end_at, cpu_time, result_url, priority, retry_limit, org, db|
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, cpu_time, nil, result_url, nil, priority, retry_limit, org, db)
+    result.map {|job_id, type, status, query, start_at, end_at, cpu_time, result_size, result_url, priority, retry_limit, org, db|
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, cpu_time, nil, result_size, result_url, nil, priority, retry_limit, org, db)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at, cpu_time, result_url, hive_result_schema, priority, retry_limit, org, db = @api.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, cpu_time, nil, result_url, hive_result_schema, priority, retry_limit, org, db)
+    type, query, status, url, debug, start_at, end_at, cpu_time, result_size, result_url, hive_result_schema, priority, retry_limit, org, db = @api.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, cpu_time, nil, result_size, result_url, hive_result_schema, priority, retry_limit, org, db)
   end
 
   # => status:String
@@ -160,8 +160,8 @@ class Client
   end
 
   # => result:String
-  def job_result_format(job_id, format, io=nil)
-    @api.job_result_format(job_id, format, io)
+  def job_result_format(job_id, format, io=nil, &progress)
+    @api.job_result_format(job_id, format, io, &progress)
   end
 
   # => nil
