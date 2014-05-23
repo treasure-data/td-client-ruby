@@ -331,30 +331,32 @@ class Job < Model
 
   def finished?
     update_progress! unless @status
-    if FINISHED_STATUS.include?(@status)
-      return true
-    else
-      return false
-    end
-  end
-
-  def running?
-    !finished?
+    FINISHED_STATUS.include?(@status)
   end
 
   def success?
     update_progress! unless @status
-    @status == "success"
+    @status == STATUS_SUCCESS
   end
 
   def error?
     update_progress! unless @status
-    @status == "error"
+    @status == STATUS_ERROR
   end
 
   def killed?
     update_progress! unless @status
-    @status == "killed"
+    @status == STATUS_KILLED
+  end
+
+  def queued?
+    update_progress! unless @status
+    @status == STATUS_QUEUED
+  end
+
+  def running?
+    update_progress! unless @status
+    @status == STATUS_RUNNING
   end
 
   def update_progress!
