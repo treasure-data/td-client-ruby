@@ -466,7 +466,6 @@ class API
           rescue SyntaxError => ignored_e
             raise e
           end
-          puts hive_result_schema
           hive_result_schema.each_with_index {|col_schema, idx|
             if col_schema[0].nil?
               col_schema[0] = "_col#{idx}"
