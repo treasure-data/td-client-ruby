@@ -51,7 +51,9 @@ class API
     when 'http', 'https'
       @host = uri.host
       @port = uri.port
-      @ssl = uri.scheme == 'https'
+      # the opts[:ssl] option is ignored here, it's value
+      #   overridden by the scheme of the endpoint URI
+      @ssl = (uri.scheme == 'https')
       @base_path = uri.path.to_s
 
     else
@@ -80,7 +82,7 @@ class API
                    else
                      @http_proxy
                    end
-      proxy_host, proxy_port = http_proxy.split(':',2)
+      proxy_host, proxy_port = http_proxy.split(':', 2)
       proxy_port = (proxy_port ? proxy_port.to_i : 80)
       @http_class = Net::HTTP::Proxy(proxy_host, proxy_port)
     else
@@ -448,11 +450,37 @@ class API
     if hive_result_schema.empty?
       hive_result_schema = nil
     else
-      hive_result_schema = JSON.parse(hive_result_schema)
+      begin
+        hive_result_schema = JSON.parse(hive_result_schema)
+      rescue JSON::ParserError => e
+        # this is a workaround for a Known Limitation in the Pig Engine which does not set a default, auto-generated
+        #   column name for anonymous columns (such as the ones that are generated from UDF like COUNT or SUM).
+        # The schema will contain 'nil' for the name of those columns and that breaks the JSON parser since it violates
+        #   the JSON syntax standard.
+        if type == :pig and hive_result_schema !~ /[\{\}]/
+          begin
+            # NOTE: this works because a JSON 2 dimensional array is the same as a Ruby one.
+            #   Any change in the format for the hive_result_schema output may cause a syntax error, in which case
+            #   this lame attempt at fixing the problem will fail and we will be raising the original JSON exception
+            hive_result_schema = eval(hive_result_schema)
+          rescue SyntaxError => ignored_e
+            raise e
+          end
+          puts hive_result_schema
+          hive_result_schema.each_with_index {|col_schema, idx|
+            if col_schema[0].nil?
+              col_schema[0] = "_col#{idx}"
+            end
+          }
+        else
+          raise e
+        end
+      end
     end
     priority = js['priority']
     retry_limit = js['retry_limit']
-    return [type, query, status, url, debug, start_at, end_at, cpu_time, result, hive_result_schema, priority, retry_limit, nil, database] # same as above
+    return [type, query, status, url, debug, start_at, end_at, cpu_time, result,
+            hive_result_schema, priority, retry_limit, nil, database]
   end
 
   def job_status(job_id)
@@ -933,7 +961,7 @@ class API
     result = js["users"].map {|roleinfo|
       name = roleinfo['name']
       email = roleinfo['email']
-      [name, nil, nil, email] # set nil to org and role for API compatibiilty
+      [name, nil, nil, email] # set nil to org and role for API compatibility
     }
     return result
   end
