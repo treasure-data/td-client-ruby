@@ -968,7 +968,7 @@ class API
 
   # => true
   def add_user(name, org, email, password)
-    params = {"user" => {"email" => email}}
+    params = {'organization'=>org, :email=>email, :password=>password}
     code, body, res = post("/v3/user/add/#{e name}", params)
     if code != "200"
       raise_error("Adding user failed", res)
