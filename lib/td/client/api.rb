@@ -131,19 +131,19 @@ class API
   end
 
   def self.validate_database_name(name)
-    validate_name("database", 3, 256, name)
+    validate_name("database", 3, 255, name)
   end
 
   def self.validate_table_name(name)
-    validate_name("table", 3, 256, name)
+    validate_name("table", 3, 255, name)
   end
 
   def self.validate_result_set_name(name)
-    validate_name("result set", 3, 256, name)
+    validate_name("result set", 3, 255, name)
   end
 
   def self.validate_column_name(name)
-    validate_name("column", 2, 256, name)
+    validate_name("column", 1, 255, name)
   end
 
   def self.normalize_database_name(name)
@@ -152,10 +152,10 @@ class API
       raise "Empty name is not allowed"
     end
     if name.length < 3
-      name += "_"*(3-name.length)
+      name += "_" * (3 - name.length)
     end
     if 256 < name.length
-      name = name[0,254]+"__"
+      name = name[0,254] + "__"
     end
     name = name.downcase
     name = name.gsub(/[^a-z0-9_]/, '_')
