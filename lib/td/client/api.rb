@@ -51,6 +51,8 @@ class API
     when 'http', 'https'
       @host = uri.host
       @port = uri.port
+      # the opts[:ssl] option is ignored here, it's value
+      #   overridden by the scheme of the endpoint URI
       @ssl = (uri.scheme == 'https')
       @base_path = uri.path.to_s
 
@@ -80,7 +82,7 @@ class API
                    else
                      @http_proxy
                    end
-      proxy_host, proxy_port = http_proxy.split(':',2)
+      proxy_host, proxy_port = http_proxy.split(':', 2)
       proxy_port = (proxy_port ? proxy_port.to_i : 80)
       @http_class = Net::HTTP::Proxy(proxy_host, proxy_port)
     else
@@ -117,31 +119,31 @@ class API
     end
     if name.length < min_len || name.length > max_len
       raise ParameterValidationError,
-            "#{target.capitalize} name '#{name}' must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
+            "#{target.capitalize} name must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
             (name.length == 1 ? "character" : "characters") + "."
     end
     unless name =~ /^([a-z0-9_]+)$/
       raise ParameterValidationError,
-            "#{target.capitalize} name '#{name}' must only consist of lower-case alpha-numeric characters and '_'."
+            "#{target.capitalize} name must only consist of lower-case alpha-numeric characters and '_'."
     end
 
     name
   end
 
   def self.validate_database_name(name)
-    validate_name("database", 3, 256, name)
+    validate_name("database", 3, 255, name)
   end
 
   def self.validate_table_name(name)
-    validate_name("table", 3, 256, name)
+    validate_name("table", 3, 255, name)
   end
 
   def self.validate_result_set_name(name)
-    validate_name("result set", 3, 256, name)
+    validate_name("result set", 3, 255, name)
   end
 
   def self.validate_column_name(name)
-    validate_name("column", 2, 256, name)
+    validate_name("column", 1, 255, name)
   end
 
   def self.normalize_database_name(name)
@@ -150,10 +152,10 @@ class API
       raise "Empty name is not allowed"
     end
     if name.length < 3
-      name += "_"*(3-name.length)
+      name += "_" * (3 - name.length)
     end
-    if 256 < name.length
-      name = name[0,254]+"__"
+    if 255 < name.length
+      name = name[0, 253] + "__"
     end
     name = name.downcase
     name = name.gsub(/[^a-z0-9_]/, '_')
@@ -417,11 +419,12 @@ class API
       start_at = m['start_at']
       end_at = m['end_at']
       cpu_time = m['cpu_time']
-      result_size = m['result_size']
+      result_size = m['result_size'] # compressed result size in msgpack.gz format
       result_url = m['result']
       priority = m['priority']
       retry_limit = m['retry_limit']
-      result << [job_id, type, status, query, start_at, end_at, cpu_time, result_size, result_url, priority, retry_limit, nil, database] # same as database
+      result << [job_id, type, status, query, start_at, end_at, cpu_time,
+                 result_size, result_url, priority, retry_limit, nil, database]
     }
     return result
   end
@@ -444,17 +447,43 @@ class API
     start_at = js['start_at']
     end_at = js['end_at']
     cpu_time = js['cpu_time']
-    result_size = js['result_size']
-    result_url = js['result']
+    result_size = js['result_size'] # compressed result size in msgpack.gz format
+    result = js['result'] # result target URL
     hive_result_schema = (js['hive_result_schema'] || '')
     if hive_result_schema.empty?
       hive_result_schema = nil
     else
-      hive_result_schema = JSON.parse(hive_result_schema)
+      begin
+        hive_result_schema = JSON.parse(hive_result_schema)
+      rescue JSON::ParserError => e
+        # this is a workaround for a Known Limitation in the Pig Engine which does not set a default, auto-generated
+        #   column name for anonymous columns (such as the ones that are generated from UDF like COUNT or SUM).
+        # The schema will contain 'nil' for the name of those columns and that breaks the JSON parser since it violates
+        #   the JSON syntax standard.
+        if type == :pig and hive_result_schema !~ /[\{\}]/
+          begin
+            # NOTE: this works because a JSON 2 dimensional array is the same as a Ruby one.
+            #   Any change in the format for the hive_result_schema output may cause a syntax error, in which case
+            #   this lame attempt at fixing the problem will fail and we will be raising the original JSON exception
+            hive_result_schema = eval(hive_result_schema)
+          rescue SyntaxError => ignored_e
+            raise e
+          end
+          hive_result_schema.each_with_index {|col_schema, idx|
+            if col_schema[0].nil?
+              col_schema[0] = "_col#{idx}"
+            end
+          }
+        else
+          raise e
+        end
+      end
     end
     priority = js['priority']
     retry_limit = js['retry_limit']
-    return [type, query, status, url, debug, start_at, end_at, cpu_time, result_size, result_url, hive_result_schema, priority, retry_limit, nil, database] # same as above
+    return [type, query, status, url, debug, start_at, end_at, cpu_time,
+            result_size, result, hive_result_schema, priority, retry_limit,
+            nil, database]
   end
 
   def job_status(job_id)
@@ -480,7 +509,7 @@ class API
     return result
   end
 
-  def job_result_format(job_id, format, io=nil, &progress)
+  def job_result_format(job_id, format, io=nil)
     if io
       code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
         if res.code != "200"
@@ -488,7 +517,6 @@ class API
         end
         res.each_fragment {|fragment|
           io.write(fragment)
-          progress.call if progress
         }
       }
       nil
@@ -936,7 +964,7 @@ class API
     result = js["users"].map {|roleinfo|
       name = roleinfo['name']
       email = roleinfo['email']
-      [name, nil, nil, email] # set nil to org and role for API compatibiilty
+      [name, nil, nil, email] # set nil to org and role for API compatibility
     }
     return result
   end
@@ -1092,7 +1120,6 @@ class API
     return status
   end
 
-
   private
   module DeflateReadBodyMixin
     attr_accessor :gzip
@@ -1157,8 +1184,8 @@ class API
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST GET response:"
-      puts "DEBUG:   header: " + response.header.to_hash.to_s if response.header
-      puts "DEBUG:   body:   " + response.body.to_s if response.body
+      puts "DEBUG:   header: " + response.header.to_s
+      puts "DEBUG:   body:   " + response.body.to_s
     end
 
     body = response.body
@@ -1350,6 +1377,4 @@ class API
   end
 end
 
-
-end
-
+end # module TreasureData

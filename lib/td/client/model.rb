@@ -237,7 +237,9 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, cpu_time=nil, result=nil, result_size=nil, result_url=nil, hive_result_schema=nil, priority=nil, retry_limit=nil, org_name=nil, db_name=nil)
+  def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, cpu_time=nil,
+                 result_size=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, retry_limit=nil,
+                 org_name=nil, db_name=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -248,8 +250,8 @@ class Job < Model
     @start_at = start_at
     @end_at = end_at
     @cpu_time = cpu_time
-    @result = result
     @result_size = result_size
+    @result = result
     @result_url = result_url
     @hive_result_schema = hive_result_schema
     @priority = priority
@@ -308,6 +310,11 @@ class Job < Model
     @hive_result_schema
   end
 
+  def result_size
+    update_status! unless @result_size || finished?
+    @result_size
+  end
+
   def result
     unless @result
       return nil unless finished?
@@ -316,16 +323,9 @@ class Job < Model
     @result
   end
 
-  # size in bytes of the msgpack.gz result output
-  def result_size
+  def result_format(format, io=nil)
     return nil unless finished?
-    update_status! unless @result_size
-    @result_size
-  end
-
-  def result_format(format, io=nil, &progress)
-    return nil unless finished?
-    @client.job_result_format(@job_id, format, io, &progress)
+    @client.job_result_format(@job_id, format, io)
   end
 
   def result_each(&block)
@@ -372,7 +372,9 @@ class Job < Model
   end
 
   def update_status!
-    type, query, status, url, debug, start_at, end_at, cpu_time, result_size, result_url, hive_result_schema, priority, retry_limit, org_name, db_name = @client.api.show_job(@job_id)
+    type, query, status, url, debug, start_at, end_at, cpu_time,
+      result_size, result_url, hive_result_schema, priority, retry_limit,
+      org_name, db_name = @client.api.show_job(@job_id)
     @query = query
     @status = status
     @url = url
@@ -404,7 +406,8 @@ end
 
 
 class Schedule < Model
-  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil, priority=nil, retry_limit=nil, org_name=nil)
+  def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil,
+                 priority=nil, retry_limit=nil, org_name=nil)
     super(client)
     @name = name
     @cron = cron

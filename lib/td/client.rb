@@ -1,4 +1,3 @@
-
 module TreasureData
 
 require 'td/client/api'
@@ -129,24 +128,28 @@ class Client
   def query(db_name, q, result_url=nil, priority=nil, retry_limit=nil, opts={})
     # for compatibility, assume type is hive unless specifically specified
     type = opts[:type] || opts['type'] || :hive
-    raise ArgumentError, "The specified query type is not supported: #{type}" unless [:hive, :pig, :impala, :presto].include? type
+    raise ArgumentError, "The specified query type is not supported: #{type}" unless [:hive, :pig, :impala, :presto].include?(type)
     job_id = @api.query(q, type, db_name, result_url, priority, retry_limit, opts)
     Job.new(self, job_id, type, q)
   end
 
   # => [Job]
   def jobs(from=nil, to=nil, status=nil, conditions=nil)
-    result = @api.list_jobs(from, to, status, conditions)
-    result.map {|job_id, type, status, query, start_at, end_at, cpu_time, result_size, result_url, priority, retry_limit, org, db|
-      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, cpu_time, nil, result_size, result_url, nil, priority, retry_limit, org, db)
+    results = @api.list_jobs(from, to, status, conditions)
+    results.map {|job_id, type, status, query, start_at, end_at, cpu_time,
+                 result_size, result_url, priority, retry_limit, org, db|
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, cpu_time,
+              result_size, nil, result_url, nil, priority, retry_limit, org, db)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, url, debug, start_at, end_at, cpu_time, result_size, result_url, hive_result_schema, priority, retry_limit, org, db = @api.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, cpu_time, nil, result_size, result_url, hive_result_schema, priority, retry_limit, org, db)
+    type, query, status, url, debug, start_at, end_at, cpu_time,
+      result_size, result_url, hive_result_schema, priority, retry_limit, org, db = @api.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, cpu_time,
+            result_size, nil, result_url, hive_result_schema, priority, retry_limit, org, db)
   end
 
   # => status:String
@@ -160,8 +163,8 @@ class Client
   end
 
   # => result:String
-  def job_result_format(job_id, format, io=nil, &progress)
-    @api.job_result_format(job_id, format, io, &progress)
+  def job_result_format(job_id, format, io=nil)
+    @api.job_result_format(job_id, format, io)
   end
 
   # => nil
@@ -351,7 +354,7 @@ class Client
 
   # => true
   def remove_apikey(user, apikey)
-    @api.remove_apikey(user, apikey)
+    @api.remove_apikey(user, g)
   end
 
   # => true
@@ -388,5 +391,4 @@ class Client
   end
 end
 
-
-end
+end # module TreasureData
