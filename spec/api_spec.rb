@@ -12,7 +12,7 @@ describe API do
 
   INVALID_NAMES = {
     'a' => 'a__',
-    'a'*257 => 'a'*254+'__',
+    'a' * 256 => 'a' * 253 + '__',
     'abcD' => 'abcd',
     'a-b*' => 'a_b_',
   }
@@ -39,22 +39,22 @@ describe API do
     INVALID_NAMES.each_pair {|ng,ok|
       lambda {
         API.validate_database_name(ng)
-      }.should raise_error(RuntimeError)
+      }.should raise_error(ParameterValidationError)
     }
     lambda {
       API.validate_database_name('')
-    }.should raise_error(RuntimeError)
+    }.should raise_error(ParameterValidationError)
   end
 
   it 'validate_table_name should raise errors' do
     INVALID_NAMES.each_pair {|ng,ok|
       lambda {
         API.validate_table_name(ng)
-      }.should raise_error(RuntimeError)
+      }.should raise_error(ParameterValidationError)
     }
     lambda {
       API.validate_table_name('')
-    }.should raise_error(RuntimeError)
+    }.should raise_error(ParameterValidationError)
   end
 
   it 'normalize_database_name should return valid data' do
