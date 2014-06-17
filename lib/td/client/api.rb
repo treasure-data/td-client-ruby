@@ -482,8 +482,7 @@ class API
     priority = js['priority']
     retry_limit = js['retry_limit']
     return [type, query, status, url, debug, start_at, end_at, cpu_time,
-            result_size, result, hive_result_schema, priority, retry_limit,
-            nil, database]
+            result_size, result, hive_result_schema, priority, retry_limit, nil, database]
   end
 
   def job_status(job_id)
