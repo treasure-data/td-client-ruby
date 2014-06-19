@@ -172,6 +172,11 @@ class Client
     @api.job_result_each(job_id, &block)
   end
 
+  # => nil
+  def job_result_each_with_compr_size(job_id, &block)
+    @api.job_result_each_with_compr_size(job_id, &block)
+  end
+
   # => former_status:String
   def kill(job_id)
     @api.kill(job_id)

@@ -534,12 +534,35 @@ class API
       if res.code != "200"
         raise_error("Get job result failed", res)
       end
-      u = MessagePack::Unpacker.new
+      upkr = MessagePack::Unpacker.new
       res.each_fragment {|fragment|
-        u.feed_each(fragment, &block)
+        # puts "fragment.size #{fragment.size}"
+        upkr.feed_each(fragment, &block)
       }
     }
     nil
+  end
+
+  def job_result_each_with_compr_size(job_id, &block)
+    require 'msgpack'
+    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
+      if res.code != "200"
+        raise_error("Get job result failed", res)
+      end
+      upkr = MessagePack::Unpacker.new
+      upkr.extend(MsgpackUnpackerWithComprSizeMixin)
+      res.each_fragment_with_compr_size {|fragment, compr_size|
+        upkr.feed_each_with_compr_size(fragment, compr_size, &block)
+      }
+    }
+    nil
+  end
+
+  module MsgpackUnpackerWithComprSizeMixin
+    def feed_each_with_compr_size(fragment, compr_size, &block)
+      unpacked = feed_each(fragment)
+      block.call(unpacked, compr_size)
+    end
   end
 
   def job_result_raw(job_id, format)
@@ -1123,16 +1146,32 @@ class API
   module DeflateReadBodyMixin
     attr_accessor :gzip
 
-    def each_fragment(&block)
+    def each_fragment_with_compr_size(&block)
       if @gzip
-        infl = Zlib::Inflate.new(Zlib::MAX_WBITS+16)
+        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
       else
         infl = Zlib::Inflate.new
       end
       begin
-        read_body do |fragment|
+        read_body {|fragment|
+          block.call(infl.inflate(fragment), fragment.size)
+        }
+      ensure
+        infl.close
+      end
+      nil
+    end
+
+    def each_fragment(&block)
+      if @gzip
+        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+      else
+        infl = Zlib::Inflate.new
+      end
+      begin
+        read_body {|fragment|
           block.call infl.inflate(fragment)
-        end
+        }
       ensure
         infl.close
       end
@@ -1192,7 +1231,7 @@ class API
       if ce = response.header['content-encoding']
         require 'zlib'
         if ce == 'gzip'
-          infl = Zlib::Inflate.new(Zlib::MAX_WBITS+16)
+          infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
           begin
             body = infl.inflate(body)
           ensure

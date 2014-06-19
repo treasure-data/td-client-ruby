@@ -328,6 +328,15 @@ class Job < Model
     @client.job_result_format(@job_id, format, io)
   end
 
+  def result_each_with_compr_size(&block)
+    if @result
+      @result.each(&block)
+    else
+      @client.job_result_each_with_compr_size(@job_id, &block)
+    end
+    nil
+  end
+
   def result_each(&block)
     if @result
       @result.each(&block)
