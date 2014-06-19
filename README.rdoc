@@ -11,14 +11,14 @@
 
 == Testing Hooks
 
-Enable debugging mode: 
+* Enable debugging mode:
 
-    > TD_CLIENT_DEBUG=1
+    $ TD_CLIENT_DEBUG=1
 
-Currently debugging mode consists of:
+  Currently debugging mode consists of:
 
-* show request and response of `HTTP`(S) GET` REST API calls;
-* show request of `HTTP(S) POST/PUT` REST API calls.
+  * show request and response of `HTTP`(S) GET` REST API calls;
+  * show request of `HTTP(S) POST/PUT` REST API calls.
 
 == Copyright
 
