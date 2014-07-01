@@ -26,7 +26,7 @@ describe 'Result API' do
 
       expect {
         api.create_result(name, result_url)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
 
     it 'should return 422 error without url' do
@@ -37,7 +37,7 @@ describe 'Result API' do
 
       expect {
         api.create_result(result_name, false)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
 
     it 'should return 409 error with duplicated name' do
@@ -48,7 +48,7 @@ describe 'Result API' do
 
       expect {
         api.create_result(result_name, result_url)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
   end
 end
