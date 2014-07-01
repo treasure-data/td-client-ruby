@@ -889,7 +889,7 @@ class API
       raise_error("Import failed", res)
     end
     js = checked_json(body, %w[])
-    time = js['time'].to_f
+    time = js['elapsed_time'].to_f
     return time
   end
 
