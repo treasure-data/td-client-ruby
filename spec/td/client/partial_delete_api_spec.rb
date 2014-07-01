@@ -38,7 +38,7 @@ describe 'PartialDelete API' do
 
       expect {
         api.partial_delete(db, table_name, to, from)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
 
     it 'should return 404 error with non exist table name' do
@@ -49,7 +49,7 @@ describe 'PartialDelete API' do
 
       expect {
         api.partial_delete(db_name, table, to, from)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
 
     # TODO: Add from / to parameters spec
