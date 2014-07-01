@@ -126,15 +126,11 @@ describe API do
 
     describe "'validate_column_name'" do
       it 'should raise a ParameterValidationError exception' do
-        INVALID_NAMES.each_pair {|ng,ok|
+        ['/', '', 'D'].each { |ng|
           lambda {
             API.validate_column_name(ng)
           }.should raise_error(ParameterValidationError)
         }
-        # empty
-        lambda {
-          API.validate_column_name('')
-        }.should raise_error(ParameterValidationError)
       end
 
       it 'should return valid data' do
