@@ -23,7 +23,7 @@ describe 'Database API' do
 
       expect {
         api.create_database(invalid_name)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
 
     it 'should return 409 error with duplicated name' do
@@ -32,7 +32,7 @@ describe 'Database API' do
 
       expect {
         api.create_database(db_name)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
   end
 end
