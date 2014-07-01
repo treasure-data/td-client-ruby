@@ -14,6 +14,7 @@ include WebMock::API
 $LOAD_PATH << File.dirname(__FILE__)+"../lib"
 require 'td-client'
 require 'msgpack'
+require 'json'
 
 include TreasureData
 
