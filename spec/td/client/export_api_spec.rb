@@ -32,7 +32,7 @@ describe 'Export API' do
 
       expect {
         api.export(db_name, table_name, invalid_type)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
 
     # TODO: Add other parameters spec
