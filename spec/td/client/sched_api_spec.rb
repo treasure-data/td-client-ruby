@@ -30,7 +30,7 @@ describe 'Schedule API' do
 
       expect {
         api.create_schedule(name, opts)
-      }.to raise_error(TreasureData::APIError, /^#{err_msg}/)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
   end
 end
