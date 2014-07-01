@@ -36,7 +36,7 @@ describe 'Job API' do
         job = raw_jobs[i]
         stub_api_request(:get, "/v3/job/show/#{e(i)}").to_return(:body => job.to_json)
 
-        type, query, status, url, debug, start_at, end_at, result_url, hive_result_schema, priority, retry_limit, org, db = api.show_job(i)
+        type, query, status, url, debug, start_at, end_at, cpu_time, result_url, hive_result_schema, priority, retry_limit, org, db = api.show_job(i)
         type.should == job['type']
         query.should == job['query']
         status.should == job['status']
@@ -60,7 +60,7 @@ describe 'Job API' do
 
       expect {
         api.show_job(unknown_id)
-      }.to raise_error(TreasureData::NotFoundError, /^Couldn't find Job with account_id = #{account_id}, id = #{unknown_id}/)
+      }.to raise_error(TreasureData::NotFoundError, /Couldn't find Job with account_id = #{account_id}, id = #{unknown_id}/)
     end
 
     it 'should return an error with invalid id' do
@@ -70,7 +70,7 @@ describe 'Job API' do
 
       expect {
         api.show_job(invalid_id)
-      }.to raise_error(TreasureData::APIError, /^'job_id' parameter is required but missing/)
+      }.to raise_error(TreasureData::APIError, /'job_id' parameter is required but missing/)
     end
   end
 

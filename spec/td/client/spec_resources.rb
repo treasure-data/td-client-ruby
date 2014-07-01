@@ -72,6 +72,7 @@ shared_context 'job resources' do
         "status"      => status,
         "type"        => job_type[0].to_sym,
         "query"       => "select #{i}",
+        "cpu_time"    => 1,
         "priority"    => i % 3,
         "result"      => nil,
         "created_at"  => created_at.to_s,
