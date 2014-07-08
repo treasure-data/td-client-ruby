@@ -18,12 +18,12 @@ These hooks are expressed as environment variables.
 
     $ TD_API_SERVER="https://api.treasuredata.com:443"
 
-Note that the same endpoint can be specified as an additional value in the options
-parameter when initializing the client library:
+  Note that the same endpoint can be specified as an additional value in the options
+  parameter when initializing the client library:
 
     client = TreasureData::Client.new("<apikey>", :endpoint => "https://api.treasuredata.com:443")
 
-This latter takes precedence over the environment variable option.
+  This latter takes precedence over the environment variable option.
 
 * Enable debugging mode:
 
