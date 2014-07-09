@@ -23,8 +23,11 @@ These hooks are expressed as environment variables.
 
     client = TreasureData::Client.new("<apikey>", :endpoint => "https://api.treasuredata.com:443")
 
-  This latter takes precedence over the environment variable option.
-  The default API endpoint is 'https://api.treasuredata.com'.
+  The latter method takes precedence over the environment variable option.
+  
+  The default API endpoint is
+    
+    https://api.treasuredata.com
 
 * Enable debugging mode:
 
