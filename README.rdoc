@@ -15,9 +15,9 @@
 The Client API library constructor supports a number of options that can
 be provided as part of the optional 'opts' hash map to these methods:
 
-* +initialize+(+apikey+, +opts+={}) (constructor)
-* +Client.authenticate+(+user+, +password+, +opts+={}) (class method)
-* +Client.server_status+(+opts+={}) (class method)
+* +initialize+(apikey, opts={}) (constructor)
+* +Client.authenticate+(user, password, opts={}) (class method)
+* +Client.server_status+(opts={}) (class method)
 
 === Endpoint
 
@@ -29,7 +29,7 @@ The default endpoint is:
 
     https://api.treasureadata.com
 
-and configure communication using SSL encryption over +HTTPS+; the same happens
+and configure communication using SSL encryption over HTTPS; the same happens
 every time the provided endpoint is prefixed by 'https'.
 
 E.g.
