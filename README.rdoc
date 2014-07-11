@@ -5,29 +5,128 @@
     > gem install td-client
 
 === Running Tests
+
     > gem install jeweler
     > gem install webmock
     > rake spec
 
+== Configuration
+
+The Client API library constructor supports a number of options that can
+be provided as part of the optional 'opts' hash map to these methods:
+
+* +initialize+(+apikey+, +opts+={}) (constructor)
+* +Client.authenticate+(+user+, +password+, +opts+={}) (class method)
+* +Client.server_status+(+opts+={}) (class method)
+
+=== Endpoint
+
+Add the +:endpoint+ key to the opts to provide an alternative endpoint to make
+the API calls to. Examples are an alternate API endpoint or a static IP address
+provided by Treasure Data on a case-by-case basis.
+
+The default endpoint is:
+
+    https://api.treasureadata.com
+
+and configure communication using SSL encryption over +HTTPS+; the same happens
+every time the provided endpoint is prefixed by 'https'.
+
+E.g.
+
+    opts.merge({:endpoint => "https://api-alternate.treasuredata.com"})
+
+The endpoint can alternatively be provided by setting the +TD_API_SERVER+
+environment variable. The +:endpoint+ option takes precedence over the
++TD_API_SERVER+ environment variable setting.
+
+For communication through a Proxy, please see the Proxy option below.
+
+=== Connection, Read, and Send Timeouts
+
+The connection, read, and send timeouts can be provided via the
++:connect_timeout+, +:read_timeout+, +:send_timeout+ keys respectively.
+The values for these keys is the number of seconds.
+
+E.g.
+
+    opts.merge({:connect_timeout => 60,
+                :read_timeout    => 60,
+                :send_timeout    => 60})
+
+=== SSL
+
+The +:ssl+ key specifies whether SSL communication ought to be used when
+communicating with the default or custom endpoint.
+
+This option is ignored if the endpoint (default or custom) URL specifies the
+scheme (e.g. the protocol, https or http) in which case SSL enabled/disabled is
+inferred directly from the URL scheme.
+
+E.g.
+
+    # SSL is enabled as specified by the :ssl option
+    opts.merge({:endpoint => "api.treasuredata.com", :ssl => true})
+
+    # the ssl option is ignored in this case
+    opts.merge({:endpoint => "https://api.treasuredata.com", :ssl => false})
+
+=== Proxy
+
+If your network requires accessing our endpoint through a proxy (anonymous or
+private), the proxy settings can be specified through the +:http_proxy+ option.
+
+E.g.
+
+    # anonymous proxies
+    opts.merge({:http_proxy => "http://myproxy.com:1234"})
+    opts.merge({:http_proxy => "myproxy.com:1234"})
+
+    # private proxies
+    opts.merge({:http_proxy => "https://username:password@myproxy.com:1234"})
+    opts.merge({:http_proxy => "username:password@myproxy.com:1234"})
+
+The proxy settings can alternatively be provided by setting the +HTTP_PROXY+
+environment variable. The +:http_proxy+ option takes precedence over the
++HTTP_PROXY+ environment variable setting.
+
+=== Additional Header(s)
+
+The Ruby client configures the communication with the Treasure Data REST API
+endpoints using the required HTTP Headers (including authorization, Date,
+User-Agent and Accept-Encoding, Content-Length, Content-Encoding where
+applicable) basing on what method call is made.
+
+The user can specify any additional HTTP Header using the +:headers+ option.
+
+E.g.
+
+    opts.merge({:headers => "MyHeader: myheadervalue;"})
+
+To specify a custom User-Agent please see the option below.
+
+=== Additional User-Agent(s)
+
+Add the +:user_agent+ key to the opts hash to provide an additional user agent
+for all the interactions with the APIs.
+The provided user agent string will be added to this default client library user
+agent +TD-Client-Ruby: X.Y.Z+ where X.Y.Z is the version number of this Ruby
+Client library.
+
+E.g.
+
+    opts.merge({:user_agent => "MyApp: A.B.C"})
+
+which sets the user agent to:
+
+    "MyApp: A.B.C; TD-Client-Ruby: X.Y.Z"
+
+
+
 == Testing Hooks
 
-The client library implements several hooks to enable/disable/trigger special behaviors.
-These hooks are expressed as environment variables.
-
-* Specify an alternate API endpoint:
-
-    $ TD_API_SERVER="https://api.treasuredata.com:443"
-
-  Note that the same endpoint can be specified as an additional value in the options
-  parameter when initializing the client library:
-
-    client = TreasureData::Client.new("<apikey>", :endpoint => "https://api.treasuredata.com:443")
-
-  The latter method takes precedence over the environment variable option.
-  
-  The default API endpoint is
-    
-    https://api.treasuredata.com
+The client library implements several hooks to enable/disable/trigger special
+behaviors. These hooks are triggered using environment variables:
 
 * Enable debugging mode:
 
@@ -35,8 +134,8 @@ These hooks are expressed as environment variables.
 
   Currently debugging mode consists of:
 
-  * show request and response of 'HTTP(S) GET' REST API calls;
-  * show request of 'HTTP(S) POST/PUT' REST API calls.
+  * show request and response of +HTTP+/+HTTPS+ +GET+ REST API calls;
+  * show request of +HTTP+/+HTTPS+ +POST+/+PUT+ REST API calls.
 
 == Copyright
 
