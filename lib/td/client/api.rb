@@ -816,7 +816,7 @@ class API
   end
 
   def update_schedule(name, params)
-    code, body, res = get("/v3/schedule/update/#{e name}", params)
+    code, body, res = post("/v3/schedule/update/#{e name}", params)
     if code != "200"
       raise_error("Update schedule failed", res)
     end
