@@ -248,7 +248,8 @@ class API
       count = m['count']
       created_at = m['created_at']
       updated_at = m['updated_at']
-      result[name] = [count, created_at, updated_at, nil] # set nil to org for API compatibiilty
+      permission = m['permission']
+      result[name] = [count, created_at, updated_at, nil, permission] # set nil to org for API compatibiilty
     }
     return result
   end

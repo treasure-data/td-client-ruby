@@ -28,29 +28,33 @@ class Account < Model
   end
 
   def storage_size_string
-    if @storage_size <= 1024*1024
+    if @storage_size <= 1024 * 1024
       return "0.0 GB"
-    elsif @storage_size <= 60*1024*1024
+    elsif @storage_size <= 60 * 1024 * 1024
       return "0.01 GB"
-    elsif @storage_size <= 60*1024*1024*1024
-      "%.1f GB" % (@storage_size.to_f / (1024*1024*1024))
+    elsif @storage_size <= 60 * 1024 * 1024 * 1024
+      "%.1f GB" % (@storage_size.to_f / (1024 * 1024 * 1024))
     else
-      "%d GB" % (@storage_size.to_f / (1024*1024*1024)).to_i
+      "%d GB" % (@storage_size.to_f / (1024 * 1024 * 1024)).to_i
     end
   end
 end
 
 class Database < Model
-  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil)
+  PERMISSIONS = [:administrator, :full_access, :import_only, :query_only]
+  PERMISSION_LIST_TABLES = [:administrator, :full_access]
+
+  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil, permission=nil)
     super(client)
     @db_name = db_name
     @tables = tables
     @count = count
     @created_at = created_at
     @updated_at = updated_at
+    @permission = permission.to_sym
   end
 
-  attr_reader :org_name
+  attr_reader :org_name, :permission, :count
 
   def name
     @db_name
@@ -81,8 +85,6 @@ class Database < Model
     @client.query(@db_name, q)
   end
 
-  attr_reader :count
-
   def created_at
     @created_at && !@created_at.empty? ? Time.parse(@created_at) : nil
   end
@@ -93,12 +95,19 @@ class Database < Model
 
   def update_tables!
     @tables = @client.tables(@db_name)
+    # provide Table objects with a reference to the parent Database to avoid
+    # requesting the Database information (such as permission) every time
+    @tables.each {|table|
+      table.database = self
+    }
   end
+
 end
 
 class Table < Model
   def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil, last_import=nil, last_log_timestamp=nil, expire_days=nil, primary_key=nil, primary_key_type=nil)
     super(client)
+    @database = nil
     @db_name = db_name
     @table_name = table_name
     @type = type
@@ -118,6 +127,10 @@ class Table < Model
 
   alias database_name db_name
   alias name table_name
+
+  def database=(database)
+    @database = database if database.instance_of?(Database)
+  end
 
   def created_at
     @created_at && !@created_at.empty? ? Time.parse(@created_at) : nil
@@ -140,7 +153,13 @@ class Table < Model
   end
 
   def database
-    @client.database(@db_name)
+    update_database! unless @database
+    @database
+  end
+
+  # get the database's permission as if they were the table's
+  def permission
+    database.permission
   end
 
   def identifier
@@ -173,6 +192,10 @@ class Table < Model
     else
       "%d GB" % (@estimated_storage_size.to_f / (1024*1024*1024)).to_i
     end
+  end
+
+  def update_database!
+    @database = @client.database(@db_name)
   end
 end
 

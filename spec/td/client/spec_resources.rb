@@ -2,6 +2,10 @@ require 'spec_helper'
 require 'td/client/model'
 
 shared_context 'spec symbols' do
+  let :apikey do
+    '1/0123456789ABCDEFG'
+  end
+
   let :db_name do
     'db_test'
   end
@@ -82,7 +86,7 @@ shared_context 'job resources' do
         'retry_limit' => 10,
         'organization' => nil,
         'hive_result_schema' => nil,
-        'debug' => { 
+        'debug' => {
           'stderr' => "job #{i} #{status}",
           'cmdout' => "job #{i} command",
         }
