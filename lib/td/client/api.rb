@@ -598,14 +598,6 @@ class API
     nil
   end
 
-  # TODO remove
-  # module MsgpackUnpackerWithComprSizeMixin
-  #   def feed_each_with_compr_size(fragment, compr_size, &block)
-  #     unpacked = feed_each(fragment)
-  #     block.call(unpacked, compr_size)
-  #   end
-  # end
-
   def job_result_raw(job_id, format)
     code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
     if code != "200"
