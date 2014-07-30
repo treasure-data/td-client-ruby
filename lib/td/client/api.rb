@@ -516,14 +516,27 @@ class API
     return result
   end
 
-  def job_result_format(job_id, format, io=nil)
+  # block is optional and must accept 1 parameter
+  def job_result_format(job_id, format, io=nil, &block)
     if io
       code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
         if res.code != "200"
           raise_error("Get job result failed", res)
         end
+
+        if ce = res.header['Content-Encoding']
+          require 'zlib'
+          res.extend(DeflateReadBodyMixin)
+          res.gzip = true if ce == 'gzip'
+        else
+          res.extend(DirectReadBodyMixin)
+        end
+
+        total_compr_size = 0
         res.each_fragment {|fragment|
+          total_compr_size += fragment.sizefp
           io.write(fragment)
+          block.call(total_compr_size) unless block.nil?
         }
       }
       nil
@@ -542,36 +555,56 @@ class API
       if res.code != "200"
         raise_error("Get job result failed", res)
       end
+
+      res.extend(DeflateReadBodyMixin)
+      res.gzip = (res.header['Content-Encoding'] == 'gzip')
       upkr = MessagePack::Unpacker.new
-      res.each_fragment {|fragment|
-        # puts "fragment.size #{fragment.size}"
-        upkr.feed_each(fragment, &block)
+      res.each_fragment {|inflated_fragment|
+        upkr.feed_each(inflated_fragment, &block)
       }
     }
     nil
   end
 
+  # block must accept 2 arguments
   def job_result_each_with_compr_size(job_id, &block)
+    require 'zlib'
     require 'msgpack'
+
     get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
       if res.code != "200"
         raise_error("Get job result failed", res)
       end
+
+      res.extend(DirectReadBodyMixin)
+      if res.header['Content-Encoding'] == 'gzip'
+        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+      else
+        infl = Zlib::Inflate.new
+      end
       upkr = MessagePack::Unpacker.new
-      upkr.extend(MsgpackUnpackerWithComprSizeMixin)
-      res.each_fragment_with_compr_size {|fragment, compr_size|
-        upkr.feed_each_with_compr_size(fragment, compr_size, &block)
-      }
+      begin
+        total_compr_size = 0
+        res.each_fragment {|fragment|
+          total_compr_size += fragment.size
+          upkr.feed_each(infl.inflate(fragment)) {|unpacked|
+            block.call(unpacked, total_compr_size)
+          }
+        }
+      ensure
+        infl.close
+      end
     }
     nil
   end
 
-  module MsgpackUnpackerWithComprSizeMixin
-    def feed_each_with_compr_size(fragment, compr_size, &block)
-      unpacked = feed_each(fragment)
-      block.call(unpacked, compr_size)
-    end
-  end
+  # TODO remove
+  # module MsgpackUnpackerWithComprSizeMixin
+  #   def feed_each_with_compr_size(fragment, compr_size, &block)
+  #     unpacked = feed_each(fragment)
+  #     block.call(unpacked, compr_size)
+  #   end
+  # end
 
   def job_result_raw(job_id, format)
     code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
@@ -1154,22 +1187,6 @@ class API
   module DeflateReadBodyMixin
     attr_accessor :gzip
 
-    def each_fragment_with_compr_size(&block)
-      if @gzip
-        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-      else
-        infl = Zlib::Inflate.new
-      end
-      begin
-        read_body {|fragment|
-          block.call(infl.inflate(fragment), fragment.size)
-        }
-      ensure
-        infl.close
-      end
-      nil
-    end
-
     def each_fragment(&block)
       if @gzip
         infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
@@ -1215,13 +1232,6 @@ class API
 
     if block
       response = http.request(request) do |res|
-        if ce = res.header['Content-Encoding']
-          require 'zlib'
-          res.extend(DeflateReadBodyMixin)
-          res.gzip = true if ce == 'gzip'
-        else
-          res.extend(DirectReadBodyMixin)
-        end
         block.call(res)
       end
     else

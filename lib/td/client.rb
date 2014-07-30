@@ -163,8 +163,8 @@ class Client
   end
 
   # => result:String
-  def job_result_format(job_id, format, io=nil)
-    @api.job_result_format(job_id, format, io)
+  def job_result_format(job_id, format, io=nil, &block)
+    @api.job_result_format(job_id, format, io, &block)
   end
 
   # => nil

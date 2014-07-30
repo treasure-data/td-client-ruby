@@ -346,9 +346,9 @@ class Job < Model
     @result
   end
 
-  def result_format(format, io=nil)
+  def result_format(format, io=nil, &block)
     return nil unless finished?
-    @client.job_result_format(@job_id, format, io)
+    @client.job_result_format(@job_id, format, io, &block)
   end
 
   def result_each_with_compr_size(&block)
