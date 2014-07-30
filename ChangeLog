@@ -1,3 +1,11 @@
+== 2014-06-18 version 0.8.62
+
+* Fix JSON parsing issue when Pig queries don't alias column values outputted
+  from Pig functions (e.g. COUNT, SUM)
+* Fix database, column, and table validation methods to use max length 255
+  instead of 256
+* Use constants instead of hardcoded status names when handling jobs
+
 == 2014-05-22 version 0.8.61
 
 * Fix bug in raising error when response body is nil

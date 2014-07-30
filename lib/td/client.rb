@@ -54,17 +54,17 @@ class Client
   # => [Database]
   def databases
     m = @api.list_databases
-    m.map {|db_name,(count,created_at,updated_at,org)|
-      Database.new(self, db_name, nil, count, created_at, updated_at, org)
+    m.map {|db_name,(count, created_at, updated_at, org, permission)|
+      Database.new(self, db_name, nil, count, created_at, updated_at, org, permission)
     }
   end
 
   # => Database
   def database(db_name)
     m = @api.list_databases
-    m.each {|name,(count,created_at,updated_at,org)|
+    m.each {|name,(count, created_at, updated_at, org, permission)|
       if name == db_name
-        return Database.new(self, name, nil, count, created_at, updated_at, org)
+        return Database.new(self, name, nil, count, created_at, updated_at, org, permission)
       end
     }
     raise NotFoundError, "Database '#{db_name}' does not exist"

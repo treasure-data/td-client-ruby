@@ -2,19 +2,26 @@ require 'td/client/version'
 
 module TreasureData
 
-
-class APIError < StandardError
-end
-
 class ParameterValidationError < StandardError
 end
 
+# Generic API error
+class APIError < StandardError
+end
+
+# 401 API errors
 class AuthError < APIError
 end
 
+# 403 API errors, used for database permissions
+class ForbiddenError < APIError
+end
+
+# 409 API errors
 class AlreadyExistsError < APIError
 end
 
+# 404 API errors
 class NotFoundError < APIError
 end
 
@@ -248,7 +255,8 @@ class API
       count = m['count']
       created_at = m['created_at']
       updated_at = m['updated_at']
-      result[name] = [count, created_at, updated_at, nil] # set nil to org for API compatibiilty
+      permission = m['permission']
+      result[name] = [count, created_at, updated_at, nil, permission] # set nil to org for API compatibiilty
     }
     return result
   end
@@ -842,7 +850,7 @@ class API
   end
 
   def update_schedule(name, params)
-    code, body, res = get("/v3/schedule/update/#{e name}", params)
+    code, body, res = post("/v3/schedule/update/#{e name}", params)
     if code != "200"
       raise_error("Update schedule failed", res)
     end
@@ -1371,6 +1379,8 @@ class API
         raise AlreadyExistsError, "#{msg}: #{error_msg}"
       elsif status_code == "401"
         raise AuthError, "#{msg}: #{error_msg}"
+      elsif status_code == "403"
+        raise ForbiddenError, "#{msg}: #{error_msg}"
       else
         raise APIError, "#{status_code}: #{msg}: #{error_msg}"
       end
@@ -1384,6 +1394,8 @@ class API
         raise AlreadyExistsError, "#{msg}: #{res.body}"
       elsif status_code == "401"
         raise AuthError, "#{msg}: #{res.body}"
+      elsif status_code == "403"
+        raise ForbiddenError, "#{msg}: #{res.body}"
       else
         raise APIError, "#{status_code}: #{msg}: #{res.body}"
       end
