@@ -532,11 +532,22 @@ class API
           res.extend(DirectReadBodyMixin)
         end
 
+        res.extend(DirectReadBodyMixin)
+        if ce = res.header['Content-Encoding']
+          if ce == 'gzip'
+            infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+          else
+            infl = Zlib::Inflate.new
+          end
+        end
+
         total_compr_size = 0
         res.each_fragment {|fragment|
           total_compr_size += fragment.size
+          # uncompressed if the 'Content-Enconding' header is set in response
+          fragment = infl.inflate(fragment) if ce
           io.write(fragment)
-          block.call(total_compr_size) unless block.nil?
+          block.call(total_compr_size) if block_given?
         }
       }
       nil
@@ -549,6 +560,7 @@ class API
     end
   end
 
+  # block is optional and must accept 1 argument
   def job_result_each(job_id, &block)
     require 'msgpack'
     get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
@@ -556,6 +568,7 @@ class API
         raise_error("Get job result failed", res)
       end
 
+      # default to decompressing the response since format is fixed to 'msgpack'
       res.extend(DeflateReadBodyMixin)
       res.gzip = (res.header['Content-Encoding'] == 'gzip')
       upkr = MessagePack::Unpacker.new
@@ -566,7 +579,7 @@ class API
     nil
   end
 
-  # block must accept 2 arguments
+  # block is optional and must accept 1 argument
   def job_result_each_with_compr_size(job_id, &block)
     require 'zlib'
     require 'msgpack'
@@ -588,7 +601,7 @@ class API
         res.each_fragment {|fragment|
           total_compr_size += fragment.size
           upkr.feed_each(infl.inflate(fragment)) {|unpacked|
-            block.call(unpacked, total_compr_size)
+            block.call(unpacked, total_compr_size) if block_given?
           }
         }
       ensure
@@ -1223,9 +1236,9 @@ class API
     end
 
     if block
-      response = http.request(request) do |res|
+      response = http.request(request) {|res|
         block.call(res)
-      end
+      }
     else
       response = http.request(request)
     end
