@@ -1,3 +1,13 @@
+== 2014-07-30 version 0.8.63
+
+* Added Job's model 'result_each_with_compr_size' method to expose the
+  progressive result file compressed size read to the callee
+* Added 'ForbiddenError' exception class for HTTP error codes 403
+* Added 'permission' field to Database model and made it accessible from the
+  Database and Table models
+* Converted the 'update_schedule' method to using POST instead of GET
+* Fixed tests
+
 == 2014-06-18 version 0.8.62
 
 * Fix JSON parsing issue when Pig queries don't alias column values outputted
