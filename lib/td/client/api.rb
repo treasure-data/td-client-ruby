@@ -534,7 +534,7 @@ class API
 
         total_compr_size = 0
         res.each_fragment {|fragment|
-          total_compr_size += fragment.sizefp
+          total_compr_size += fragment.size
           io.write(fragment)
           block.call(total_compr_size) unless block.nil?
         }
