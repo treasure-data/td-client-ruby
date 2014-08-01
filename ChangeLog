@@ -1,4 +1,4 @@
-== 2014-07-30 version 0.8.63
+== 2014-07-31 version 0.8.63
 
 * Added Job's model 'result_each_with_compr_size' method to expose the
   progressive result file compressed size read to the callee
