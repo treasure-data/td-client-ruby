@@ -1,3 +1,12 @@
+== 2014-09-25 version 0.8.64
+
+* Implemented retrying on all get REST APIs requests that lead to certain
+  types of exception thrown: Errno::ECONNREFUSED, Errno::ECONNRESET,
+  Timeout::Error, EOFError and HTTP status code greater than 500 (Server errors)
+* Implemented retrying on post REST APIs requests if the client options contain
+  the 'retry_post_requests' option under the same circumstances as the get
+  requests
+
 == 2014-07-31 version 0.8.63
 
 * Added Job's model 'result_each_with_compr_size' method to expose the
