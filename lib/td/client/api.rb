@@ -1244,42 +1244,44 @@ class API
     # for both exceptions and 500+ errors retrying is enabled by default.
     # The total number of retries cumulatively should not exceed 10 minutes / 600 seconds
     response = nil
-    begin
-      if block
-        response = http.request(request) {|res|
-          block.call(res)
-        }
-      else
-        response = http.request(request)
-      end
+    begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
+      begin
+        if block
+          response = http.request(request) {|res|
+            block.call(res)
+          }
+        else
+          response = http.request(request)
+        end
 
-      status = response.code.to_i
-      # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
-      if !block_given? && status >= 500 && cumul_retry_delay <= max_cumul_retry_delay
-        $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
-        sleep retry_delay
-        cumul_retry_delay += retry_delay
-        retry_delay *= 2
-        retry
-      end
-    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
-      if block_given?
+        status = response.code.to_i
+        # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
+        if !block_given? && status >= 500 && cumul_retry_delay <= max_cumul_retry_delay
+          $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
+          sleep retry_delay
+          cumul_retry_delay += retry_delay
+          retry_delay *= 2
+          redo # restart from beginning of do-while loop
+        end
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
+        if block_given?
+          raise e
+        end
+        $stderr.print "#{e.class}: #{e.message}. "
+        if cumul_retry_delay <= max_cumul_retry_delay
+          $stderr.puts "Retrying after #{retry_delay} seconds..."
+          sleep retry_delay
+          cumul_retry_delay += retry_delay
+          retry_delay *= 2
+          retry
+        else
+          $stderr.puts "Retrying stopped after #{max_cumul_retry_delay} seconds."
+          raise e
+        end
+      rescue => e
         raise e
       end
-      $stderr.print "#{e.class}: #{e.message}. "
-      if cumul_retry_delay <= max_cumul_retry_delay
-        $stderr.puts "Retrying after #{retry_delay} seconds..."
-        sleep retry_delay
-        cumul_retry_delay += retry_delay
-        retry_delay *= 2
-        retry
-      else
-        $stderr.puts "Retrying stopped after #{max_cumul_retry_delay} seconds."
-        raise e
-      end
-    rescue => e
-      raise e
-    end
+    end while false
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST GET response:"
@@ -1337,34 +1339,36 @@ class API
     # parameter 'retry_post_requests'. The total number of retries cumulatively
     # should not exceed 10 minutes / 600 seconds
     response = nil
-    begin
-      response = http.request(request)
+    begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
+      begin
+        response = http.request(request)
 
-      # if the HTTP error code is 500 or higher and the user requested retrying
-      # on post request, attempt a retry
-      status = response.code.to_i
-      if @retry_post_requests && status >= 500 && cumul_retry_delay <= max_cumul_retry_delay
-        $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
-        sleep retry_delay
-        cumul_retry_delay += retry_delay
-        retry_delay *= 2
-        retry
-      end
-    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
-      $stderr.print "#{e.class}: #{e.message}. "
-      if @retry_post_requests && cumul_retry_delay <= max_cumul_retry_delay
-        $stderr.puts "Retrying after #{retry_delay} seconds..."
-        sleep retry_delay
-        cumul_retry_delay += retry_delay
-        retry_delay *= 2
-        retry
-      else
-        $stderr.puts "Retrying stopped after #{max_cumul_retry_delay} seconds."
+        # if the HTTP error code is 500 or higher and the user requested retrying
+        # on post request, attempt a retry
+        status = response.code.to_i
+        if @retry_post_requests && status >= 500 && cumul_retry_delay <= max_cumul_retry_delay
+          $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
+          sleep retry_delay
+          cumul_retry_delay += retry_delay
+          retry_delay *= 2
+          redo # restart from beginning of do-while loop
+        end
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
+        $stderr.print "#{e.class}: #{e.message}. "
+        if @retry_post_requests && cumul_retry_delay <= max_cumul_retry_delay
+          $stderr.puts "Retrying after #{retry_delay} seconds..."
+          sleep retry_delay
+          cumul_retry_delay += retry_delay
+          retry_delay *= 2
+          retry
+        else
+          $stderr.puts "Retrying stopped after #{max_cumul_retry_delay} seconds."
+          raise e
+        end
+      rescue => e
         raise e
       end
-    rescue => e
-      raise e
-    end
+    end while false
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST POST response:"
