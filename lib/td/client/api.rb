@@ -53,6 +53,7 @@ class API
     @connect_timeout = opts[:connect_timeout] || 60
     @read_timeout = opts[:read_timeout] || 600
     @send_timeout = opts[:send_timeout] || 600
+    @retry_post_requests = opts[:retry_post_requests] || false
 
     case uri.scheme
     when 'http', 'https'
@@ -1235,17 +1236,56 @@ class API
       puts "DEBUG:   params: " + params.to_s
     end
 
-    if block
-      response = http.request(request) {|res|
-        block.call(res)
-      }
-    else
-      response = http.request(request)
+    # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
+    retry_delay = 5
+    max_cumul_retry_delay = 600
+    cumul_retry_delay = 0
+    retrying = true
+
+    # for both exceptions and 500+ errors retrying is enabled by default.
+    # The total number of retries cumulatively should not exceed 10 minutes / 600 seconds
+    response = nil
+    while retrying
+      retrying = false
+      begin
+        if block
+          response = http.request(request) {|res|
+            block.call(res)
+          }
+        else
+          response = http.request(request)
+        end
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
+        $stderr.print "#{e.class}: #{e.message}. "
+        if cumul_retry_delay <= max_cumul_retry_delay
+          $stderr.puts "Retrying after #{retry_delay} seconds..."
+          sleep retry_delay
+          cumul_retry_delay += retry_delay
+          retry_delay *= 2
+          retry
+        else
+          $stderr.puts "Retrying stopped after #{max_cumul_retry_delay} seconds."
+          raise e
+        end
+      rescue => e
+        raise e
+      end
+
+      status = response.code.to_i
+      # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
+      if status >= 500 && cumul_retry_delay <= max_cumul_retry_delay
+        $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
+        sleep retry_delay
+        cumul_retry_delay += retry_delay
+        retry_delay *= 2
+        retrying = true
+      end
     end
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST GET response:"
       puts "DEBUG:   header: " + response.header.to_s
+      puts "DEBUG:   status: " + response.code.to_s
       puts "DEBUG:   body:   " + response.body.to_s
     end
 
@@ -1289,7 +1329,55 @@ class API
       request = Net::HTTP::Post.new(path, header)
     end
 
-    response = http.request(request)
+    # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
+    retry_delay = 5
+    max_cumul_retry_delay = 600
+    cumul_retry_delay = 0
+    retrying = true
+
+    # for both exceptions and 500+ errors retrying can be enabled by initialization
+    # parameter 'retry_post_requests'. The total number of retries cumulatively
+    # should not exceed 10 minutes / 600 seconds
+    response = nil
+    while retrying
+      retrying = false
+      begin
+        response = http.request(request)
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
+        $stderr.print "#{e.class}: #{e.message}. "
+        if @retry_post_requests && cumul_retry_delay <= max_cumul_retry_delay
+          $stderr.puts "Retrying after #{retry_delay} seconds..."
+          sleep retry_delay
+          cumul_retry_delay += retry_delay
+          retry_delay *= 2
+          retry
+        else
+          $stderr.puts "Retrying stopped after #{max_cumul_retry_delay} seconds."
+          raise e
+        end
+      rescue => e
+        raise e
+      end
+
+      status = response.code.to_i
+      # if the HTTP error code is 500 or higher and the user requested retrying
+      # on post request, attempt a retry
+      if status >= 500 && @retry_post_requests && cumul_retry_delay <= max_cumul_retry_delay
+        $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
+        sleep retry_delay
+        cumul_retry_delay += retry_delay
+        retry_delay *= 2
+        retrying = true
+      end
+    end
+
+    unless ENV['TD_CLIENT_DEBUG'].nil?
+      puts "DEBUG: REST POST response:"
+      puts "DEBUG:   header: " + response.header.to_s
+      puts "DEBUG:   status: " + response.code.to_s
+      puts "DEBUG:   body:   <omitted>"
+    end
+
     return [response.code, response.body, response]
   end
 
@@ -1316,6 +1404,14 @@ class API
     end
 
     response = client.put(target, body, header)
+
+    unless ENV['TD_CLIENT_DEBUG'].nil?
+      puts "DEBUG: REST PUT response:"
+      puts "DEBUG:   header: " + response.header.to_s
+      puts "DEBUG:   status: " + response.code.to_s
+      puts "DEBUG:   body:   <omitted>"
+    end
+
     return [response.code.to_s, response.body, response]
   end
 
@@ -1372,48 +1468,39 @@ class API
     @ssl_ca_file ||= File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt')
   end
 
-  def raise_error(msg, res, klass=nil)
-    status_code = res.code.to_s
+  def get_error(res)
     begin
       js = JSON.load(res.body)
       if js.nil?
         error_msg = if res.respond_to?(:message)
                       res.message # Net::HTTP
                     else
-                      res.reason # httpclient
+                      res.reason # HttpClient
                     end
       else
         error_msg = js['message'] || js['error']
       end
-
-      if klass
-        raise klass, "#{status_code}: #{msg}: #{error_msg}"
-      elsif status_code == "404"
-        raise NotFoundError, "#{msg}: #{error_msg}"
-      elsif status_code == "409"
-        raise AlreadyExistsError, "#{msg}: #{error_msg}"
-      elsif status_code == "401"
-        raise AuthError, "#{msg}: #{error_msg}"
-      elsif status_code == "403"
-        raise ForbiddenError, "#{msg}: #{error_msg}"
-      else
-        raise APIError, "#{status_code}: #{msg}: #{error_msg}"
-      end
-
     rescue JSON::ParserError
-      if klass
-        raise klass, "#{status_code}: #{msg}: #{res.body}"
-      elsif status_code == "404"
-        raise NotFoundError, "#{msg}: #{res.body}"
-      elsif status_code == "409"
-        raise AlreadyExistsError, "#{msg}: #{res.body}"
-      elsif status_code == "401"
-        raise AuthError, "#{msg}: #{res.body}"
-      elsif status_code == "403"
-        raise ForbiddenError, "#{msg}: #{res.body}"
-      else
-        raise APIError, "#{status_code}: #{msg}: #{res.body}"
-      end
+      error_msg = res.body
+    end
+    error_msg
+  end
+
+  def raise_error(msg, res, klass=nil)
+    status_code = res.code.to_s
+    error_msg = get_error(res)
+    if klass
+      raise klass, "#{status_code}: #{msg}: #{res.body}"
+    elsif status_code == "404"
+      raise NotFoundError, "#{msg}: #{res.body}"
+    elsif status_code == "409"
+      raise AlreadyExistsError, "#{msg}: #{res.body}"
+    elsif status_code == "401"
+      raise AuthError, "#{msg}: #{res.body}"
+    elsif status_code == "403"
+      raise ForbiddenError, "#{msg}: #{res.body}"
+    else
+      raise APIError, "#{status_code}: #{msg}: #{res.body}"
     end
     # TODO error
   end
