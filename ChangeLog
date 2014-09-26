@@ -2,7 +2,8 @@
 
 * Implemented retrying on all get REST APIs requests that lead to certain
   types of exception thrown: Errno::ECONNREFUSED, Errno::ECONNRESET,
-  Timeout::Error, EOFError and HTTP status code greater than 500 (Server errors)
+  Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError and HTTP status
+  code greater than 500 (Server errors)
 * Implemented retrying on post REST APIs requests if the client options contain
   the 'retry_post_requests' option under the same circumstances as the get
   requests
