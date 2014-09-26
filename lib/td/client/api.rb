@@ -1263,7 +1263,7 @@ class API
           retry_delay *= 2
           redo # restart from beginning of do-while loop
         end
-      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, SocketError => e
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
         if block_given?
           raise e
         end
@@ -1353,7 +1353,7 @@ class API
           retry_delay *= 2
           redo # restart from beginning of do-while loop
         end
-      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, SocketError => e
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
         $stderr.print "#{e.class}: #{e.message}. "
         if @retry_post_requests && cumul_retry_delay <= max_cumul_retry_delay
           $stderr.puts "Retrying after #{retry_delay} seconds..."
