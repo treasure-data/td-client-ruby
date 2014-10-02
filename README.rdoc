@@ -121,7 +121,25 @@ which sets the user agent to:
 
     "MyApp: A.B.C; TD-Client-Ruby: X.Y.Z"
 
+=== Retry POST Requests
 
+Add the +:retry_post_requests+ key to the opts hash to require that every
+failed POST request is retried for up to 10 minutes with an exponentially
+doubling backoff window just as it happens for GET requests by default.
+
+Note that this can lead to unwanted results since POST request as not always
+idempotent, that is retrying a POST request by lead to the creation of
+duplicated resources, such as the submission of 2 identical jobs on failures.
+
+As for GET requests, the retrying mechanism is triggered on 500+ HTTP error
+codes or the raising of exceptions during the communication with the remote
+server.
+
+E.g.
+
+    opts.merge({:retry_post_requests => true})
+
+to enable retrying for POST requests.
 
 == Testing Hooks
 
