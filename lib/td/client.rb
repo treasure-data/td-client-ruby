@@ -359,7 +359,7 @@ class Client
 
   # => true
   def remove_apikey(user, apikey)
-    @api.remove_apikey(user, g)
+    @api.remove_apikey(user, apikey)
   end
 
   # => true
