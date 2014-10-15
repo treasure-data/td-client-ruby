@@ -1454,6 +1454,12 @@ class API
       #store = OpenSSL::X509::Store.new
       #http.cert_store = store
       http.ca_file = File.join(ssl_ca_file)
+      # Disable SSLv3 connection in favor of POODLE Attack protection
+      # ruby 1.8.7 uses own @ssl_context instead of calling
+      # SSLContext#set_params.
+      if ctx = http.instance_eval { @ssl_context }
+        ctx.options = OpenSSL::SSL::OP_ALL | OpenSSL::SSL::OP_NO_SSLv3
+      end
     end
 
     header = {}
@@ -1569,9 +1575,8 @@ module OpenSSL
       #
       alias original_set_params set_params
       def set_params(params={})
-        v = original_set_params(params)
-        v[:options] |= OP_NO_SSLv3 if Thread.current[:SET_SSL_OP_NO_SSLv3]
-        v
+        original_set_params(params)
+        self.options |= OP_NO_SSLv3 if Thread.current[:SET_SSL_OP_NO_SSLv3]
       end
     end
   end
