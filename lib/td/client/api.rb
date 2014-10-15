@@ -1429,13 +1429,8 @@ class API
       #store = OpenSSL::X509::Store.new
       #http.cert_store = store
       http.ca_file = File.join(ssl_ca_file)
-      # Disable SSLv3 connection in favor of POODLE Attack protection
-      if http.respond_to?(:ciphers)
-        http.ciphers = "ALL:!aNULL:!eNULL:!SSLv2:!SSLv3"
-      else
-        # TODO: remove this branch when td-client-ruby drops ruby 1.8.7 support
-        http.instance_eval { @ssl_context }.ciphers = "ALL:!aNULL:!eNULL:!SSLv2:!SSLv3"
-      end
+      # Disable SSLv3 connection: See Net::HTTP hack at the bottom
+      Thread.current[:SET_SSL_OP_NO_SSLv3] = true
     end
 
     header = {}
@@ -1538,3 +1533,23 @@ class API
 end
 
 end # module TreasureData
+
+require 'openssl'
+module OpenSSL
+  module SSL
+    class SSLContext
+
+      # For disabling SSLv3 connection in favor of POODLE Attack protection
+      #
+      # Allow 'options' customize through Thread local storage since
+      # Net::HTTP does not support 'options' configuration.
+      #
+      alias original_set_params set_params
+      def set_params(params={})
+        v = original_set_params(params)
+        v[:options] |= OP_NO_SSLv3 if Thread.current[:SET_SSL_OP_NO_SSLv3]
+        v
+      end
+    end
+  end
+end
