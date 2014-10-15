@@ -1217,6 +1217,12 @@ class API
   end
 
   def get(url, params=nil, &block)
+    guard_no_sslv3 do
+      do_get(url, params, &block)
+    end
+  end
+
+  def do_get(url, params=nil, &block)
     http, header = new_http
 
     path = @base_path + url
@@ -1311,6 +1317,12 @@ class API
   end
 
   def post(url, params=nil)
+    guard_no_sslv3 do
+      do_post(url, params)
+    end
+  end
+
+  def do_post(url, params=nil)
     http, header = new_http
 
     path = @base_path + url
@@ -1419,6 +1431,19 @@ class API
     "#{schema}://#{host}:#{@port}/#{@base_path + url}"
   end
 
+  def guard_no_sslv3
+    key = :SET_SSL_OP_NO_SSLv3
+    backup = Thread.current[key]
+    begin
+      # Disable SSLv3 connection: See Net::HTTP hack at the bottom
+      Thread.current[key] = true
+      yield
+    ensure
+      Thread.current[key] = backup
+    end
+
+  end
+
   def new_http(opts = {})
     host = opts[:host] || @host
     http = @http_class.new(host, @port)
@@ -1429,8 +1454,6 @@ class API
       #store = OpenSSL::X509::Store.new
       #http.cert_store = store
       http.ca_file = File.join(ssl_ca_file)
-      # Disable SSLv3 connection: See Net::HTTP hack at the bottom
-      Thread.current[:SET_SSL_OP_NO_SSLv3] = true
     end
 
     header = {}
