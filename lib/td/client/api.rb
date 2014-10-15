@@ -1429,6 +1429,13 @@ class API
       #store = OpenSSL::X509::Store.new
       #http.cert_store = store
       http.ca_file = File.join(ssl_ca_file)
+      # Disable SSLv3 connection in favor of POODLE Attack protection
+      if http.respond_to?(:ciphers)
+        http.ciphers = "ALL:!aNULL:!eNULL:!SSLv2:!SSLv3"
+      else
+        # TODO: remove this branch when td-client-ruby drops ruby 1.8.7 support
+        http.instance_eval { @ssl_context }.ciphers = "ALL:!aNULL:!eNULL:!SSLv2:!SSLv3"
+      end
     end
 
     header = {}
@@ -1450,6 +1457,8 @@ class API
     if @ssl
       client.ssl_config.add_trust_ca(ssl_ca_file)
       client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      # Disable SSLv3 connection in favor of POODLE Attack protection
+      client.ssl_config.options |= OpenSSL::SSL::OP_NO_SSLv3
     end
 
     header = {}
