@@ -1439,9 +1439,9 @@ class API
       Thread.current[key] = true
       yield
     ensure
+      # backup could be nil, but assigning nil to TLS means 'delete'
       Thread.current[key] = backup
     end
-
   end
 
   def new_http(opts = {})
