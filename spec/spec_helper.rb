@@ -25,7 +25,11 @@ shared_context 'common helper' do
   end
 
   let :headers do
-    {'Accept' => '*/*', 'Accept-Encoding' => /gzip/, 'Date' => /.*/, 'User-Agent' => /Ruby/}
+    if RUBY_VERSION >= "2.0.0"
+      {'Accept' => '*/*', 'Accept-Encoding' => /gzip/, 'Date' => /.*/, 'User-Agent' => /Ruby/}
+    else
+      {'Accept' => '*/*', 'Date' => /.*/, 'User-Agent' => /Ruby/}
+    end
   end
 
   def stub_api_request(method, path, opts = nil)
