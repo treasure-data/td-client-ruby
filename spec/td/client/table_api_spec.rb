@@ -95,7 +95,7 @@ describe 'Table API' do
           {'name' => tables[3][0], 'type' => tables[3][1], 'schema' => tables[3][2], 'count' => tables[3][3], 'created_at' => tables[3][4], 'updated_at' => tables[3][5]}
         ]}.to_json)
 
-      table_list = client.tables(db_name)
+      table_list = client.tables(db_name).sort_by { |e| e.name }
 
       db_count = 0
       tables.each {|table|

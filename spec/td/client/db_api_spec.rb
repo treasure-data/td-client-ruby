@@ -82,7 +82,7 @@ describe 'Database API' do
           {'name' => databases[3][0], 'count' => databases[3][1], 'created_at' => databases[3][2], 'updated_at' => databases[3][3], 'organization' => databases[3][4], 'permission' => databases[3][5]}
         ]}.to_json)
 
-      db_list = client.databases
+      db_list = client.databases.sort_by { |e| e.name }
       databases.length.times {|i|
         expect(db_list[i].name).to          eq(databases[i][0])
         expect(db_list[i].count).to         eq(databases[i][1])
