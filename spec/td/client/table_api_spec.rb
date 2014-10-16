@@ -27,7 +27,7 @@ describe 'Table API' do
     it 'should create a new table if the database exists' do
       stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log")
         .to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log'}.to_json)
-      api.create_log_table(db_name, table_name).should be_true
+      api.create_log_table(db_name, table_name).should be true
     end
 
     it 'should return 400 error with invalid name' do

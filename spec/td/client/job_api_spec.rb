@@ -18,7 +18,6 @@ describe 'Job API' do
     it 'should returns 20 jobs by default' do
       stub_api_request(:get, "/v3/job/list", :query => {'from' => '0'}).to_return(:body => {'jobs' => raw_jobs}.to_json)
       jobs = api.list_jobs
-      puts jobs.size
       jobs.size.should == 20
     end
 
