@@ -1189,6 +1189,10 @@ class API
     return status
   end
 
+  def ssl_ca_file=(ssl_ca_file)
+    @ssl_ca_file = ssl_ca_file
+  end
+
   private
   module DeflateReadBodyMixin
     attr_accessor :gzip
@@ -1217,6 +1221,12 @@ class API
   end
 
   def get(url, params=nil, &block)
+    guard_no_sslv3 do
+      do_get(url, params, &block)
+    end
+  end
+
+  def do_get(url, params=nil, &block)
     http, header = new_http
 
     path = @base_path + url
@@ -1311,6 +1321,12 @@ class API
   end
 
   def post(url, params=nil)
+    guard_no_sslv3 do
+      do_post(url, params)
+    end
+  end
+
+  def do_post(url, params=nil)
     http, header = new_http
 
     path = @base_path + url
@@ -1419,6 +1435,19 @@ class API
     "#{schema}://#{host}:#{@port}/#{@base_path + url}"
   end
 
+  def guard_no_sslv3
+    key = :SET_SSL_OP_NO_SSLv3
+    backup = Thread.current[key]
+    begin
+      # Disable SSLv3 connection: See Net::HTTP hack at the bottom
+      Thread.current[key] = true
+      yield
+    ensure
+      # backup could be nil, but assigning nil to TLS means 'delete'
+      Thread.current[key] = backup
+    end
+  end
+
   def new_http(opts = {})
     host = opts[:host] || @host
     http = @http_class.new(host, @port)
@@ -1429,6 +1458,12 @@ class API
       #store = OpenSSL::X509::Store.new
       #http.cert_store = store
       http.ca_file = File.join(ssl_ca_file)
+      # Disable SSLv3 connection in favor of POODLE Attack protection
+      # ruby 1.8.7 uses own @ssl_context instead of calling
+      # SSLContext#set_params.
+      if ctx = http.instance_eval { @ssl_context }
+        ctx.options = OpenSSL::SSL::OP_ALL | OpenSSL::SSL::OP_NO_SSLv3
+      end
     end
 
     header = {}
@@ -1450,6 +1485,8 @@ class API
     if @ssl
       client.ssl_config.add_trust_ca(ssl_ca_file)
       client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      # Disable SSLv3 connection in favor of POODLE Attack protection
+      client.ssl_config.options |= OpenSSL::SSL::OP_NO_SSLv3
     end
 
     header = {}
@@ -1529,3 +1566,22 @@ class API
 end
 
 end # module TreasureData
+
+require 'openssl'
+module OpenSSL
+  module SSL
+    class SSLContext
+
+      # For disabling SSLv3 connection in favor of POODLE Attack protection
+      #
+      # Allow 'options' customize through Thread local storage since
+      # Net::HTTP does not support 'options' configuration.
+      #
+      alias original_set_params set_params
+      def set_params(params={})
+        original_set_params(params)
+        self.options |= OP_NO_SSLv3 if Thread.current[:SET_SSL_OP_NO_SSLv3]
+      end
+    end
+  end
+end
