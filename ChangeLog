@@ -1,3 +1,9 @@
+== 2014-10-16 version 0.8.66
+
+* Disabled SSLv3 for the server connection as further follow up to the
+  POODLE vulnerability for SSL v3.
+* Make maximum cumulative retry delay configurable through the API's constructor
+
 == 2014-10-14 version 0.8.65
 
 * Upgraded httpclient used by PUT operations. New v2.4.0 enables SSL/TLS
