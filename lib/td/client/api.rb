@@ -1189,6 +1189,10 @@ class API
     return status
   end
 
+  def ssl_ca_file=(ssl_ca_file)
+    @ssl_ca_file = ssl_ca_file
+  end
+
   private
   module DeflateReadBodyMixin
     attr_accessor :gzip
