@@ -16,8 +16,8 @@ describe 'Table API' do
   describe "'create_log_table' API" do
     it 'should return 404 error if the database does not exist' do
       err_msg = "Create log table failed: Couldn't find UserDatabase with name = #{db_name}"
-      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log")
-        .to_return(:status => 404, :body => {'message' => err_msg}.to_json)
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
+        to_return(:status => 404, :body => {'message' => err_msg}.to_json)
 
       expect {
         api.create_log_table(db_name, table_name)
@@ -25,16 +25,16 @@ describe 'Table API' do
     end
 
     it 'should create a new table if the database exists' do
-      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log")
-        .to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log'}.to_json)
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
+        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log'}.to_json)
       api.create_log_table(db_name, table_name).should be true
     end
 
     it 'should return 400 error with invalid name' do
       invalid_name = 'a'
       err_msg = "Name must be 3 to 256 characters, got #{invalid_name.length} characters. name = '#{invalid_name}'"
-      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e invalid_name}/log")
-        .to_return(:status => 400, :body => {'message' => err_msg}.to_json)
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e invalid_name}/log").
+        to_return(:status => 400, :body => {'message' => err_msg}.to_json)
 
       expect {
         api.create_log_table(db_name, invalid_name)
@@ -43,8 +43,8 @@ describe 'Table API' do
 
     it 'should return 409 error with duplicated name' do
       err_msg = "Table #{table_name} already exists"
-      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e table_name}/log")
-        .to_return(:status => 409, :body => {'message' => err_msg}.to_json)
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e table_name}/log").
+        to_return(:status => 409, :body => {'message' => err_msg}.to_json)
 
       expect {
         api.create_log_table(db_name, table_name)
@@ -60,8 +60,8 @@ describe 'Table API' do
         ["table_3", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
         ["table_4", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
       ]
-      stub_api_request(:get, "/v3/table/list/#{e db_name}")
-        .to_return(:body => {'tables' => [
+      stub_api_request(:get, "/v3/table/list/#{e db_name}").
+        to_return(:body => {'tables' => [
           {'name' => tables[0][0], 'type' => tables[0][1], 'schema' => tables[0][2], 'count' => tables[0][3], 'created_at' => tables[0][4], 'updated_at' => tables[0][5]},
           {'name' => tables[1][0], 'type' => tables[1][1], 'schema' => tables[1][2], 'count' => tables[1][3], 'created_at' => tables[1][4], 'updated_at' => tables[1][5]},
           {'name' => tables[2][0], 'type' => tables[2][1], 'schema' => tables[2][2], 'count' => tables[2][3], 'created_at' => tables[2][4], 'updated_at' => tables[2][5]},
@@ -87,8 +87,8 @@ describe 'Table API' do
         ["table_3", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
         ["table_4", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
       ]
-      stub_api_request(:get, "/v3/table/list/#{e db_name}")
-        .to_return(:body => {'tables' => [
+      stub_api_request(:get, "/v3/table/list/#{e db_name}").
+        to_return(:body => {'tables' => [
           {'name' => tables[0][0], 'type' => tables[0][1], 'schema' => tables[0][2], 'count' => tables[0][3], 'created_at' => tables[0][4], 'updated_at' => tables[0][5]},
           {'name' => tables[1][0], 'type' => tables[1][1], 'schema' => tables[1][2], 'count' => tables[1][3], 'created_at' => tables[1][4], 'updated_at' => tables[1][5]},
           {'name' => tables[2][0], 'type' => tables[2][1], 'schema' => tables[2][2], 'count' => tables[2][3], 'created_at' => tables[2][4], 'updated_at' => tables[2][5]},
@@ -103,8 +103,8 @@ describe 'Table API' do
       }
 
       # REST API call to fetch the database permission
-      stub_api_request(:get, "/v3/database/list")
-        .to_return(:body => {'databases' => [
+      stub_api_request(:get, "/v3/database/list").
+        to_return(:body => {'databases' => [
           {'name' => db_name, 'count' => db_count, 'created_at' => tables[0][4], 'updated_at' => tables[0][5], 'permission' => 'full_access'}
         ]}.to_json)
 
@@ -118,16 +118,16 @@ describe 'Table API' do
         expect(table_list[i].updated_at).to     eq(Time.parse(tables[i][5]))
 
         # REST API call to fetch the database permission
-        stub_api_request(:get, "/v3/database/list")
-          .to_return(:body => {'databases' => [
+        stub_api_request(:get, "/v3/database/list").
+          to_return(:body => {'databases' => [
             {'name' => db_name, 'count' => db_count, 'created_at' => tables[0][4], 'updated_at' => tables[0][5], 'permission' => 'full_access'}
           ]}.to_json)
         expect(table_list[i].permission).to eq(:full_access)
 
         # set up a trap to check this call never happens
         # - if it did, the next assertion on the count would fail
-        stub_api_request(:get, "/v3/database/list")
-          .to_return(:body => {'databases' => [
+        stub_api_request(:get, "/v3/database/list").
+          to_return(:body => {'databases' => [
             {'name' => db_name, 'count' => db_count + 100, 'created_at' => tables[0][4], 'updated_at' => tables[0][5], 'permission' => 'full_access'}
           ]}.to_json)
         expect(table_list[i].database.count).to eq(db_count)
@@ -143,8 +143,8 @@ describe 'Table API' do
         ["table_3", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
         ["table_4", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
       ]
-      stub_api_request(:get, "/v3/table/list/#{e db_name}")
-        .to_return(:body => {'tables' => [
+      stub_api_request(:get, "/v3/table/list/#{e db_name}").
+        to_return(:body => {'tables' => [
           {'name' => tables[0][0], 'type' => tables[0][1], 'schema' => tables[0][2], 'count' => tables[0][3], 'created_at' => tables[0][4], 'updated_at' => tables[0][5]},
           {'name' => tables[1][0], 'type' => tables[1][1], 'schema' => tables[1][2], 'count' => tables[1][3], 'created_at' => tables[1][4], 'updated_at' => tables[1][5]},
           {'name' => tables[2][0], 'type' => tables[2][1], 'schema' => tables[2][2], 'count' => tables[2][3], 'created_at' => tables[2][4], 'updated_at' => tables[2][5]},

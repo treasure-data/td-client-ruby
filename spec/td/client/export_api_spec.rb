@@ -17,8 +17,8 @@ describe 'Export API' do
     it 'should export successfully' do
       # TODO: Use correnty values
       params = {'file_format' => 'json.gz', 'bucket' => 'bin', 'access_key_id' => 'id', 'secret_access_key' => 'secret'}
-      stub_api_request(:post, "/v3/export/run/#{e(db_name)}/#{e(table_name)}").with(:body => params.merge('storage_type' => storage_type))
-        .to_return(:body => {'database' => db_name, 'job_id' => '1', 'debug' => {}}.to_json)
+      stub_api_request(:post, "/v3/export/run/#{e(db_name)}/#{e(table_name)}").with(:body => params.merge('storage_type' => storage_type)).
+        to_return(:body => {'database' => db_name, 'job_id' => '1', 'debug' => {}}.to_json)
 
       api.export(db_name, table_name, storage_type, params).should == '1'
     end
@@ -27,8 +27,8 @@ describe 'Export API' do
       invalid_type = 'gridfs'
       params = {'storage_type' => invalid_type}
       err_msg = "Only s3 output type is supported: #{invalid_type}"
-      stub_api_request(:post, "/v3/export/run/#{e(db_name)}/#{e(table_name)}").with(:body => params)
-        .to_return(:status => 400, :body => {'message' => err_msg}.to_json)
+      stub_api_request(:post, "/v3/export/run/#{e(db_name)}/#{e(table_name)}").with(:body => params).
+        to_return(:status => 400, :body => {'message' => err_msg}.to_json)
 
       expect {
         api.export(db_name, table_name, invalid_type)
