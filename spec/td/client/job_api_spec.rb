@@ -10,6 +10,10 @@ describe 'Job API' do
     API.new(nil)
   end
 
+  let :api_with_short_retry do
+    API.new(nil, {:max_cumul_retry_delay => 10})
+  end
+
   describe 'list_jobs' do
     it 'should returns 20 jobs by default' do
       stub_api_request(:get, "/v3/job/list", :query => {'from' => '0'}).to_return(:body => {'jobs' => raw_jobs}.to_json)
@@ -102,7 +106,7 @@ describe 'Job API' do
       stub_api_request(:get, "/v3/job/show/#{e(invalid_id)}").to_return(:status => 500, :body => body.to_json)
 
       expect {
-        api.show_job(invalid_id)
+        api_with_short_retry.show_job(invalid_id)
       }.to raise_error(TreasureData::APIError, /'job_id' parameter is required but missing/)
     end
   end
