@@ -1480,6 +1480,11 @@ class API
   def new_client(opts = {})
     client = HTTPClient.new(@http_proxy, @user_agent)
     client.connect_timeout = @connect_timeout
+    # Disable keep-alive because HTTPClient instance is single-use.
+    # TODO: Better to create HTTPClient instance per API instance and
+    # reuse it. Argument 'opts' and @-variables are immutable so just
+    # set 'Date' header properly if we need (HTTPClient sets instead)
+    client.protocol_version = 'HTTP/1.0'
 
     if @ssl
       client.ssl_config.add_trust_ca(ssl_ca_file)
