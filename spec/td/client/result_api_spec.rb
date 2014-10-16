@@ -14,7 +14,7 @@ describe 'Result API' do
       params = {'url' => result_url}
       stub_api_request(:post, "/v3/result/create/#{e(result_name)}").with(:body => params).to_return(:body => {'result' => result_name})
 
-      api.create_result(result_name, result_url).should be_true
+      api.create_result(result_name, result_url).should be true
     end
 
     it 'should return 422 error with invalid name' do

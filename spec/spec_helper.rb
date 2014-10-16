@@ -25,12 +25,12 @@ shared_context 'common helper' do
   end
 
   let :headers do
-    {'Accept' => '*/*', 'Accept-Encoding' => 'deflate, gzip', 'Date' => /.*/, 'User-Agent' => 'Ruby'}
+    {'Accept' => '*/*', 'Accept-Encoding' => /gzip/, 'Date' => /.*/, 'User-Agent' => /Ruby/}
   end
 
   def stub_api_request(method, path, opts = nil)
     scheme = 'http'
-    with_opts = {:header => headers}
+    with_opts = {:headers => headers}
     if opts
       scheme = 'https' if opts[:ssl]
       with_opts[:query] = opts[:query] if opts[:query]
