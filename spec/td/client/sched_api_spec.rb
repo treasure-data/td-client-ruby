@@ -16,9 +16,9 @@ describe 'Schedule API' do
 
     it 'should create a new schedule' do
       start = Time.now
-      stub_api_request(:post, "/v3/schedule/create/#{e(sched_name)}")
-        .with(:body => opts.merge('type' => 'hive'))
-        .to_return(:body => {'name' => sched_name, 'start' => start.to_s}.to_json)
+      stub_api_request(:post, "/v3/schedule/create/#{e(sched_name)}").
+        with(:body => opts.merge('type' => 'hive')).
+        to_return(:body => {'name' => sched_name, 'start' => start.to_s}.to_json)
 
       api.create_schedule(sched_name, opts.merge('type' => 'hive')).should == start.to_s
     end
@@ -26,9 +26,9 @@ describe 'Schedule API' do
     it 'should return 422 error with invalid name' do
       name = '1'
       err_msg = "Validation failed: Name is too short" # " (minimum is 3 characters)"
-      stub_api_request(:post, "/v3/schedule/create/#{e(name)}")
-        .with(:body => opts.merge('type' => 'hive'))
-        .to_return(:status => 422, :body => {'message' => err_msg}.to_json)
+      stub_api_request(:post, "/v3/schedule/create/#{e(name)}").
+        with(:body => opts.merge('type' => 'hive')).
+        to_return(:status => 422, :body => {'message' => err_msg}.to_json)
 
       expect {
         api.create_schedule(name, opts.merge('type' => 'hive'))
@@ -45,9 +45,9 @@ describe 'Schedule API' do
     end
 
     it 'should not return 414 even if the query text is very long' do
-      stub_api_request(:post, "/v3/schedule/update/#{e(sched_name)}")
-        .with(:body => opts.merge('type' => 'pig'))
-        .to_return(:body => {'name' => sched_name, 'query' => pig_query}.to_json)
+      stub_api_request(:post, "/v3/schedule/update/#{e(sched_name)}").
+        with(:body => opts.merge('type' => 'pig')).
+        to_return(:body => {'name' => sched_name, 'query' => pig_query}.to_json)
 
       expect {
         api.update_schedule(sched_name, opts.merge('type' => 'pig'))
@@ -55,12 +55,12 @@ describe 'Schedule API' do
     end
 
     it 'should update the schedule with the new query' do
-      stub_api_request(:post, "/v3/schedule/update/#{e(sched_name)}")
-        .with(:body => opts.merge('type' => 'pig'))
-        .to_return(:body => {'name' => sched_name, 'query' => pig_query}.to_json)
+      stub_api_request(:post, "/v3/schedule/update/#{e(sched_name)}").
+        with(:body => opts.merge('type' => 'pig')).
+        to_return(:body => {'name' => sched_name, 'query' => pig_query}.to_json)
 
-      stub_api_request(:get, "/v3/schedule/list")
-        .to_return(:body => {'schedules' => [{'name' => sched_name, 'query' => pig_query}]}.to_json)
+      stub_api_request(:get, "/v3/schedule/list").
+        to_return(:body => {'schedules' => [{'name' => sched_name, 'query' => pig_query}]}.to_json)
 
       expect(api.list_schedules.first[2]).to eq(pig_query)
     end
