@@ -12,7 +12,7 @@ describe 'Result API' do
   describe 'create_result' do
     it 'should create a new result' do
       params = {'url' => result_url}
-      stub_api_request(:post, "/v3/result/create/#{e(result_name)}").with(:body => params).to_return(:body => {'result' => result_name})
+      stub_api_request(:post, "/v3/result/create/#{e(result_name)}").with(:body => params).to_return(:body => {'result' => result_name}.to_json)
 
       api.create_result(result_name, result_url).should be true
     end
