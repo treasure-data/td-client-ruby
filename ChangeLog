@@ -1,3 +1,8 @@
+== 2014-12-03 version 0.8.67
+
+* Reset HTTPClient afterward to avoid potential fd exhaustion by keep-alive
+  connections
+
 == 2014-10-16 version 0.8.66
 
 * Disabled SSLv3 for the server connection as further follow up to the
