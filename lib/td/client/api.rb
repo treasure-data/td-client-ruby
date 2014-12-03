@@ -1418,15 +1418,18 @@ class API
     end
 
     response = client.put(target, body, header)
-
-    unless ENV['TD_CLIENT_DEBUG'].nil?
-      puts "DEBUG: REST PUT response:"
-      puts "DEBUG:   header: " + response.header.to_s
-      puts "DEBUG:   status: " + response.code.to_s
-      puts "DEBUG:   body:   <omitted>"
+    begin
+      unless ENV['TD_CLIENT_DEBUG'].nil?
+        puts "DEBUG: REST PUT response:"
+        puts "DEBUG:   header: " + response.header.to_s
+        puts "DEBUG:   status: " + response.code.to_s
+        puts "DEBUG:   body:   <omitted>"
+      end
+      return [response.code.to_s, response.body, response]
+    ensure
+      # Disconnect keep-alive connection explicitly here, not by GC.
+      client.reset(target) rescue nil
     end
-
-    return [response.code.to_s, response.body, response]
   end
 
   def build_endpoint(url, host)
