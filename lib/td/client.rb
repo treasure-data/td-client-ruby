@@ -287,8 +287,18 @@ class Client
   def history(name, from=nil, to=nil)
     result = @api.history(name, from, to)
     result.map {|scheduled_at,job_id,type,status,query,start_at,end_at,result_url,priority,database|
-      # TODO org
-      ScheduledJob.new(self, scheduled_at, job_id, type, query, status, nil, nil, start_at, end_at, nil, result_url, nil, priority, nil, nil, database)
+      job_param = [job_id, type, query, status,
+        nil, nil, # url, debug
+        start_at, end_at,
+        nil, # cpu_time
+        nil, nil, # result_size, result
+        result_url,
+        nil, # hive_result_schema
+        priority,
+        nil, # retry_limit
+        nil, # TODO org_name
+        database]
+      ScheduledJob.new(self, scheduled_at, *job_param)
     }
   end
 
