@@ -1,9 +1,13 @@
 require 'rubygems'
 
-begin
-  require 'simplecov'
-  SimpleCov.start
-rescue LoadError
+if ENV['SIMPLE_COV']
+  begin
+    require 'simplecov'
+    SimpleCov.start do
+      add_filter '/spec/'
+    end
+  rescue LoadError
+  end
 end
 
 require 'rspec'
