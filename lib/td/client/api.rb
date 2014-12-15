@@ -455,7 +455,7 @@ private
 
   def build_endpoint(url, host)
     schema = @ssl ? 'https' : 'http'
-    "#{schema}://#{host}:#{@port}/#{@base_path + url}"
+    "#{schema}://#{host}:#{@port}#{@base_path + url}"
   end
 
   def guard_no_sslv3
