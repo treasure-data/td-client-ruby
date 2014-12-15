@@ -107,7 +107,6 @@ module Table
     if code != "200"
       raise_error("Tail table failed", res)
     end
-    require 'msgpack'
     if block
       MessagePack::Unpacker.new.feed_each(body, &block)
       nil

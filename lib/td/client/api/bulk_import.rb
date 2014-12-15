@@ -130,9 +130,6 @@ module BulkImport
         return []
       end
     end
-    require 'zlib'
-    require 'stringio'
-    require 'msgpack'
     require File.expand_path('../compat_gzip_reader', File.dirname(__FILE__))
     u = MessagePack::Unpacker.new(Zlib::GzipReader.new(StringIO.new(body)))
     if block

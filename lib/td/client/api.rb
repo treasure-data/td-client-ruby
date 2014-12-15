@@ -49,6 +49,10 @@ class API
     require 'time'
     #require 'faraday' # faraday doesn't support streaming upload with httpclient yet so now disabled
     require 'httpclient'
+    require 'zlib'
+    require 'stringio'
+    require 'cgi'
+    require 'msgpack'
 
     @apikey = apikey
     @user_agent = "TD-Client-Ruby: #{TreasureData::Client::VERSION}"
@@ -202,9 +206,6 @@ class API
 
   # for fluent-plugin-td / td command to check table existence with import onlt user
   def self.create_empty_gz_data
-    require 'zlib'
-    require 'stringio'
-
     io = StringIO.new
     Zlib::GzipWriter.new(io).close
     io.string
@@ -324,7 +325,6 @@ private
     body = response.body
     unless block
       if ce = response.header['content-encoding']
-        require 'zlib'
         if ce == 'gzip'
           infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
           begin
@@ -565,7 +565,6 @@ private
   end
 
   def e(s)
-    require 'cgi'
     CGI.escape(s.to_s)
   end
 

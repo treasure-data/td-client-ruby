@@ -104,7 +104,6 @@ module Job
   end
 
   def job_result(job_id)
-    require 'msgpack'
     code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'})
     if code != "200"
       raise_error("Get job result failed", res)
@@ -125,7 +124,6 @@ module Job
         end
 
         if ce = res.header['Content-Encoding']
-          require 'zlib'
           res.extend(DeflateReadBodyMixin)
           res.gzip = true if ce == 'gzip'
         else
@@ -162,7 +160,6 @@ module Job
 
   # block is optional and must accept 1 argument
   def job_result_each(job_id, &block)
-    require 'msgpack'
     get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
       if res.code != "200"
         raise_error("Get job result failed", res)
@@ -181,9 +178,6 @@ module Job
 
   # block is optional and must accept 1 argument
   def job_result_each_with_compr_size(job_id, &block)
-    require 'zlib'
-    require 'msgpack'
-
     get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
       if res.code != "200"
         raise_error("Get job result failed", res)
