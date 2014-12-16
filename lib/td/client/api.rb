@@ -1377,7 +1377,11 @@ class API
           retry_delay *= 2
           retry
         else
-          $stderr.puts "Retrying stopped after #{@max_cumul_retry_delay} seconds."
+          if @retry_post_requests
+            $stderr.puts "Retrying stopped after #{@max_cumul_retry_delay} seconds."
+          else
+            $stderr.puts ""
+          end
           raise e
         end
       rescue => e
