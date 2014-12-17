@@ -51,4 +51,27 @@ describe 'Result API' do
       }.to raise_error(TreasureData::APIError, /#{err_msg}/)
     end
   end
+
+  describe 'list_result' do
+    it 'should return name and url' do
+      stub_api_request(:get, '/v3/result/list').
+        to_return(:body => {'results' => [{'name' => 'name', 'url' => 'url'}]}.to_json)
+      api.list_result.should == [['name', 'url', nil]]
+    end
+  end
+
+  describe 'delete_result' do
+    it 'should delete the result' do
+      stub_api_request(:post, "/v3/result/delete/#{e(result_name)}")
+      api.delete_result(result_name).should == true
+    end
+
+    it 'should raise error' do
+      stub_api_request(:post, "/v3/result/delete/#{e(result_name)}").
+        to_return(:status => 404)
+      expect {
+        api.delete_result(result_name)
+      }.to raise_error(TreasureData::APIError)
+    end
+  end
 end

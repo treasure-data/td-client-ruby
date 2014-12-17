@@ -162,4 +162,49 @@ describe 'Table API' do
       expect(table.updated_at).to     eq(Time.parse(tables[i][5]))
     end
   end
+
+  describe 'swap_table' do
+    it 'should swap tables' do
+      stub_api_request(:post, '/v3/table/swap/db/table1/table2')
+      api.swap_table('db', 'table1', 'table2').should == true
+    end
+  end
+
+  describe 'update_expire' do
+    it 'should update expiry days' do
+      stub_api_request(:post, '/v3/table/update/db/table').
+        with(:body => {'expire_days' => '5'}).
+        to_return(:body => {'type' => 'type'}.to_json)
+      api.update_expire('db', 'table', 5).should == true
+    end
+  end
+
+  describe 'tail' do
+    let :packed do
+      s = StringIO.new
+      pk = MessagePack::Packer.new(s)
+      pk.write([1, 2, 3])
+      pk.write([4, 5, 6])
+      pk.flush
+      s.string
+    end
+
+    it 'yields row if block given' do
+      stub_api_request(:get, '/v3/table/tail/db/table').
+        with(:query => {'format' => 'msgpack', 'count' => '10', 'from' => '0', 'to' => '100'}).
+        to_return(:body => packed)
+      result = []
+      api.tail('db', 'table', 10, 100, 0) do |row|
+        result << row
+      end
+      result.should == [[1, 2, 3], [4, 5, 6]]
+    end
+
+    it 'returns rows' do
+      stub_api_request(:get, '/v3/table/tail/db/table').
+        with(:query => {'format' => 'msgpack', 'count' => '10', 'from' => '0', 'to' => '100'}).
+        to_return(:body => packed)
+      api.tail('db', 'table', 10, 100, 0).should == [[1, 2, 3], [4, 5, 6]]
+    end
+  end
 end

@@ -1,6 +1,8 @@
 require 'spec_helper'
 require 'td/client/spec_resources'
 require 'json'
+require 'webrick'
+require 'logger'
 
 describe 'Job API' do
   include_context 'spec symbols'
@@ -11,7 +13,7 @@ describe 'Job API' do
   end
 
   let :api_with_short_retry do
-    API.new(nil, {:max_cumul_retry_delay => 10})
+    API.new(nil, {:max_cumul_retry_delay => 0})
   end
 
   describe 'list_jobs' do
@@ -157,6 +159,127 @@ describe 'Job API' do
 
       job_id = api.hive_query(query, db_name, nil, 1)
       job_id.should == '1'
+    end
+  end
+
+  describe 'job_result' do
+    let :packed do
+      s = StringIO.new
+      pk = MessagePack::Packer.new(s)
+      pk.write('hello')
+      pk.write('world')
+      pk.flush
+      s.string
+    end
+
+    it 'returns job result' do
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'msgpack'}).
+        to_return(:body => packed)
+      api.job_result(12345).should == ['hello', 'world']
+    end
+  end
+
+  describe 'job_result_format' do
+    let :packed do
+      s = StringIO.new
+      Zlib::GzipWriter.wrap(s) do |f|
+        f << ['hello', 'world'].to_json
+      end
+      s.string
+    end
+
+    it 'returns formatted job result' do
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'json'}).
+        to_return(
+          :headers => {'Content-Encoding' => 'gzip'},
+          :body => packed
+        )
+      api.job_result_format(12345, 'json').should == ['hello', 'world'].to_json
+    end
+
+    it 'writes formatted job result' do
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'json'}).
+        to_return(
+          :headers => {'Content-Encoding' => 'gzip'},
+          :body => packed
+        )
+      s = StringIO.new
+      api.job_result_format(12345, 'json', s)
+      s.string.should == ['hello', 'world'].to_json
+    end
+  end
+
+  describe 'job_result_each' do
+    let :packed do
+      s = StringIO.new
+      Zlib::GzipWriter.wrap(s) do |f|
+        pk = MessagePack::Packer.new(f)
+        pk.write('hello')
+        pk.write('world')
+        pk.flush
+      end
+      s.string
+    end
+
+    it 'yields job result for each row' do
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'msgpack'}).
+        to_return(
+          :headers => {'Content-Encoding' => 'gzip'},
+          :body => packed
+        )
+      result = []
+      api.job_result_each(12345) do |row|
+        result << row
+      end
+      result.should == ['hello', 'world']
+    end
+  end
+
+  describe 'job_result_each_with_compr_size' do
+    let :packed do
+      s = StringIO.new
+      Zlib::GzipWriter.wrap(s) do |f|
+        pk = MessagePack::Packer.new(f)
+        pk.write('hello')
+        pk.write('world')
+        pk.flush
+      end
+      s.string
+    end
+
+    it 'yields job result for each row with progress' do
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'msgpack'}).
+        to_return(
+          :headers => {'Content-Encoding' => 'gzip'},
+          :body => packed
+        )
+      result = []
+      api.job_result_each_with_compr_size(12345) do |row, size|
+        result << [row, size]
+      end
+      result.should == [['hello', 32], ['world', 32]]
+    end
+  end
+
+  describe 'job_result_raw' do
+    it 'returns raw result' do
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'json'}).
+        to_return(:body => 'raw binary')
+      api.job_result_raw(12345, 'json').should == 'raw binary'
+    end
+  end
+
+  describe 'kill' do
+    it 'kills a job' do
+      stub_api_request(:post, '/v3/job/kill/12345').
+        to_return(:body => {'former_status' => 'status'}.to_json)
+      api.kill(12345).should == 'status'
     end
   end
 end
