@@ -123,7 +123,7 @@ module BulkImport
     if code != "200"
       raise_error("Failed to get bulk import error records", res)
     end
-    if body.empty?
+    if body.nil? || body.empty?
       if block
         return nil
       else
