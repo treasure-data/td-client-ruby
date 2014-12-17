@@ -36,6 +36,14 @@ describe 'Schedule API' do
     end
   end
 
+  describe 'delete_schedule' do
+    it 'should delete the schedule' do
+      stub_api_request(:post, "/v3/schedule/delete/#{e(sched_name)}").
+        to_return(:body => {'cron' => 'cron', 'query' => 'query'}.to_json)
+      api.delete_schedule(sched_name).should == ['cron', 'query']
+    end
+  end
+
   describe 'update_schedule' do
     let :pig_query do
       "OUT = FOREACH (GROUP plt364 ALL) GENERATE COUNT(plt364);\n" * 200
@@ -63,6 +71,31 @@ describe 'Schedule API' do
         to_return(:body => {'schedules' => [{'name' => sched_name, 'query' => pig_query}]}.to_json)
 
       expect(api.list_schedules.first[2]).to eq(pig_query)
+    end
+  end
+
+  describe 'history' do
+    let :history do
+      ['history', 'job_id', 'type', 'database', 'status', 'query', 'start_at', 'end_at', 'result', 'priority'].inject({}) { |r, e|
+        r[e] = e
+        r
+      }
+    end
+
+    it 'should return history records' do
+      stub_api_request(:get, "/v3/schedule/history/#{e(sched_name)}").
+        with(:query => {'from' => 0, 'to' => 100}).
+        to_return(:body => {'history' => [history]}.to_json)
+        api.history(sched_name, 0, 100).should == [[nil, 'job_id', :type, 'status', 'query', 'start_at', 'end_at', 'result', 'priority', 'database']]
+    end
+  end
+
+  describe 'run_schedule' do
+    it 'should return history records' do
+      stub_api_request(:post, "/v3/schedule/run/#{e(sched_name)}/123456789").
+        with(:body => {'num' => '5'}).
+        to_return(:body => {'jobs' => [{'job_id' => 'job_id', 'scheduled_at' => 'scheduled_at', 'type' => 'type'}]}.to_json)
+        api.run_schedule(sched_name, 123456789, 5).should == [['job_id', :type, 'scheduled_at']]
     end
   end
 end
