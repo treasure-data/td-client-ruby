@@ -3,6 +3,7 @@ require 'td/client/version'
 require 'td/client/api/access_control'
 require 'td/client/api/account'
 require 'td/client/api/bulk_import'
+require 'td/client/api/bulk_load'
 require 'td/client/api/database'
 require 'td/client/api/export'
 require 'td/client/api/import'
@@ -23,6 +24,7 @@ class API
   include API::AccessControl
   include API::Account
   include API::BulkImport
+  include API::BulkLoad
   include API::Database
   include API::Export
   include API::Import
@@ -578,7 +580,7 @@ private
     end
   end
 
-  def checked_json(body, required)
+  def checked_json(body, required = [])
     js = nil
     begin
       js = JSON.load(body)
