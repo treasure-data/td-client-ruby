@@ -22,11 +22,6 @@ describe 'BulkImport API' do
           "paths" => [
             "in/nahi/sample"
           ],
-        },
-        "out" => {
-          "type" => "td",
-          "unique_transaction_name" => "bulk_load_session.1",
-          "td_apikey" => "1/2345",
         }
       }
     }
@@ -60,11 +55,6 @@ describe 'BulkImport API' do
               {"name" => "c3", "type" => "string"},
             ]
           }
-        },
-        "out" => {
-          "type" => "td",
-          "unique_transaction_name" => "bulk_load_session.1",
-          "td_apikey" => "1/2345",
         }
       }
     }
