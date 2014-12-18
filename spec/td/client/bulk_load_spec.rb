@@ -96,14 +96,14 @@ describe 'BulkImport API' do
   describe 'guess' do
     it 'returns guessed json' do
       stub_api_request(:post, '/v3/bulk_loads/guess').
-        with(:body => {'guess' => original_config.to_json}).
+        with(:body => original_config.to_json).
         to_return(:body => guessed_config.to_json)
       api.bulk_load_guess(original_config).should == guessed_config
     end
 
     it 'raises an error' do
       stub_api_request(:post, '/v3/bulk_loads/guess').
-        with(:body => {'guess' => original_config.to_json}).
+        with(:body => original_config.to_json).
         to_return(:status => 500, :body => guessed_config.to_json)
       expect {
         api.bulk_load_guess(original_config)
@@ -114,14 +114,14 @@ describe 'BulkImport API' do
   describe 'preview' do
     it 'returns preview json' do
       stub_api_request(:post, '/v3/bulk_loads/preview').
-        with(:body => {'preview' => guessed_config.to_json}).
+        with(:body => guessed_config.to_json).
         to_return(:body => preview_result.to_json)
       api.bulk_load_preview(guessed_config).should == preview_result
     end
 
     it 'raises an error' do
       stub_api_request(:post, '/v3/bulk_loads/preview').
-        with(:body => {'preview' => guessed_config.to_json}).
+        with(:body => guessed_config.to_json).
         to_return(:status => 500, :body => preview_result.to_json)
       expect {
         api.bulk_load_preview(guessed_config)

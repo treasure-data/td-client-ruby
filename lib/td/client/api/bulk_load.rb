@@ -13,20 +13,19 @@ module BulkLoad
   # 6. get /job/result/:id - get result of the job [NOT NEEDED IN Q4] ... because backend feature is not yet implemented
 
   def bulk_load_guess(config)
-    # TODO: This request sends request in application/x-www-form-urlencoded. application/json?
-    code, body, res = post('/v3/bulk_loads/guess', :guess => config.to_json)
-    if code != '200'
+    res = api { post('/v3/bulk_loads/guess', config.to_json) }
+    unless res.ok?
       raise_error('BulkLoad configuration guess failed', res)
     end
-    checked_json(body)
+    checked_json(res.body)
   end
 
   def bulk_load_preview(config)
-    code, body, res = post('/v3/bulk_loads/preview', :preview => config.to_json)
-    if code != '200'
+    res = api { post('/v3/bulk_loads/preview', config.to_json) }
+    unless res.ok?
       raise_error('BulkLoad configuration preview failed', res)
     end
-    checked_json(body)
+    checked_json(res.body)
   end
 
 end
