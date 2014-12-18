@@ -10,6 +10,10 @@ describe 'BulkImport API' do
     API.new(nil, {:max_cumul_retry_delay => -1})
   end
 
+  let :retry_api do
+    API.new(nil, {:retry_delay => 1, :max_cumul_retry_delay => 1})
+  end
+
   let :original_config do
     {
       "config" => {
@@ -98,6 +102,27 @@ describe 'BulkImport API' do
       expect {
         api.bulk_load_guess(original_config)
       }.to raise_error(TreasureData::APIError)
+    end
+
+    it 'perform redo on 500 error' do
+      stub_api_request(:post, '/v3/bulk_loads/guess').
+        with(:body => original_config.to_json).
+        to_return(:status => 500, :body => guessed_config.to_json)
+      begin
+        retry_api.bulk_load_guess(original_config).should != nil
+      rescue TreasureData::APIError => e
+        e.message.should =~ /^500: BulkLoad configuration guess failed/
+      end
+    end
+
+    it 'perform retries on connection failure' do
+      api = retry_api
+      api.instance_eval { @api }.stub(:post).and_raise(SocketError.new('>>'))
+      begin
+        retry_api.bulk_load_guess(original_config).should != nil
+      rescue SocketError => e
+        e.message.should == '>> (Retried 1 times in 1 seconds)'
+      end
     end
   end
 

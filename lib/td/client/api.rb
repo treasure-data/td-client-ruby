@@ -67,6 +67,7 @@ class API
     @read_timeout = opts[:read_timeout] || 600
     @send_timeout = opts[:send_timeout] || 600
     @retry_post_requests = opts[:retry_post_requests] || false
+    @retry_delay = opts[:retry_delay] || 5
     @max_cumul_retry_delay = opts[:max_cumul_retry_delay] || 600
 
     case uri.scheme
@@ -273,7 +274,7 @@ private
     end
 
     # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
-    retry_delay = 5
+    retry_delay = @retry_delay
     cumul_retry_delay = 0
 
     # for both exceptions and 500+ errors retrying is enabled by default.
@@ -291,7 +292,7 @@ private
 
         status = response.code.to_i
         # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
-        if !block_given? && status >= 500 && cumul_retry_delay <= @max_cumul_retry_delay
+        if !block_given? && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
           $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
           sleep retry_delay
           cumul_retry_delay += retry_delay
@@ -303,7 +304,7 @@ private
           raise e
         end
         $stderr.print "#{e.class}: #{e.message}. "
-        if cumul_retry_delay <= @max_cumul_retry_delay
+        if cumul_retry_delay < @max_cumul_retry_delay
           $stderr.puts "Retrying after #{retry_delay} seconds..."
           sleep retry_delay
           cumul_retry_delay += retry_delay
@@ -371,7 +372,7 @@ private
     end
 
     # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
-    retry_delay = 5
+    retry_delay = @retry_delay
     cumul_retry_delay = 0
 
     # for both exceptions and 500+ errors retrying can be enabled by initialization
@@ -385,7 +386,7 @@ private
         # if the HTTP error code is 500 or higher and the user requested retrying
         # on post request, attempt a retry
         status = response.code.to_i
-        if @retry_post_requests && status >= 500 && cumul_retry_delay <= @max_cumul_retry_delay
+        if @retry_post_requests && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
           $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
           sleep retry_delay
           cumul_retry_delay += retry_delay
@@ -394,7 +395,7 @@ private
         end
       rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
         $stderr.print "#{e.class}: #{e.message}. "
-        if @retry_post_requests && cumul_retry_delay <= @max_cumul_retry_delay
+        if @retry_post_requests && cumul_retry_delay < @max_cumul_retry_delay
           $stderr.puts "Retrying after #{retry_delay} seconds..."
           sleep retry_delay
           cumul_retry_delay += retry_delay
@@ -540,9 +541,11 @@ private
     client
   end
 
-  def api(&block)
+  def api(opt = {:retry_request => true}, &block)
+    retry_request = opt[:retry_request]
     # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
-    retry_delay = 5
+    retry_delay = @retry_delay
+    retry_times = 0
     cumul_retry_delay = 0
 
     # for both exceptions and 500+ errors retrying can be enabled by initialization
@@ -556,7 +559,7 @@ private
         # if the HTTP error code is 500 or higher and the user requested retrying
         # on post request, attempt a retry
         status = response.code.to_i
-        if @retry_post_requests && status >= 500 && cumul_retry_delay <= @max_cumul_retry_delay
+        if retry_request && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
           $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
           sleep retry_delay
           cumul_retry_delay += retry_delay
@@ -565,16 +568,22 @@ private
         end
       rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
         $stderr.print "#{e.class}: #{e.message}. "
-        if @retry_post_requests && cumul_retry_delay <= @max_cumul_retry_delay
-          $stderr.puts "Retrying after #{retry_delay} seconds..."
-          sleep retry_delay
-          cumul_retry_delay += retry_delay
-          retry_delay *= 2
-          retry
+        if retry_request
+          if cumul_retry_delay < @max_cumul_retry_delay
+            $stderr.puts "Retrying after #{retry_delay} seconds..."
+            sleep retry_delay
+            cumul_retry_delay += retry_delay
+            retry_delay *= 2
+            retry_times += 1
+            retry
+          else
+            $stderr.puts "Retrying stopped after #{@max_cumul_retry_delay} seconds."
+            e.message << " (Retried #{retry_times} times in #{cumul_retry_delay} seconds)"
+          end
         else
-          $stderr.puts "Retrying stopped after #{@max_cumul_retry_delay} seconds."
-          raise e
+          $stderr.puts "No retry should be performed."
         end
+        raise e
       rescue => e
         raise e
       end
