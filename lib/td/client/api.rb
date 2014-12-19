@@ -537,7 +537,10 @@ private
     header['Content-Type'] = 'application/json; charset=utf-8'
     client = HTTPClient.new(:proxy => @http_proxy, :agent_name => @user_agent, :base_url => endpoint, :default_header => header)
     client.connect_timeout = @connect_timeout
+    client.send_timeout = @send_timeout
+    client.receive_timeout = @read_timeout
     client.transparent_gzip_decompression = true
+    client.debug_dev = STDOUT unless ENV['TD_CLIENT_DEBUG'].nil?
     client
   end
 
@@ -551,7 +554,6 @@ private
     # for both exceptions and 500+ errors retrying can be enabled by initialization
     # parameter 'retry_post_requests'. The total number of retries cumulatively
     # should not exceed 10 minutes / 600 seconds
-    response = nil
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
         response = @api.instance_eval &block
@@ -566,6 +568,7 @@ private
           retry_delay *= 2
           redo # restart from beginning of do-while loop
         end
+        return response
       rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
         $stderr.print "#{e.class}: #{e.message}. "
         if retry_request
@@ -584,19 +587,8 @@ private
           $stderr.puts "No retry should be performed."
         end
         raise e
-      rescue => e
-        raise e
       end
     end while false
-
-    unless ENV['TD_CLIENT_DEBUG'].nil?
-      puts "DEBUG: REST POST response:"
-      puts "DEBUG:   header: " + response.header.to_s
-      puts "DEBUG:   status: " + response.code.to_s
-      puts "DEBUG:   body:   <omitted>"
-    end
-
-    response
   end
 
   def ssl_ca_file
