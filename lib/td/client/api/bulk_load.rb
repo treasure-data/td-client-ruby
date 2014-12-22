@@ -12,22 +12,78 @@ module BulkLoad
   # 5. get /job/show/:id - get status of the job [ALREADY EXISTS]
   # 6. get /job/result/:id - get result of the job [NOT NEEDED IN Q4] ... because backend feature is not yet implemented
 
-  def bulk_load_guess(config)
+  # The 'BulkLoad' resource in td-api is as follow;
+  # {
+  #   "config": {
+  #     "type": "s3",
+  #     "access_key_id": s3 access key id,
+  #     "secret_access_key": s3 secret key,
+  #     "endpoint": s3 endpoint name,
+  #     "bucket": s3 bucket name,
+  #     "paths": [
+  #       a prefix of files,
+  #       or path to a file,
+  #       ...
+  #     ]
+  #   }  
+  # }
+
+  ## Resource definitions
+
+  class ToHashStruct < Struct
+    def to_h
+      self.class.members.inject({}) { |r, k|
+        v = self[k]
+        r[k.to_s] = v.respond_to?(:to_h) ? v.to_h : v
+        r
+      }
+    end
+  end
+
+  class Job < ToHashStruct.new(:config)
+    def to_json
+      to_h.to_json
+    end
+
+    def self.from_json(json)
+      hash = JSON.load(json)
+      new(JobConfig.from_hash(hash['config']))
+    end
+  end
+
+  class JobConfig < ToHashStruct.new(:type, :access_key_id, :secret_access_key, :endpoint, :bucket, :paths, :parser)
+    def self.from_hash(hash)
+      new(*hash.values_at(*JobConfig.members.map(&:to_s)))
+    end
+  end
+
+  class JobPreview < ToHashStruct.new(:schema, :records)
+    def self.from_json(json)
+      hash = JSON.load(json)
+      JobPreview.new(hash['schema'], hash['records'])
+    end
+  end
+
+  ## API definitions
+
+  # job: Job -> Job
+  def bulk_load_guess(job)
     # retry_request = true
-    res = api { post('/v3/bulk_loads/guess', config.to_json) }
+    res = api { post('/v3/bulk_loads/guess', job.to_json) }
     unless res.ok?
       raise_error('BulkLoad configuration guess failed', res)
     end
-    checked_json(res.body)
+    Job.from_json(res.body)
   end
 
-  def bulk_load_preview(config)
+  # job: Job -> JobPreview
+  def bulk_load_preview(job)
     # retry_request = true
-    res = api { post('/v3/bulk_loads/preview', config.to_json) }
+    res = api { post('/v3/bulk_loads/preview', job.to_json) }
     unless res.ok?
       raise_error('BulkLoad configuration preview failed', res)
     end
-    checked_json(res.body)
+    JobPreview.from_json(res.body)
   end
 
 end

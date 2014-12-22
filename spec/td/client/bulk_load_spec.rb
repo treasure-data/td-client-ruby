@@ -17,7 +17,7 @@ describe 'BulkImport API' do
   let :original_config do
     {
       "config" => {
-        "in" => {
+#        "in" => {
           "type" => "s3_file",
           "access_key_id" => "key",
           "secret_access_key" => "secret",
@@ -26,7 +26,7 @@ describe 'BulkImport API' do
           "paths" => [
             "in/nahi/sample"
           ],
-        }
+#        }
       }
     }
   end
@@ -34,7 +34,7 @@ describe 'BulkImport API' do
   let :guessed_config do
     {
       "config" => {
-        "in" => {
+#        "in" => {
           "type" => "s3_file",
           "access_key_id" => "key",
           "secret_access_key" => "secret",
@@ -59,7 +59,7 @@ describe 'BulkImport API' do
               {"name" => "c3", "type" => "string"},
             ]
           }
-        }
+#        }
       }
     }
   end
@@ -92,7 +92,7 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads/guess').
         with(:body => original_config.to_json).
         to_return(:body => guessed_config.to_json)
-      api.bulk_load_guess(original_config).should == guessed_config
+      api.bulk_load_guess(original_config).to_h.should == guessed_config
     end
 
     it 'raises an error' do
@@ -131,7 +131,7 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads/preview').
         with(:body => guessed_config.to_json).
         to_return(:body => preview_result.to_json)
-      api.bulk_load_preview(guessed_config).should == preview_result
+      api.bulk_load_preview(guessed_config).to_h.should == preview_result
     end
 
     it 'raises an error' do
