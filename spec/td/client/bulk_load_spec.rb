@@ -7,7 +7,7 @@ describe 'BulkImport API' do
   include_context 'common helper'
 
   let :api do
-    API.new(nil, {:max_cumul_retry_delay => -1})
+    Client.new(nil, {:max_cumul_retry_delay => -1})
   end
 
   let :retry_api do
