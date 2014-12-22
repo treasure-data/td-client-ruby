@@ -16,21 +16,21 @@ describe 'BulkImport API' do
 
   let :original_config do
     {
-      "config" => {
+      :config => {
 #        "in" => {
-          "type" => "s3_file",
-          "access_key_id" => "key",
-          "secret_access_key" => "secret",
-          "endpoint" => "s3.amazonaws.com",
-          "bucket" => "td-bulk-loader-test-tokyo",
-          "paths" => [
+          :type => "s3_file",
+          :access_key_id => "key",
+          :secret_access_key => "secret",
+          :endpoint => "s3.amazonaws.com",
+          :bucket => "td-bulk-loader-test-tokyo",
+          :paths => [
             "in/nahi/sample"
           ],
-          "parser" => {}
+          :parser => {}
 #        }
       },
-      "database" => "database",
-      "table" => "table"
+      :database => "database",
+      :table => "table"
     }
   end
 

@@ -18,17 +18,19 @@ class TreasureData::API
       end
 
       def from_hash(hash)
-        if @model
-          hash = hash.inject({}) { |r, (k, v)|
-            r[k] = @model.key?(k.to_sym) ? @model[k.to_sym].from_hash(v) : v
-            r
-          }
-        end
-        new(*hash.values_at(*members.map(&:to_s)))
+        return new if hash.nil?
+        new(*members.map { |sym|
+          v = hash[sym] || hash[sym.to_s]
+          model.key?(sym) ? model[sym].from_hash(v) : v
+        })
       end
 
       def model_property(key, klass)
-        (@model ||= {})[key.to_sym] = klass
+        model[key.to_sym] = klass
+      end
+
+      def model
+        @model ||= {}
       end
     end
     extend ClassModule
@@ -48,7 +50,7 @@ class TreasureData::API
     def validate
       validate_self
       values.each do |v|
-        v.validate if v.respond_to?(:validate)
+        v.validate if v.is_a?(ToHashStruct)
       end
       self
     end
