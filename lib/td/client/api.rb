@@ -113,7 +113,7 @@ class API
     end
 
     @headers = opts[:headers] || {}
-    @api = api_client(endpoint)
+    @api = api_client("#{@ssl ? 'https' : 'http'}://#{@host}:#{@port}")
   end
 
   # TODO error check & raise appropriate errors
