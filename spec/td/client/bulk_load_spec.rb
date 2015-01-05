@@ -94,7 +94,7 @@ describe 'BulkImport API' do
 
   describe 'guess' do
     it 'returns guessed json' do
-      stub_api_request(:post, '/v3/bulk_load/guess').
+      stub_api_request(:post, '/v3/bulk_loads/guess').
         with(:body => original_config.to_json).
         to_return(:body => guessed_config.to_json)
       api.bulk_load_guess(
@@ -103,7 +103,7 @@ describe 'BulkImport API' do
     end
 
     it 'raises an error' do
-      stub_api_request(:post, '/v3/bulk_load/guess').
+      stub_api_request(:post, '/v3/bulk_loads/guess').
         with(:body => original_config.to_json).
         to_return(:status => 500, :body => guessed_config.to_json)
       expect {
@@ -129,7 +129,7 @@ describe 'BulkImport API' do
     end
 
     it 'perform redo on 500 error' do
-      stub_api_request(:post, '/v3/bulk_load/guess').
+      stub_api_request(:post, '/v3/bulk_loads/guess').
         with(:body => original_config.to_json).
         to_return(:status => 500, :body => guessed_config.to_json)
       begin
@@ -156,7 +156,7 @@ describe 'BulkImport API' do
 
   describe 'preview' do
     it 'returns preview json' do
-      stub_api_request(:post, '/v3/bulk_load/preview').
+      stub_api_request(:post, '/v3/bulk_loads/preview').
         with(:body => guessed_config.to_json).
         to_return(:body => preview_result.to_json)
       api.bulk_load_preview(
@@ -165,7 +165,7 @@ describe 'BulkImport API' do
     end
 
     it 'raises an error' do
-      stub_api_request(:post, '/v3/bulk_load/preview').
+      stub_api_request(:post, '/v3/bulk_loads/preview').
         with(:body => guessed_config.to_json).
         to_return(:status => 500, :body => preview_result.to_json)
       expect {
