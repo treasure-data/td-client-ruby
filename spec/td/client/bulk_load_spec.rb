@@ -185,7 +185,7 @@ describe 'BulkImport API' do
 
   describe 'issue' do
     it 'returns job id' do
-      stub_api_request(:post, '/v3/job/issue/bulk_load/database').
+      stub_api_request(:post, '/v3/job/issue/bulkload/database').
         with(:body => guessed_config.to_json).
         to_return(:body => {'job_id' => 12345}.to_json)
       api.bulk_load_issue(

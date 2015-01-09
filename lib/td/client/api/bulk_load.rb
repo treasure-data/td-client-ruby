@@ -75,7 +75,7 @@ module BulkLoad
 
   # job: Job -> String (job_id)
   def bulk_load_issue(job)
-    type = e('bulk_load')
+    type = e('bulkload')
     db = e(job['database']) # TODO: not required?
     res = api { post("/v3/job/issue/#{type}/#{db}", job.validate.to_json) }
     unless res.ok?
