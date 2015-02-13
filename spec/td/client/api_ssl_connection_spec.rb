@@ -20,13 +20,16 @@ describe 'API SSL connection' do
     }.to raise_error OpenSSL::SSL::SSLError
   end
 
-  it 'should success to connect TLSv1 only server' do
-    @server = setup_server(:TLSv1)
-    api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
-    api.ssl_ca_file = File.join(DIR, 'ca-all.cert')
-    expect {
-      api.delete_database('no_such_database')
-    }.to raise_error TreasureData::NotFoundError
+  # 1.8.7's net/http does not call SSLContext#set_params. Use 1.8.7 where you don't care security.
+  if RUBY_VERSION >= '1.9.0'
+    it 'should success to connect TLSv1 only server' do
+      @server = setup_server(:TLSv1)
+      api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
+      api.ssl_ca_file = File.join(DIR, 'ca-all.cert')
+      expect {
+        api.delete_database('no_such_database')
+      }.to raise_error TreasureData::NotFoundError
+    end
   end
 
   def setup_server(ssl_version)

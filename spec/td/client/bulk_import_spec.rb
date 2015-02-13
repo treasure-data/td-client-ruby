@@ -113,15 +113,17 @@ describe 'BulkImport API' do
       end
     end
 
-    it 'encodes part_name in UTF-8' do
-      t = Tempfile.new('bulk_import_spec')
-      File.open(t.path, 'w') do |f|
-        f << '12345'
-      end
-      stub_request(:put, 'http://api.treasure-data.com/v3/bulk_import/upload_part/name/' + CGI.escape('日本語(Japanese)'.encode('UTF-8'))).
-        with(:body => '12345')
-      File.open(t.path) do |f|
-        api.bulk_import_upload_part('name', '日本語(Japanese)'.encode('Windows-31J'), f, 5).should == nil
+    if ''.respond_to?(:encode)
+      it 'encodes part_name in UTF-8' do
+        t = Tempfile.new('bulk_import_spec')
+        File.open(t.path, 'w') do |f|
+          f << '12345'
+        end
+        stub_request(:put, 'http://api.treasure-data.com/v3/bulk_import/upload_part/name/' + CGI.escape('日本語(Japanese)'.encode('UTF-8'))).
+          with(:body => '12345')
+        File.open(t.path) do |f|
+          api.bulk_import_upload_part('name', '日本語(Japanese)'.encode('Windows-31J'), f, 5).should == nil
+        end
       end
     end
   end

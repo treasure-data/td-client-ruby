@@ -155,6 +155,12 @@ behaviors. These hooks are triggered using environment variables:
   * show request and response of +HTTP+/+HTTPS+ +GET+ REST API calls;
   * show request of +HTTP+/+HTTPS+ +POST+/+PUT+ REST API calls.
 
+== 1.8 compatibility
+
+Although we are trying to keep 1.8.7 compatibility as you can see it in
+.travis.yml we don't officially support 1.8.7. The most important defect
+on 1.8 is it does not support TLS only SSL endpoint.
+
 == Copyright
 
 Copyright:: Copyright (c) 2011 Treasure Data Inc.

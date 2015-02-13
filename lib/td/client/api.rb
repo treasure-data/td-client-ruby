@@ -568,8 +568,14 @@ private
     # TODO error
   end
 
-  def e(s)
-    CGI.escape(s.to_s.encode("UTF-8"))
+  if ''.respond_to?(:encode)
+    def e(s)
+      CGI.escape(s.to_s.encode("UTF-8"))
+    end
+  else
+    def e(s)
+      CGI.escape(s.to_s)
+    end
   end
 
   def checked_json(body, required)
