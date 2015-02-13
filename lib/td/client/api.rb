@@ -565,7 +565,7 @@ private
   end
 
   def e(s)
-    CGI.escape(s.to_s)
+    CGI.escape(s.to_s.encode("UTF-8"))
   end
 
   def checked_json(body, required)
