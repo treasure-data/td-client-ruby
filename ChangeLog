@@ -1,3 +1,14 @@
+== 2015-02-16 version 0.8.68
+
+* Fix non ASCII & UTF-8 filename issue in bulk_import:upload. API side
+  requires part_name is to be in UTF-8 encoded so change CES at client side
+  before sending.
+* Allow httpclient version ~= 2.5
+* Fix inappropriate error message for POST request. It doesn't retry but error
+  message stated retry period.
+* (internal) Split API definition into several files per API group.
+* Fix resulting value of Command#history for ScheduledJobs.
+
 == 2014-12-03 version 0.8.67
 
 * Reset HTTPClient afterward to avoid potential fd exhaustion by keep-alive
