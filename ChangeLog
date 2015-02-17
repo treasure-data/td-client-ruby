@@ -8,6 +8,7 @@
   message stated retry period.
 * (internal) Split API definition into several files per API group.
 * Fix resulting value of Command#history for ScheduledJobs.
+* Fix ScheduledJob crash when scheduled_at == ''
 
 == 2014-12-03 version 0.8.67
 
