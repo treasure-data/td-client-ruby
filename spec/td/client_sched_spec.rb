@@ -21,7 +21,7 @@ describe 'Schedule Command' do
     end
 
     let :history do
-      ['history', 'job_id', 'type', 'database', 'status', 'query', 'start_at', 'end_at', 'result', 'priority'].inject({}) { |r, e|
+      ['history', 'scheduled_at', 'job_id', 'type', 'database', 'status', 'query', 'start_at', 'end_at', 'result', 'priority'].inject({}) { |r, e|
         r[e] = e
         r
       }
@@ -32,10 +32,20 @@ describe 'Schedule Command' do
         to_return(:body => {'count' => 1, 'history' => [history]}.to_json)
 
       client.history(sched_name, 0, 19).each do |scheduled_job|
+        scheduled_job.scheduled_at.should == nil
         scheduled_job.job_id.should == 'job_id'
         scheduled_job.status.should == 'status'
         scheduled_job.priority.should == 'priority'
         scheduled_job.result_url.should == 'result'
+      end
+    end
+
+    it 'works when scheduled_at == ""' do
+      stub_api_request(:get, "/v3/schedule/history/#{e(sched_name)}?from=0&to=19").
+        to_return(:body => {'count' => 1, 'history' => [history.tap { |h| h['scheduled_at'] = ''} ]}.to_json)
+
+      client.history(sched_name, 0, 19).each do |scheduled_job|
+        scheduled_job.scheduled_at.should == nil
       end
     end
   end

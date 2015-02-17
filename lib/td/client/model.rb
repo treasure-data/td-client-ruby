@@ -426,13 +426,15 @@ end
 
 
 class ScheduledJob < Job
+  attr_reader :scheduled_at
+
   def initialize(client, scheduled_at, *super_args)
     super(client, *super_args)
-    @scheduled_at = scheduled_at
-  end
-
-  def scheduled_at
-    @scheduled_at ? Time.parse(@scheduled_at) : nil
+    begin
+      @scheduled_at = Time.parse(@scheduled_at)
+    rescue
+      @scheduled_at = nil
+    end
   end
 end
 
