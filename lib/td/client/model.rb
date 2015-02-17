@@ -430,10 +430,10 @@ class ScheduledJob < Job
 
   def initialize(client, scheduled_at, *super_args)
     super(client, *super_args)
-    begin
-      @scheduled_at = Time.parse(@scheduled_at)
-    rescue
+    if scheduled_at.to_s.empty?
       @scheduled_at = nil
+    else
+      @scheduled_at = Time.parse(scheduled_at) rescue nil
     end
   end
 end
