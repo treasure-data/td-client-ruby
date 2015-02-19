@@ -37,8 +37,7 @@ class TreasureData::API
 
     def to_h
       self.class.members.inject({}) { |r, e|
-        v = self[e]
-        r[e.to_s] = v.respond_to?(:to_h) ? v.to_h : v
+        r[e.to_s] = obj_to_h(self[e])
         r
       }
     end
@@ -64,6 +63,16 @@ class TreasureData::API
     def validate_presence_of(key)
       unless self.send(key)
         raise ArgumentError.new("#{key} required")
+      end
+    end
+
+    def obj_to_h(obj)
+      if Array === obj
+        obj.map { |e| obj_to_h(e) }
+      elsif obj.respond_to?(:to_h)
+        obj.to_h
+      else
+        obj
       end
     end
   end
