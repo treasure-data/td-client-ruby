@@ -33,7 +33,7 @@ describe 'Schedule Command' do
         to_return(:body => {'count' => 1, 'history' => [h]}.to_json)
 
       client.history(sched_name, 0, 19).each do |scheduled_job|
-        scheduled_job.scheduled_at.xmlschema.should == '2015-02-17T14:16:00+09:00'
+        scheduled_job.scheduled_at.xmlschema.should == Time.parse('2015-02-17T14:16:00+09:00').xmlschema #avoid depending on CI's Locale
         scheduled_job.job_id.should == 'job_id'
         scheduled_job.status.should == 'status'
         scheduled_job.priority.should == 'priority'
