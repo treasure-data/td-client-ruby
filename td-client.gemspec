@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "json", ">= 1.7.6"
   gem.add_dependency "httpclient", [">= 2.4.0", "< 2.6.0"]
   gem.add_development_dependency "rspec", "~> 2.8"
+  gem.add_development_dependency 'mime-types', "1.25"
   gem.add_development_dependency 'coveralls'
   gem.add_development_dependency "webmock", "~> 1.16"
   gem.add_development_dependency 'simplecov', '>= 0.5.4'
