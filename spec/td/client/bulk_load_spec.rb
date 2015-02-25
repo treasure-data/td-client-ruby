@@ -17,17 +17,12 @@ describe 'BulkImport API' do
   let :original_config do
     {
       :config => {
-#        "in" => {
-          :type => "s3_file",
-          :access_key_id => "key",
-          :secret_access_key => "secret",
-          :endpoint => "s3.amazonaws.com",
-          :bucket => "td-bulk-loader-test-tokyo",
-          :paths => [
-            "in/nahi/sample"
-          ],
-          :parser => {}
-#        }
+        :type => "s3_file",
+        :access_key_id => "key",
+        :secret_access_key => "secret",
+        :endpoint => "s3.amazonaws.com",
+        :bucket => "td-bulk-loader-test-tokyo",
+        :path_prefix => "in/nahi/sample"
       },
       :database => "database",
       :table => "table"
@@ -37,32 +32,28 @@ describe 'BulkImport API' do
   let :guessed_config do
     {
       "config" => {
-#        "in" => {
-          "type" => "s3_file",
-          "access_key_id" => "key",
-          "secret_access_key" => "secret",
-          "endpoint" => "s3.amazonaws.com",
-          "bucket" => "td-bulk-loader-test-tokyo",
-          "paths" => [
-            "in/nahi/sample"
-          ],
-          "parser" => {
-            "file_decoders" => [
-              {"type" => "gzip"}
-            ],
-            "charset" => "UTF-8",
-            "newline" => "LF",
-            "type" => "csv",
-            "delimiter" => ",",
-            "header_line" => false,
-            "columns" => [
-              {"name" => "time", "type" => "long"},
-              {"name" => "c1", "type" => "long"},
-              {"name" => "c2", "type" => "string"},
-              {"name" => "c3", "type" => "string"},
-            ]
-          }
-#        }
+        "type" => "s3_file",
+        "access_key_id" => "key",
+        "secret_access_key" => "secret",
+        "endpoint" => "s3.amazonaws.com",
+        "bucket" => "td-bulk-loader-test-tokyo",
+        "path_prefix" => "in/nahi/sample",
+        "parser" => {
+          "charset" => "UTF-8",
+          "newline" => "LF",
+          "type" => "csv",
+          "delimiter" => ",",
+          "header_line" => false,
+          "columns" => [
+            {"name" => "time", "type" => "long"},
+            {"name" => "c1", "type" => "long"},
+            {"name" => "c2", "type" => "string"},
+            {"name" => "c3", "type" => "string"},
+          ]
+        },
+        "decoders" => [
+          {"type" => "gzip"}
+        ]
       },
       "database" => "database",
       "table" => "table"

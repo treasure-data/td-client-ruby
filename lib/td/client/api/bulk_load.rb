@@ -22,18 +22,15 @@ module BulkLoad
   #     "secret_access_key": s3 secret key,
   #     "endpoint": s3 endpoint name,
   #     "bucket": s3 bucket name,
-  #     "paths": [
-  #       a prefix of files,
-  #       or path to a file,
-  #       ...
-  #     ]
+  #     "path_prefix": "a/prefix/of/files",
+  #     "decoders": []
   #   }  
   # }
 
   ## Resource definitions
 
   class Job < ToHashStruct.new(:config, :database, :table)
-    class JobConfig < ToHashStruct.new(:type, :access_key_id, :secret_access_key, :endpoint, :bucket, :paths, :parser)
+    class JobConfig < ToHashStruct.new(:type, :access_key_id, :secret_access_key, :endpoint, :bucket, :path_prefix, :parser, :decoders)
       def validate_self
         validate_presence_of :type
       end
