@@ -37,7 +37,8 @@ class TreasureData::API
 
     def to_h
       self.class.members.inject({}) { |r, e|
-        r[e.to_s] = obj_to_h(self[e])
+        v = obj_to_h(self[e])
+        r[e.to_s] = v unless v.nil?
         r
       }
     end
@@ -67,7 +68,9 @@ class TreasureData::API
     end
 
     def obj_to_h(obj)
-      if Array === obj
+      if obj.nil?
+        nil
+      elsif Array === obj
         obj.map { |e| obj_to_h(e) }
       elsif obj.respond_to?(:to_h)
         obj.to_h
