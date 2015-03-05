@@ -10,7 +10,7 @@ install:
 build_script:
   - bundle install
 test_script:
-  - rake test
+  - bundle exec rake test
 environment:
   matrix:
     - ruby_version: "193"
