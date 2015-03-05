@@ -1,8 +1,5 @@
 ---
 version: "{build}"
-branches:
-  only:
-    - master
 clone_depth: 10
 install:
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
@@ -10,10 +7,10 @@ install:
   - gem --version
   - gem install bundler --quiet --no-ri --no-rdoc
   - bundler --version
+build_script:
   - bundle install
 test_script:
   - rake test
-
 environment:
   matrix:
     - ruby_version: "193"
