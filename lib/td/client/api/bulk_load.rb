@@ -40,8 +40,6 @@ module BulkLoad
 
     def validate_self
       validate_presence_of :config
-      validate_presence_of :database
-      validate_presence_of :table
     end
   end
 
@@ -53,7 +51,8 @@ module BulkLoad
   # job: Job -> Job
   def bulk_load_guess(job)
     # retry_request = true
-    res = api { post('/v3/bulk_loads/guess', job.validate.to_json) }
+    path = '/v3/bulk_loads/guess'
+    res = api { post(path, job.validate.to_json) }
     unless res.ok?
       raise_error('BulkLoad configuration guess failed', res)
     end
@@ -63,7 +62,8 @@ module BulkLoad
   # job: Job -> JobPreview
   def bulk_load_preview(job)
     # retry_request = true
-    res = api { post('/v3/bulk_loads/preview', job.validate.to_json) }
+    path = '/v3/bulk_loads/preview'
+    res = api { post(path, job.validate.to_json) }
     unless res.ok?
       raise_error('BulkLoad job preview failed', res)
     end
@@ -71,10 +71,13 @@ module BulkLoad
   end
 
   # job: Job -> String (job_id)
-  def bulk_load_issue(job)
-    type = e('bulkload')
-    db = e(job['database']) # TODO: not required?
-    res = api { post("/v3/job/issue/#{type}/#{db}", job.validate.to_json) }
+  def bulk_load_issue(database, table, job)
+    type = 'bulkload'
+    job = job.dup
+    job['database'] = database
+    job['table'] = table
+    path = "/v3/job/issue/#{e type}/#{e database}"
+    res = api { post(path, job.validate.to_json) }
     unless res.ok?
       raise_error('BulkLoad job issuing failed', res)
     end

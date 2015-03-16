@@ -23,9 +23,7 @@ describe 'BulkImport API' do
         :endpoint => "s3.amazonaws.com",
         :bucket => "td-bulk-loader-test-tokyo",
         :path_prefix => "in/nahi/sample"
-      },
-      :database => "database",
-      :table => "table"
+      }
     }
   end
 
@@ -54,9 +52,7 @@ describe 'BulkImport API' do
         "decoders" => [
           {"type" => "gzip"}
         ]
-      },
-      "database" => "database",
-      "table" => "table"
+      }
     }
   end
 
@@ -176,10 +172,15 @@ describe 'BulkImport API' do
 
   describe 'issue' do
     it 'returns job id' do
+      expected_request = guessed_config.dup
+      expected_request['database'] = 'database'
+      expected_request['table'] = 'table'
       stub_api_request(:post, '/v3/job/issue/bulkload/database').
-        with(:body => guessed_config.to_json).
+        with(:body => expected_request.to_json).
         to_return(:body => {'job_id' => 12345}.to_json)
       api.bulk_load_issue(
+        'database',
+        'table',
         TreasureData::API::BulkLoad::Job.from_hash(guessed_config)
       ).should == '12345'
     end

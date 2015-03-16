@@ -416,8 +416,8 @@ class Client
   end
 
   # => String
-  def bulk_load_issue(job)
-    @api.bulk_load_issue(job)
+  def bulk_load_issue(database, table, job)
+    @api.bulk_load_issue(database, table, job)
   end
 
 end
