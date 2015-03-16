@@ -404,6 +404,22 @@ class Client
   def test_access_control(user, action, scope)
     @api.test_access_control(user, action, scope)
   end
+
+  # => BulkLoad::Job
+  def bulk_load_guess(job)
+    @api.bulk_load_guess(job)
+  end
+
+  # => BulkLoad::Job
+  def bulk_load_preview(job)
+    @api.bulk_load_preview(job)
+  end
+
+  # => String
+  def bulk_load_issue(job)
+    @api.bulk_load_issue(job)
+  end
+
 end
 
 end # module TreasureData
