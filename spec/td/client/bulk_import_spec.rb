@@ -108,7 +108,7 @@ describe 'BulkImport API' do
       File.open(t.path, 'w') do |f|
         f << '12345'
       end
-      stub_request(:put, "http://#{endpoint_domain}/v3/bulk_import/upload_part/name/part").
+      stub_request(:put, "https://#{endpoint_domain}/v3/bulk_import/upload_part/name/part").
         with(:body => '12345')
       File.open(t.path) do |f|
         expect(api.bulk_import_upload_part('name', 'part', f, 5)).to eq(nil)
@@ -121,7 +121,7 @@ describe 'BulkImport API' do
         File.open(t.path, 'w') do |f|
           f << '12345'
         end
-        stub_request(:put, "http://#{endpoint_domain}/v3/bulk_import/upload_part/name/" + CGI.escape('日本語(Japanese)'.encode('UTF-8'))).
+        stub_request(:put, "https://#{endpoint_domain}/v3/bulk_import/upload_part/name/" + CGI.escape('日本語(Japanese)'.encode('UTF-8'))).
           with(:body => '12345')
         File.open(t.path) do |f|
           expect(api.bulk_import_upload_part('name', '日本語(Japanese)'.encode('Windows-31J'), f, 5)).to eq(nil)

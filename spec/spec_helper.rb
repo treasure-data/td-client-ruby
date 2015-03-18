@@ -48,7 +48,7 @@ shared_context 'common helper' do
   end
 
   def stub_api_request(method, path, opts = nil)
-    scheme = 'http'
+    scheme = 'https'
     with_opts = {:headers => headers}
     if opts
       scheme = 'https' if opts[:ssl]

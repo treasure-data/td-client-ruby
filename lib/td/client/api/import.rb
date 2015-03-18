@@ -23,6 +23,7 @@ module Import
       opts[:host] = DEFAULT_IMPORT_ENDPOINT
     elsif @host == 'api.treasure-data.com' # backward compatibility
       opts[:host] = 'api-import.treasure-data.com'
+      opts[:ssl] = false
     end
     code, body, res = put(path, stream, size, opts)
     if code[0] != ?2
