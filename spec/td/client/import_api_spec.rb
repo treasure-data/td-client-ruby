@@ -8,12 +8,17 @@ describe 'Import API' do
   include_context 'common helper'
 
   let :api do
-    API.new(nil, :endpoint => 'https://api.treasuredata.com')
+    API.new(nil, :endpoint => endpoint)
   end
 
   let :api_old do
-    API.new(nil, :endpoint => 'http://api.treasure-data.com')
+    API.new(nil, :endpoint => endpoint_old)
   end
+
+  let(:endpoint) { "https://#{TreasureData::API::DEFAULT_ENDPOINT}" }
+  let(:endpoint_old) { 'http://api.treasure-data.com' }
+  let(:endpoint_import) { "https://#{TreasureData::API::DEFAULT_IMPORT_ENDPOINT}" }
+  let(:endpoint_import_old) { "http://api-import.treasure-data.com" }
 
   describe 'import' do
     it 'runs with unique_id' do
@@ -21,7 +26,7 @@ describe 'Import API' do
       File.open(t.path, 'w') do |f|
         f << '12345'
       end
-      stub_request(:put, "https://api-import.treasuredata.com/v3/table/import_with_id/db/table/unique_id/format").
+      stub_request(:put, "#{endpoint_import}/v3/table/import_with_id/db/table/unique_id/format").
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
@@ -34,7 +39,7 @@ describe 'Import API' do
       File.open(t.path, 'w') do |f|
         f << '12345'
       end
-      stub_request(:put, "https://api-import.treasuredata.com/v3/table/import/db/table/format").
+      stub_request(:put, "#{endpoint_import}/v3/table/import/db/table/format").
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
@@ -47,7 +52,7 @@ describe 'Import API' do
       File.open(t.path, 'w') do |f|
         f << '12345'
       end
-      stub_request(:put, "http://api-import.treasure-data.com/v3/table/import/db/table/format").
+      stub_request(:put, "#{endpoint_import_old}/v3/table/import/db/table/format").
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
@@ -60,7 +65,7 @@ describe 'Import API' do
       File.open(t.path, 'w') do |f|
         f << '12345'
       end
-      stub_request(:put, "https://api-import.treasuredata.com/v3/table/import/db/table/format").
+      stub_request(:put, "#{endpoint_import}/v3/table/import/db/table/format").
         with(:body => '12345').
         to_return(:status => 500)
       File.open(t.path) do |f|
