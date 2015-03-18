@@ -36,11 +36,12 @@ class API
   include API::Table
   include API::User
 
-  DEFAULT_ENDPOINT = 'api.treasure-data.com'
-  DEFAULT_IMPORT_ENDPOINT = 'api-import.treasure-data.com'
+  DEFAULT_ENDPOINT = 'api.treasuredata.com'
+  DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
 
-  NEW_DEFAULT_ENDPOINT = 'api.treasuredata.com'
-  NEW_DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
+  # Deprecated. Use DEFAULT_ENDPOINT and DEFAULT_IMPORT_ENDPOINT instead
+  NEW_DEFAULT_ENDPOINT = DEFAULT_ENDPOINT
+  NEW_DEFAULT_IMPORT_ENDPOINT = DEFAULT_IMPORT_ENDPOINT
 
   class IncompleteError < APIError; end
 
