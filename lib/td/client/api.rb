@@ -37,7 +37,7 @@ class API
   include API::User
 
   DEFAULT_ENDPOINT = 'api.treasuredata.com'
-  DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
+  DEFAULT_IMPORT_ENDPOINT = 'api.treasuredata.com'
 
   # Deprecated. Use DEFAULT_ENDPOINT and DEFAULT_IMPORT_ENDPOINT instead
   NEW_DEFAULT_ENDPOINT = DEFAULT_ENDPOINT
