@@ -5,7 +5,11 @@ module BulkImport
   ## Bulk import API
   ##
 
-  # => nil
+  # @param [String] name
+  # @param [String] db
+  # @param [String] table
+  # @param [Hash] opts
+  # @return [nil]
   def create_bulk_import(name, db, table, opts={})
     params = opts.dup
     code, body, res = post("/v3/bulk_import/create/#{e name}/#{e db}/#{e table}", params)
@@ -15,7 +19,9 @@ module BulkImport
     return nil
   end
 
-  # => nil
+  # @param [String] name
+  # @param [Hash] opts
+  # @return [nil]
   def delete_bulk_import(name, opts={})
     params = opts.dup
     code, body, res = post("/v3/bulk_import/delete/#{e name}", params)
@@ -25,7 +31,8 @@ module BulkImport
     return nil
   end
 
-  # => data:Hash
+  # @param [String] name
+  # @return [Hash]
   def show_bulk_import(name)
     code, body, res = get("/v3/bulk_import/show/#{name}")
     if code != "200"
@@ -35,7 +42,8 @@ module BulkImport
     return js
   end
 
-  # => result:[data:Hash]
+  # @param [Hash] opts
+  # @return [Hash]
   def list_bulk_imports(opts={})
     params = opts.dup
     code, body, res = get("/v3/bulk_import/list", params)
@@ -46,6 +54,9 @@ module BulkImport
     return js['bulk_imports']
   end
 
+  # @param [String] name
+  # @param [Hash] opts
+  # @return [nil]
   def list_bulk_import_parts(name, opts={})
     params = opts.dup
     code, body, res = get("/v3/bulk_import/list_parts/#{e name}", params)
@@ -56,7 +67,12 @@ module BulkImport
     return js['parts']
   end
 
-  # => nil
+  # @param [String] name
+  # @param [String] part_name
+  # @param [String, StringIO] stream
+  # @param [Fixnum] size
+  # @param [Hash] opts
+  # @return [nil]
   def bulk_import_upload_part(name, part_name, stream, size, opts={})
     code, body, res = put("/v3/bulk_import/upload_part/#{e name}/#{e part_name}", stream, size)
     if code[0] != ?2
@@ -65,7 +81,10 @@ module BulkImport
     return nil
   end
 
-  # => nil
+  # @param [String] name
+  # @param [String] part_name
+  # @param [Hash] opts
+  # @return [nil]
   def bulk_import_delete_part(name, part_name, opts={})
     params = opts.dup
     code, body, res = post("/v3/bulk_import/delete_part/#{e name}/#{e part_name}", params)
@@ -75,7 +94,9 @@ module BulkImport
     return nil
   end
 
-  # => nil
+  # @param [String] name
+  # @param [Hash] opts
+  # @return [nil]
   def freeze_bulk_import(name, opts={})
     params = opts.dup
     code, body, res = post("/v3/bulk_import/freeze/#{e name}", params)
@@ -85,7 +106,9 @@ module BulkImport
     return nil
   end
 
-  # => nil
+  # @param [String] name
+  # @param [Hash] opts
+  # @return [nil]
   def unfreeze_bulk_import(name, opts={})
     params = opts.dup
     code, body, res = post("/v3/bulk_import/unfreeze/#{e name}", params)
@@ -95,7 +118,9 @@ module BulkImport
     return nil
   end
 
-  # => jobId:String
+  # @param [String] name
+  # @param [Hash] opts
+  # @return [String] job_id
   def perform_bulk_import(name, opts={})
     params = opts.dup
     code, body, res = post("/v3/bulk_import/perform/#{e name}", params)
@@ -106,7 +131,9 @@ module BulkImport
     return js['job_id'].to_s
   end
 
-  # => nil
+  # @param [String] name
+  # @param [Hash] opts
+  # @return [nil]
   def commit_bulk_import(name, opts={})
     params = opts.dup
     code, body, res = post("/v3/bulk_import/commit/#{e name}", params)
@@ -116,7 +143,10 @@ module BulkImport
     return nil
   end
 
-  # => data...
+  # @param [String] name
+  # @param [Hash] opts
+  # @param [Proc] block
+  # @return [Array]
   def bulk_import_error_records(name, opts={}, &block)
     params = opts.dup
     code, body, res = get("/v3/bulk_import/error_records/#{e name}", params)

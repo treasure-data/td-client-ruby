@@ -5,7 +5,11 @@ module Job
   ## Job API
   ##
 
-  # => [(jobId:String, type:Symbol, status:String, start_at:String, end_at:String, result_url:String)]
+  # @param [Fixnum] from
+  # @param [Fixnum] to
+  # @param [String] status
+  # @param [Hash] conditions
+  # @return [Array]
   def list_jobs(from=0, to=nil, status=nil, conditions=nil)
     params = {}
     params['from'] = from.to_s if from
@@ -37,7 +41,8 @@ module Job
     return result
   end
 
-  # => (type:Symbol, status:String, result:String, url:String, result:String)
+  # @param [String] job_id
+  # @return [Array]
   def show_job(job_id)
     # use v3/job/status instead of v3/job/show to poll finish of a job
     code, body, res = get("/v3/job/show/#{e job_id}")
@@ -93,6 +98,8 @@ module Job
             result_size, result, hive_result_schema, priority, retry_limit, nil, database]
   end
 
+  # @param [String] job_id
+  # @return [String] HTTP status
   def job_status(job_id)
     code, body, res = get("/v3/job/status/#{e job_id}")
     if code != "200"
@@ -103,6 +110,8 @@ module Job
     return js['status']
   end
 
+  # @param [String] job_id
+  # @return [Array]
   def job_result(job_id)
     code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'})
     if code != "200"
@@ -116,6 +125,12 @@ module Job
   end
 
   # block is optional and must accept 1 parameter
+  #
+  # @param [String] job_id
+  # @param [String] format
+  # @param [IO] io
+  # @param [Proc] block
+  # @return [nil, String]
   def job_result_format(job_id, format, io=nil, &block)
     if io
       code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
@@ -159,6 +174,10 @@ module Job
   end
 
   # block is optional and must accept 1 argument
+  # 
+  # @param [String] job_id
+  # @param [Proc] block
+  # @return [nil]
   def job_result_each(job_id, &block)
     get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
       if res.code != "200"
@@ -177,6 +196,10 @@ module Job
   end
 
   # block is optional and must accept 1 argument
+  # 
+  # @param [String] job_id
+  # @param [Proc] block
+  # @return [nil]
   def job_result_each_with_compr_size(job_id, &block)
     get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
       if res.code != "200"
@@ -205,6 +228,9 @@ module Job
     nil
   end
 
+  # @param [String] job_id
+  # @param [String] format
+  # @return [String]
   def job_result_raw(job_id, format)
     code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
     if code != "200"
@@ -213,6 +239,8 @@ module Job
     return body
   end
 
+  # @param [String] job_id
+  # @return [String]
   def kill(job_id)
     code, body, res = post("/v3/job/kill/#{e job_id}")
     if code != "200"
@@ -223,17 +251,33 @@ module Job
     return former_status
   end
 
-  # => jobId:String
+  # @param [String] q
+  # @param [String] db
+  # @param [String] result_url
+  # @param [Fixnum] priority
+  # @param [Hash] opts
+  # @return [String] job_id
   def hive_query(q, db=nil, result_url=nil, priority=nil, retry_limit=nil, opts={})
     query(q, :hive, db, result_url, priority, retry_limit, opts)
   end
 
-  # => jobId:String
+  # @param [String] q
+  # @param [String] db
+  # @param [String] result_url
+  # @param [Fixnum] priority
+  # @param [Hash] opts
+  # @return [String] job_id
   def pig_query(q, db=nil, result_url=nil, priority=nil, retry_limit=nil, opts={})
     query(q, :pig, db, result_url, priority, retry_limit, opts)
   end
 
-  # => jobId:String
+  # @param [String] q
+  # @param [Symbol] type
+  # @param [String] db
+  # @param [String] result_url
+  # @param [Fixnum] priority
+  # @param [Hash] opts
+  # @return [String] job_id
   def query(q, type=:hive, db=nil, result_url=nil, priority=nil, retry_limit=nil, opts={})
     params = {'query' => q}.merge(opts)
     params['result'] = result_url if result_url

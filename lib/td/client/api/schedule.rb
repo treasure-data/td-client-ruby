@@ -5,7 +5,9 @@ module Schedule
   ## Schedule API
   ##
 
-  # => start:String
+  # @param [String] name
+  # @param [Hash] opts
+  # @return [String]
   def create_schedule(name, opts)
     params = opts.update({:type=> opts[:type] || opts['type'] || 'hive'})
     code, body, res = post("/v3/schedule/create/#{e name}", params)
@@ -16,7 +18,8 @@ module Schedule
     return js['start']
   end
 
-  # => cron:String, query:String
+  # @param [String] name
+  # @return [Array]
   def delete_schedule(name)
     code, body, res = post("/v3/schedule/delete/#{e name}")
     if code != "200"
@@ -26,7 +29,7 @@ module Schedule
     return js['cron'], js["query"]
   end
 
-  # => [(name:String, cron:String, query:String, database:String, result_url:String)]
+  # @return [Array]
   def list_schedules
     code, body, res = get("/v3/schedule/list")
     if code != "200"
@@ -50,6 +53,9 @@ module Schedule
     return result
   end
 
+  # @param [String] name
+  # @param [Hash] params
+  # @return [nil]
   def update_schedule(name, params)
     code, body, res = post("/v3/schedule/update/#{e name}", params)
     if code != "200"
@@ -58,6 +64,10 @@ module Schedule
     return nil
   end
 
+  # @param [String] name
+  # @param [Fixnum] from
+  # @param [Fixnum] to
+  # @return [Array]
   def history(name, from=0, to=nil)
     params = {}
     params['from'] = from.to_s if from
@@ -84,6 +94,10 @@ module Schedule
     return result
   end
 
+  # @param [String] name
+  # @param [String] time
+  # @param [Fixnum] num
+  # @return [Array]
   def run_schedule(name, time, num)
     params = {}
     params = {'num' => num} if num

@@ -5,7 +5,9 @@ module User
   ## User API
   ##
 
-  # apikey:String
+  # @param [String] user
+  # @param [String] password
+  # @return [String] API key
   def authenticate(user, password)
     code, body, res = post("/v3/user/authenticate", {'user'=>user, 'password'=>password})
     if code != "200"
@@ -20,7 +22,7 @@ module User
     return apikey
   end
 
-  # => [[name:String,organization:String,[user:String]]
+  # @return [Array]
   def list_users
     code, body, res = get("/v3/user/list")
     if code != "200"
@@ -35,7 +37,11 @@ module User
     return result
   end
 
-  # => true
+  # @param [String] name
+  # @param [String] org
+  # @param [String] email
+  # @param [String] password
+  # @return [true]
   def add_user(name, org, email, password)
     params = {'organization'=>org, :email=>email, :password=>password}
     code, body, res = post("/v3/user/add/#{e name}", params)
@@ -45,7 +51,8 @@ module User
     return true
   end
 
-  # => true
+  # @param [String] user
+  # @return [true]
   def remove_user(user)
     code, body, res = post("/v3/user/remove/#{e user}")
     if code != "200"
@@ -54,7 +61,9 @@ module User
     return true
   end
 
-  # => true
+  # @param [String] user
+  # @param [String] email
+  # @return [true]
   def change_email(user, email)
     params = {'email' => email}
     code, body, res = post("/v3/user/email/change/#{e user}", params)
@@ -64,7 +73,8 @@ module User
     return true
   end
 
-  # => [apikey:String]
+  # @param [String] user
+  # @return [Array<String>] API keys as array
   def list_apikeys(user)
     code, body, res = get("/v3/user/apikey/list/#{e user}")
     if code != "200"
@@ -74,7 +84,8 @@ module User
     return js['apikeys']
   end
 
-  # => true
+  # @param [String] user
+  # @return [true]
   def add_apikey(user)
     code, body, res = post("/v3/user/apikey/add/#{e user}")
     if code != "200"
@@ -83,7 +94,9 @@ module User
     return true
   end
 
-  # => true
+  # @param [String] user
+  # @param [String] apikey
+  # @return [true]
   def remove_apikey(user, apikey)
     params = {'apikey' => apikey}
     code, body, res = post("/v3/user/apikey/remove/#{e user}", params)
@@ -93,7 +106,9 @@ module User
     return true
   end
 
-  # => true
+  # @param [String] user
+  # @param [String] password
+  # @return [true]
   def change_password(user, password)
     params = {'password' => password}
     code, body, res = post("/v3/user/password/change/#{e user}", params)
@@ -103,7 +118,9 @@ module User
     return true
   end
 
-  # => true
+  # @param [String] old_password
+  # @param [String] password
+  # @return [true]
   def change_my_password(old_password, password)
     params = {'old_password' => old_password, 'password' => password}
     code, body, res = post("/v3/user/password/change", params)

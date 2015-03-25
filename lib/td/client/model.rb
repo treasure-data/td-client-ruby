@@ -3,14 +3,24 @@ module TreasureData
 
 
 class Model
+  # @param [TreasureData::Client] client
   def initialize(client)
     @client = client
   end
 
+  # @!attribute [r] client
+  # @return [TreasureData::Client] client
   attr_reader :client
 end
 
 class Account < Model
+  # @param [TreasureData::Client] client
+  # @param [String] account_id
+  # @param [Fixnum] plan
+  # @param [Fixnum] storage_size
+  # @param [Fixnum] guaranteed_cores
+  # @param [Fixnum] maximum_cores
+  # @param [String] created_at
   def initialize(client, account_id, plan, storage_size=nil, guaranteed_cores=nil, maximum_cores=nil, created_at=nil)
     super(client)
     @account_id = account_id
@@ -21,12 +31,19 @@ class Account < Model
     @created_at = created_at
   end
 
+  # @!attribute [r] account_id
+  # @!attribute [r] plan
+  # @!attribute [r] storage_size
+  # @!attribute [r] guaranteed_cores
+  # @!attribute [r] maximum_cores
   attr_reader :account_id, :plan, :storage_size, :guaranteed_cores, :maximum_cores
 
+  # @return <Time, nil>
   def created_at
     @created_at && !@created_at.empty? ? Time.parse(@created_at) : nil
   end
 
+  # @return <String>
   def storage_size_string
     if @storage_size <= 1024 * 1024
       return "0.0 GB"
@@ -44,6 +61,14 @@ class Database < Model
   PERMISSIONS = [:administrator, :full_access, :import_only, :query_only]
   PERMISSION_LIST_TABLES = [:administrator, :full_access]
 
+  # @param [TreasureData::Client] client
+  # @param [String] db_name
+  # @param [Array<Table>] tables
+  # @param [Fixnum] count
+  # @param [String] created_at
+  # @param [String] updated_at
+  # @param [String] org_name
+  # @param [String] permission
   def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil, permission=nil)
     super(client)
     @db_name = db_name
@@ -54,45 +79,62 @@ class Database < Model
     @permission = permission.to_sym
   end
 
+  # @!attribute [r] org_name
+  # @!attribute [r] permission
+  # @!attribute [r] count
   attr_reader :org_name, :permission, :count
 
+  # @return [String] db_name
   def name
     @db_name
   end
 
+  # @return [Array<Table>]
   def tables
     update_tables! unless @tables
     @tables
   end
 
+  # @param [String] name
+  # @return [true]
   def create_log_table(name)
     @client.create_log_table(@db_name, name)
   end
 
+  # @param [String] name
+  # @return [true]
   def create_item_table(name)
     @client.create_item_table(@db_name, name)
   end
 
+  # @param [String] name
+  # @return [Table]
   def table(table_name)
     @client.table(@db_name, table_name)
   end
 
+  # @return [Symbol]
   def delete
     @client.delete_database(@db_name)
   end
 
+  # @param [String] q
+  # @return [Job]
   def query(q)
     @client.query(@db_name, q)
   end
 
+  # @return [Time, nil]
   def created_at
     @created_at && !@created_at.empty? ? Time.parse(@created_at) : nil
   end
 
+  # @return [Time, nil]
   def updated_at
     @updated_at && !@updated_at.empty? ? Time.parse(@updated_at) : nil
   end
 
+  # @return [nil]
   def update_tables!
     @tables = @client.tables(@db_name)
     # provide Table objects with a reference to the parent Database to avoid
@@ -105,6 +147,20 @@ class Database < Model
 end
 
 class Table < Model
+  # @param [TreasureData::Client] client
+  # @param [String] db_name
+  # @param [String] table_name
+  # @param [String] type
+  # @param [String] schema
+  # @param [Fixnum] count
+  # @param [String] created_at
+  # @param [String] updated_at
+  # @param [Fixnum] estimated_storage_size
+  # @param [String] last_import
+  # @param [String] last_log_timestamp
+  # @param [Fixnum, String] expire_days
+  # @param [String] primary_key
+  # @param [String] primary_key_type
   def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil, last_import=nil, last_log_timestamp=nil, expire_days=nil, primary_key=nil, primary_key_type=nil)
     super(client)
     @database = nil
@@ -123,65 +179,96 @@ class Table < Model
     @primary_key_type = primary_key_type
   end
 
+  # @!attribute [r] type
+  # @!attribute [r] db_name
+  # @!attribute [r] table_name
+  # @!attribute [r] schema
+  # @!attribute [r] count
+  # @!attribute [r] estimated_storage_size
+  # @!attribute [r] primary_key
+  # @!attribute [r] primary_key_type
   attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size, :primary_key, :primary_key_type
 
   alias database_name db_name
   alias name table_name
 
+  # @param [String] database
   def database=(database)
     @database = database if database.instance_of?(Database)
   end
 
+  # @return [Time, nil]
   def created_at
     @created_at && !@created_at.empty? ? Time.parse(@created_at) : nil
   end
 
+  # @return [Time, nil]
   def updated_at
     @updated_at && !@updated_at.empty? ? Time.parse(@updated_at) : nil
   end
 
+  # @return [Time, nil]
   def last_import
     @last_import && !@last_import.empty? ? Time.parse(@last_import) : nil
   end
 
+  # @return [Time, nil]
   def last_log_timestamp
     @last_log_timestamp && !@last_log_timestamp.empty? ? Time.parse(@last_log_timestamp) : nil
   end
 
+  # @return [Fixnum, nil]
   def expire_days
     @expire_days ? @expire_days.to_i : nil
   end
 
+  # @return [Database]
   def database
     update_database! unless @database
     @database
   end
 
   # get the database's permission as if they were the table's
+  # @return [String]
   def permission
     database.permission
   end
 
+  # @return [String]
   def identifier
     "#{@db_name}.#{@table_name}"
   end
 
+  # @return [Symbol]
   def delete
     @client.delete_table(@db_name, @table_name)
   end
 
+  # @param [Fixnum] count
+  # @param [Fixnum] to
+  # @param [Fixnum] from
+  # @return [Array, nil]
   def tail(count, to=nil, from=nil)
     @client.tail(@db_name, @table_name, count, to, from)
   end
 
+  # @param [String] format
+  # @param [String, StringIO] stream
+  # @param [Fixnum] size
+  # @return [Float]
   def import(format, stream, size)
     @client.import(@db_name, @table_name, format, stream, size)
   end
 
+  # @param [String] storage_type
+  # @param [Hash] opts
+  # @param [Fixnum] size
+  # @return [Job]
   def export(storage_type, opts={})
     @client.export(@db_name, @table_name, storage_type, opts)
   end
 
+  # @return [String]
   def estimated_storage_size_string
     if @estimated_storage_size <= 1024*1024
       return "0.0 GB"
@@ -201,14 +288,21 @@ end
 
 class Schema
   class Field
+    # @param [String] name
+    # @param [String] type
     def initialize(name, type)
       @name = name
       @type = type
     end
+
+    # @!attribute [r] name
+    # @!attribute [r] type
     attr_reader :name
     attr_reader :type
   end
 
+  # @param [String] cols
+  # @return [Schema]
   def self.parse(cols)
     fields = cols.split(',').map {|col|
       name, type, *_ = col.split(':')
@@ -217,16 +311,23 @@ class Schema
     Schema.new(fields)
   end
 
+  # @param [Array] fields
   def initialize(fields=[])
     @fields = fields
   end
 
+  # @!attribute [r] fields
   attr_reader :fields
 
+  # @param [String] name
+  # @param [String] type
+  # @return [Array]
   def add_field(name, type)
     @fields << Field.new(name, type)
   end
 
+  # @param [Schema] schema
+  # @return [Schema]
   def merge(schema)
     nf = @fields.dup
     schema.fields.each {|f|
@@ -239,10 +340,13 @@ class Schema
     Schema.new(nf)
   end
 
+  # @return [Array<Field>]
   def to_json(*args)
     @fields.map {|f| [f.name, f.type] }.to_json(*args)
   end
 
+  # @param [Object] obj
+  # @return [self]
   def from_json(obj)
     @fields = obj.map {|f|
       Field.new(f[0], f[1])

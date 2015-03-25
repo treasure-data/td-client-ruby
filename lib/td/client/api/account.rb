@@ -5,6 +5,7 @@ module Account
   ## Account API
   ##
 
+  # @return [Array]
   def show_account
     code, body, res = get("/v3/account/show")
     if code != "200"
@@ -21,6 +22,9 @@ module Account
     return [account_id, plan, storage_size, guaranteed_cores, maximum_cores, created_at]
   end
 
+  # @param [Fixnum] from
+  # @param [Fixnum] to
+  # @return [Array]
   def account_core_utilization(from, to)
     params = { }
     params['from'] = from.to_s if from

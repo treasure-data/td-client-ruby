@@ -5,7 +5,13 @@ module Import
   ## Import API
   ##
 
-  # => time:Float
+  # @param [String] db
+  # @param [String] table
+  # @param [String] format
+  # @param [String, StringIO] stream
+  # @param [Fixnum] size
+  # @param [String] unique_id
+  # @return [Float] elapsed time
   def import(db, table, format, stream, size, unique_id=nil)
     if unique_id
       path = "/v3/table/import_with_id/#{e db}/#{e table}/#{unique_id}/#{format}"

@@ -5,7 +5,8 @@ module Table
   ## Table API
   ##
 
-  # => {name:String => [type:Symbol, count:Integer]}
+  # @param [String] db
+  # @return [Array]
   def list_tables(db)
     code, body, res = get("/v3/table/list/#{e db}")
     if code != "200"
@@ -31,6 +32,10 @@ module Table
     return result
   end
 
+  # @param [String] db
+  # @param [String] table
+  # @param [String] type
+  # @return [true]
   def create_log_or_item_table(db, table, type)
     code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}")
     if code != "200"
@@ -40,17 +45,28 @@ module Table
   end
   private :create_log_or_item_table
 
-  # => true
+  # @param [String] db
+  # @param [String] table
+  # @return [true]
   def create_log_table(db, table)
     create_table(db, table, :log)
   end
 
-  # => true
+  # @param [String] db
+  # @param [String] table
+  # @param [String] primary_key
+  # @param [String] primary_key_type
+  # @return [true]
   def create_item_table(db, table, primary_key, primary_key_type)
     params = {'primary_key' => primary_key, 'primary_key_type' => primary_key_type}
     create_table(db, table, :item, params)
   end
 
+  # @param [String] db
+  # @param [String] table
+  # @param [String] type
+  # @param [Hash] params
+  # @return [true]
   def create_table(db, table, type, params={})
     schema = schema.to_s
     code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}", params)
@@ -61,7 +77,10 @@ module Table
   end
   private :create_table
 
-  # => true
+  # @param [String] db
+  # @param [String] table1
+  # @param [String] table2
+  # @return [true]
   def swap_table(db, table1, table2)
     code, body, res = post("/v3/table/swap/#{e db}/#{e table1}/#{e table2}")
     if code != "200"
@@ -70,7 +89,10 @@ module Table
     return true
   end
 
-  # => true
+  # @param [String] db
+  # @param [String] table
+  # @param [String] schema_json
+  # @return [true]
   def update_schema(db, table, schema_json)
     code, body, res = post("/v3/table/update-schema/#{e db}/#{e table}", {'schema'=>schema_json})
     if code != "200"
@@ -79,6 +101,10 @@ module Table
     return true
   end
 
+  # @param [String] db
+  # @param [String] table
+  # @param [Fixnum] expire_days
+  # @return [true]
   def update_expire(db, table, expire_days)
     code, body, res = post("/v3/table/update/#{e db}/#{e table}", {'expire_days'=>expire_days})
     if code != "200"
@@ -87,7 +113,9 @@ module Table
     return true
   end
 
-  # => type:Symbol
+  # @param [String] db
+  # @param [String] table
+  # @return [Symbol]
   def delete_table(db, table)
     code, body, res = post("/v3/table/delete/#{e db}/#{e table}")
     if code != "200"
@@ -98,6 +126,13 @@ module Table
     return type
   end
 
+  # @param [String] db
+  # @param [String] table
+  # @param [Fixnum] count
+  # @param [Fixnum] to
+  # @param [Fixnum] from
+  # @param [Proc] block
+  # @return [Array, nil]
   def tail(db, table, count, to, from, &block)
     params = {'format' => 'msgpack'}
     params['count'] = count.to_s if count

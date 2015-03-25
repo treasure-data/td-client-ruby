@@ -5,6 +5,12 @@ module PartialDelete
   ## Partial delete API
   ##
 
+  # @param [String] db
+  # @param [String] table
+  # @param [Fixnum] to
+  # @param [Fixnum] from
+  # @param [Hash] opts
+  # @return [String]
   def partial_delete(db, table, to, from, opts={})
     params = opts.dup
     params['to'] = to.to_s

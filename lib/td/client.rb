@@ -164,6 +164,7 @@ class Client
   # @param [Fixnum] to
   # @param [Fixnum] from
   # @param [Proc] block
+  # @return [Array, nil]
   def tail(db_name, table_name, count, to=nil, from=nil, &block)
     @api.tail(db_name, table_name, count, to, from, &block)
   end
@@ -488,7 +489,7 @@ class Client
   end
 
   # @param [String] user
-  # @return [String]
+  # @return [true]
   def add_apikey(user)
     @api.add_apikey(user)
   end
