@@ -107,7 +107,7 @@ class Database < Model
     @client.create_item_table(@db_name, name)
   end
 
-  # @param [String] name
+  # @param [String] table_name
   # @return [Table]
   def table(table_name)
     @client.table(@db_name, table_name)
@@ -262,7 +262,6 @@ class Table < Model
 
   # @param [String] storage_type
   # @param [Hash] opts
-  # @param [Fixnum] size
   # @return [Job]
   def export(storage_type, opts={})
     @client.export(@db_name, @table_name, storage_type, opts)
@@ -364,6 +363,24 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
+  # @param [TreasureData::Client] client
+  # @param [String] job_id
+  # @param [String] type
+  # @param [String] query
+  # @param [Fixnum] status
+  # @param [String] url
+  # @param [Boolean] debug
+  # @param [String] start_at
+  # @param [String] end_at
+  # @param [String] cpu_time
+  # @param [String] result_size
+  # @param [Array] result
+  # @param [String] result_url
+  # @param [Array] hive_result_schema
+  # @param [Fixnum] priority
+  # @param [Fixnum] retry_limit
+  # @param [String] org_name
+  # @param [String] db_name
   def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, cpu_time=nil,
                  result_size=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, retry_limit=nil,
                  org_name=nil, db_name=nil)
@@ -386,6 +403,13 @@ class Job < Model
     @db_name = db_name
   end
 
+  # @!attribute [r] job_id
+  # @!attribute [r] type
+  # @!attribute [r] result_url
+  # @!attribute [r] priority
+  # @!attribute [r] retry_limit
+  # @!attribute [r] org_name
+  # @!attribute [r] db_name
   attr_reader :job_id, :type, :result_url
   attr_reader :priority, :retry_limit, :org_name, :db_name
 
@@ -397,51 +421,61 @@ class Job < Model
     # TODO
   end
 
+  # @return [String]
   def query
     update_status! unless @query || finished?
     @query
   end
 
+  # @return [String]
   def status
     update_status! unless @status || finished?
     @status
   end
 
+  # @return [String]
   def url
     update_status! unless @url || finished?
     @url
   end
 
+  # @return [Boolean]
   def debug
     update_status! unless @debug || finished?
     @debug
   end
 
+  # @return [Time, nil]
   def start_at
     update_status! unless @start_at || finished?
     @start_at && !@start_at.empty? ? Time.parse(@start_at) : nil
   end
 
+  # @return [Time, nil]
   def end_at
     update_status! unless @end_at || finished?
     @end_at && !@end_at.empty? ? Time.parse(@end_at) : nil
   end
 
+  # @return [String]
   def cpu_time
     update_status! unless @cpu_time || finished?
     @cpu_time
   end
 
+  # @return [Array]
   def hive_result_schema
     update_status! unless @hive_result_schema.instance_of? Array || finished?
     @hive_result_schema
   end
 
+  # @return [String]
   def result_size
     update_status! unless @result_size || finished?
     @result_size
   end
 
+  # @return [Array]
   def result
     unless @result
       return nil unless finished?
@@ -450,11 +484,17 @@ class Job < Model
     @result
   end
 
+  # @param [String] format
+  # @param [IO] io
+  # @param [Proc] block
+  # @return [nil, String]
   def result_format(format, io=nil, &block)
     return nil unless finished?
     @client.job_result_format(@job_id, format, io, &block)
   end
 
+  # @yield [result]
+  # @return [nil]
   def result_each_with_compr_size(&block)
     if @result
       @result.each(&block)
@@ -464,6 +504,8 @@ class Job < Model
     nil
   end
 
+  # @yield [result]
+  # @return [nil]
   def result_each(&block)
     if @result
       @result.each(&block)
@@ -473,31 +515,37 @@ class Job < Model
     nil
   end
 
+  # @return [Boolean]
   def finished?
     update_progress! unless @status
     FINISHED_STATUS.include?(@status)
   end
 
+  # @return [Boolean]
   def success?
     update_progress! unless @status
     @status == STATUS_SUCCESS
   end
 
+  # @return [Boolean]
   def error?
     update_progress! unless @status
     @status == STATUS_ERROR
   end
 
+  # @return [Boolean]
   def killed?
     update_progress! unless @status
     @status == STATUS_KILLED
   end
 
+  # @return [Boolean]
   def queued?
     update_progress! unless @status
     @status == STATUS_QUEUED
   end
 
+  # @return [Boolean]
   def running?
     update_progress! unless @status
     @status == STATUS_RUNNING
@@ -532,6 +580,9 @@ end
 class ScheduledJob < Job
   attr_reader :scheduled_at
 
+  # @param [TreasureData::Client] client
+  # @param [String] scheduled_at
+  # @param [...] args for Job#initialize
   def initialize(client, scheduled_at, *super_args)
     super(client, *super_args)
     if scheduled_at.to_s.empty?
@@ -544,6 +595,18 @@ end
 
 
 class Schedule < Model
+  # @param [TreasureData::Client] client
+  # @param [String] name
+  # @param [String] cron
+  # @param [String] query
+  # @param [Fixnum] database
+  # @param [String] result_url
+  # @param [String] timezone
+  # @param [String] delay
+  # @param [String] next_time
+  # @param [String] priority
+  # @param [String] retry_limit
+  # @param [String] org_name
   def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil,
                  priority=nil, retry_limit=nil, org_name=nil)
     super(client)
@@ -559,12 +622,25 @@ class Schedule < Model
     @retry_limit = retry_limit
   end
 
+  # @!attribute [r] name
+  # @!attribute [r] cron
+  # @!attribute [r] query
+  # @!attribute [r] database
+  # @!attribute [r] result_url
+  # @!attribute [r] delay
+  # @!attribute [r] priority
+  # @!attribute [r] retry_limit
+  # @!attribute [r] org_name
   attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :retry_limit, :org_name
 
+  # @return [Time, nil]
   def next_time
     @next_time ? Time.parse(@next_time) : nil
   end
 
+  # @param [String] time
+  # @param [Fixnum] num
+  # @return [Array]
   def run(time, num)
     @client.run_schedule(time, num)
   end
@@ -572,17 +648,26 @@ end
 
 
 class Result < Model
+  # @param [TreasureData::Client] client
+  # @param [String] name
+  # @param [String] url
+  # @param [String] org_name
   def initialize(client, name, url, org_name)
     super(client)
     @name = name
     @url = url
   end
 
+  # @!attribute [r] name
+  # @!attribute [r] url
+  # @!attribute [r] org_name
   attr_reader :name, :url, :org_name
 end
 
 
 class BulkImport < Model
+  # @param [TreasureData::Client] client
+  # @param [Hash] data
   def initialize(client, data={})
     super(client)
     @name = data['name']
@@ -597,6 +682,16 @@ class BulkImport < Model
     @error_parts = data['error_parts']
   end
 
+  # @!attribute [r] name
+  # @!attribute [r] database
+  # @!attribute [r] table
+  # @!attribute [r] status
+  # @!attribute [r] job_id
+  # @!attribute [r] valid_records
+  # @!attribute [r] error_records
+  # @!attribute [r] valid_parts
+  # @!attribute [r] error_parts
+  # @!attribute [r] org_name
   attr_reader :name
   attr_reader :database
   attr_reader :table
@@ -608,6 +703,7 @@ class BulkImport < Model
   attr_reader :error_parts
   attr_reader :org_name
 
+  # @return [Boolean]
   def upload_frozen?
     @upload_frozen
   end
@@ -626,6 +722,11 @@ end
 
 
 class AccessControl < Model
+  # @param [TreasureData::Client] client
+  # @param [String] subject
+  # @param [String] action
+  # @param [String] scope
+  # @param [Array] grant_option
   def initialize(client, subject, action, scope, grant_option)
     super(client)
     @subject = subject
@@ -634,6 +735,10 @@ class AccessControl < Model
     @grant_option = grant_option
   end
 
+  # @!attribute [r] subject
+  # @!attribute [r] action
+  # @!attribute [r] scope
+  # @!attribute [r] grant_option
   attr_reader :subject, :action, :scope, :grant_option
 end
 
