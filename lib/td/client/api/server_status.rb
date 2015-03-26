@@ -6,6 +6,7 @@ module ServerStatus
   ##
 
   # => status:String
+  # @return [String] HTTP status code
   def server_status
     code, body, res = get('/v3/system/server_status')
     if code != "200"

@@ -40,6 +40,8 @@ class API
   NEW_DEFAULT_ENDPOINT = 'api.treasuredata.com'
   NEW_DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
 
+  # @param [String] apikey
+  # @param [Hash] opts
   def initialize(apikey, opts={})
     require 'json'
     require 'time'
@@ -114,8 +116,11 @@ class API
 
   # TODO error check & raise appropriate errors
 
+  # @!attribute [r] apikey
   attr_reader :apikey
 
+  # @param [Hash] record
+  # @param [IO] out
   def self.normalized_msgpack(record, out = nil)
     record.keys.each { |k|
       v = record[k]
@@ -126,6 +131,10 @@ class API
     record.to_msgpack(out)
   end
 
+  # @param [String] target
+  # @param [Fixnum] min_len
+  # @param [Fixnum] max_len
+  # @param [String] name
   def self.validate_name(target, min_len, max_len, name)
     if !target.instance_of?(String) || target.empty?
       raise ParameterValidationError,
@@ -150,22 +159,27 @@ class API
     name
   end
 
+  # @param [String] name
   def self.validate_database_name(name)
     validate_name("database", 3, 255, name)
   end
 
+  # @param [String] name
   def self.validate_table_name(name)
     validate_name("table", 3, 255, name)
   end
 
+  # @param [String] name
   def self.validate_result_set_name(name)
     validate_name("result set", 3, 255, name)
   end
 
+  # @param [String] name
   def self.validate_column_name(name)
     validate_name("column", 1, 255, name)
   end
 
+  # @param [String] name
   def self.normalize_database_name(name)
     name = name.to_s
     if name.empty?
@@ -182,11 +196,13 @@ class API
     name
   end
 
+  # @param [String] name
   def self.normalize_table_name(name)
     normalize_database_name(name)
   end
 
   # TODO support array types
+  # @param [String] name
   def self.normalize_type_name(name)
     case name
     when /int/i, /integer/i
@@ -205,12 +221,14 @@ class API
   end
 
   # for fluent-plugin-td / td command to check table existence with import onlt user
+  # @return [String]
   def self.create_empty_gz_data
     io = StringIO.new
     Zlib::GzipWriter.new(io).close
     io.string
   end
 
+  # @param [String] ssl_ca_file
   def ssl_ca_file=(ssl_ca_file)
     @ssl_ca_file = ssl_ca_file
   end
@@ -220,6 +238,7 @@ private
   module DeflateReadBodyMixin
     attr_accessor :gzip
 
+    # @yield [fragment]
     def each_fragment(&block)
       if @gzip
         infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
@@ -238,17 +257,24 @@ private
   end
 
   module DirectReadBodyMixin
+    # @yield [fragment]
     def each_fragment(&block)
       read_body(&block)
     end
   end
 
+  # @param [String] url
+  # @param [Hash] params
+  # @yield [response]
   def get(url, params=nil, &block)
     guard_no_sslv3 do
       do_get(url, params, &block)
     end
   end
 
+  # @param [String] url
+  # @param [Hash] params
+  # @yield [response]
   def do_get(url, params=nil, &block)
     http, header = new_http
 
@@ -341,12 +367,16 @@ private
     return [response.code, body, response]
   end
 
+  # @param [String] url
+  # @param [Hash] params
   def post(url, params=nil)
     guard_no_sslv3 do
       do_post(url, params)
     end
   end
 
+  # @param [String] url
+  # @param [Hash] params
   def do_post(url, params=nil)
     http, header = new_http
 
@@ -420,6 +450,10 @@ private
     return [response.code, response.body, response]
   end
 
+  # @param [String] url
+  # @param [String, StringIO] stream
+  # @param [Fixnum] size
+  # @param [Hash] opts
   def put(url, stream, size, opts = {})
     client, header = new_client(opts)
     client.send_timeout = @send_timeout
@@ -457,11 +491,15 @@ private
     end
   end
 
+  # @param [String] url
+  # @param [String] host
+  # @return [String]
   def build_endpoint(url, host)
     schema = @ssl ? 'https' : 'http'
     "#{schema}://#{host}:#{@port}#{@base_path + url}"
   end
 
+  # @yield Disable SSLv3 in given block
   def guard_no_sslv3
     key = :SET_SSL_OP_NO_SSLv3
     backup = Thread.current[key]
@@ -475,6 +513,8 @@ private
     end
   end
 
+  # @param [Hash] opts
+  # @return [http, Hash]
   def new_http(opts = {})
     host = opts[:host] || @host
     http = @http_class.new(host, @port)
@@ -505,6 +545,8 @@ private
     return http, header
   end
 
+  # @param [Hash] opts
+  # @return [HTTPClient, Hash]
   def new_client(opts = {})
     client = HTTPClient.new(@http_proxy, @user_agent)
     client.connect_timeout = @connect_timeout
@@ -527,10 +569,13 @@ private
     return client, header
   end
 
+  # @return [String]
   def ssl_ca_file
     @ssl_ca_file ||= File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt')
   end
 
+  # @param [response] res
+  # @return [String]
   def get_error(res)
     begin
       js = JSON.load(res.body)
@@ -549,6 +594,9 @@ private
     error_msg
   end
 
+  # @param [String] msg
+  # @param [response] res
+  # @param [Class] klass
   def raise_error(msg, res, klass=nil)
     status_code = res.code.to_s
     error_msg = get_error(res)
@@ -569,15 +617,21 @@ private
   end
 
   if ''.respond_to?(:encode)
+    # @param [String] s
+    # @return [String]
     def e(s)
       CGI.escape(s.to_s.encode("UTF-8"))
     end
   else
+    # @param [String] s
+    # @return [String]
     def e(s)
       CGI.escape(s.to_s)
     end
   end
 
+  # @param [String] body
+  # @param [Array] required
   def checked_json(body, required)
     js = nil
     begin

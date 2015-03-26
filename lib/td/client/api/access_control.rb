@@ -5,6 +5,11 @@ module AccessControl
   ## Access Control API
   ##
 
+  # @param [String] subject
+  # @param [String] action
+  # @param [String] scope
+  # @param [Array] grant_option
+  # @return [true]
   def grant_access_control(subject, action, scope, grant_option)
     params = {'subject'=>subject, 'action'=>action, 'scope'=>scope, 'grant_option'=>grant_option.to_s}
     code, body, res = post("/v3/acl/grant", params)
@@ -14,6 +19,10 @@ module AccessControl
     return true
   end
 
+  # @param [String] subject
+  # @param [String] action
+  # @param [String] scope
+  # @return [true]
   def revoke_access_control(subject, action, scope)
     params = {'subject'=>subject, 'action'=>action, 'scope'=>scope}
     code, body, res = post("/v3/acl/revoke", params)
@@ -23,7 +32,10 @@ module AccessControl
     return true
   end
 
-  # [true, [{subject:String,action:String,scope:String}]]
+  # @param [String] user
+  # @param [String] action
+  # @param [String] scope
+  # @return [Array]
   def test_access_control(user, action, scope)
     params = {'user'=>user, 'action'=>action, 'scope'=>scope}
     code, body, res = get("/v3/acl/test", params)
@@ -41,7 +53,7 @@ module AccessControl
     return perm, acl
   end
 
-  # [{subject:String,action:String,scope:String}]
+  # @return [Array]
   def list_access_controls
     code, body, res = get("/v3/acl/list")
     if code != "200"

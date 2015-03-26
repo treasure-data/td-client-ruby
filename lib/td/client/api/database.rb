@@ -5,7 +5,7 @@ module Database
   ## Database API
   ##
 
-  # => [name:String]
+  # @return [Array<String>] names as array
   def list_databases
     code, body, res = get("/v3/database/list")
     if code != "200"
@@ -24,7 +24,8 @@ module Database
     return result
   end
 
-  # => true
+  # @param [String] db
+  # @return [true]
   def delete_database(db)
     code, body, res = post("/v3/database/delete/#{e db}")
     if code != "200"
@@ -33,7 +34,9 @@ module Database
     return true
   end
 
-  # => true
+  # @param [String] db
+  # @param [Hash] opts
+  # @return [true]
   def create_database(db, opts={})
     params = opts.dup
     code, body, res = post("/v3/database/create/#{e db}", params)

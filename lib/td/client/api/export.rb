@@ -6,6 +6,11 @@ module Export
   ##
 
   # => jobId:String
+  # @param [String] db
+  # @param [String] table
+  # @param [String] storage_type
+  # @param [Hash] opts
+  # @return [String] job_id
   def export(db, table, storage_type, opts={})
     params = opts.dup
     params['storage_type'] = storage_type
