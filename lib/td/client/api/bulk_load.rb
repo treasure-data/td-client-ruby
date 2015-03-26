@@ -38,13 +38,13 @@ module BulkLoad
   #   "cron": cron_string,
   #   "timezone": timezone_string,
   #   "delay": delay_seconds,
-  #   "user_database_name": database_name,
-  #   "user_table_name": table_name
+  #   "database": database_name,
+  #   "table": table_name
   # }
 
   ## Resource definitions
 
-  class BulkLoad < ToHashStruct.new(:config, :name, :cron, :timezone, :delay, :user_database_name, :user_table_name)
+  class BulkLoad < ToHashStruct.new(:config, :name, :cron, :timezone, :delay, :database, :table)
     class BulkLoadSessionConfig < ToHashStruct.new(:type, :access_key_id, :secret_access_key, :endpoint, :bucket, :path_prefix, :parser, :decoders)
       def validate_self
         validate_presence_of :type
@@ -61,7 +61,7 @@ module BulkLoad
   class BulkLoadPreview < ToHashStruct.new(:schema, :records)
   end
 
-  class Job < ToHashStruct.new(:job_id, :account_id, :type, :status, :cpu_time, :config, :records, :schema, :user_database, :user_table, :priority, :created_at, :updated_at, :start_at, :end_at)
+  class Job < ToHashStruct.new(:job_id, :account_id, :type, :status, :cpu_time, :config, :records, :schema, :database, :table, :priority, :created_at, :updated_at, :start_at, :end_at)
     model_property :config, BulkLoad::BulkLoadSessionConfig
   end
 
@@ -97,8 +97,8 @@ module BulkLoad
   def bulk_load_issue(database, table, job)
     type = 'bulkload'
     job = job.dup
-    job['user_database_name'] = database
-    job['user_table_name'] = table
+    job['database'] = database
+    job['table'] = table
     path = "/v3/job/issue/#{e type}/#{e database}"
     res = api { post(path, job.validate.to_json) }
     unless res.ok?
@@ -124,8 +124,8 @@ module BulkLoad
     [:cron, :timezone, :delay].each do |prop|
       job[prop.to_s] = opts[prop] if opts.key?(prop)
     end
-    job['user_database_name'] = database
-    job['user_table_name'] = table
+    job['database'] = database
+    job['table'] = table
     res = api { post(LIST, job.validate.to_json) }
     unless res.ok?
       raise_error("BulkLoadSession: #{name} create failed", res)

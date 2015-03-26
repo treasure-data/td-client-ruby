@@ -98,8 +98,8 @@ describe 'BulkImport API' do
         "status" => "success",
         "records" => 10,
         "schema" => [["c0", "string", ""], ["c1", "long", ""], ["c2", "string", ""], ["c3", "string", ""]],
-        "user_database" => {"id" => 189263, "name" => "nahidb"},
-        "user_table" => {"id" => 176281, "name" => "bulkload_import_test"},
+        "database" => {"id" => 189263, "name" => "nahidb"},
+        "table" => {"id" => 176281, "name" => "bulkload_import_test"},
         "created_at" => 1426738133,
         "updated_at" => 1426738145,
         "start_at" => 1426738134,
@@ -202,8 +202,8 @@ describe 'BulkImport API' do
   describe 'issue' do
     it 'returns job id' do
       expected_request = guessed_config.dup
-      expected_request['user_database_name'] = 'database'
-      expected_request['user_table_name'] = 'table'
+      expected_request['database'] = 'database'
+      expected_request['table'] = 'table'
       stub_api_request(:post, '/v3/job/issue/bulkload/database').
         with(:body => expected_request.to_json).
         to_return(:body => {'job_id' => 12345}.to_json)
@@ -245,8 +245,8 @@ describe 'BulkImport API' do
       expected_request['cron'] = '@daily'
       expected_request['timezone'] = 'Asia/Tokyo'
       expected_request['delay'] = 3600
-      expected_request['user_database_name'] = 'database'
-      expected_request['user_table_name'] = 'table'
+      expected_request['database'] = 'database'
+      expected_request['table'] = 'table'
       stub_api_request(:post, '/v3/bulk_loads').
         with(:body => expected_request.to_json).
         to_return(:body => bulk_load_session.to_json)
@@ -266,8 +266,8 @@ describe 'BulkImport API' do
     it 'accepts empty option' do
       expected_request = guessed_config.dup
       expected_request['name'] = 'nahi_test_1'
-      expected_request['user_database_name'] = 'database'
-      expected_request['user_table_name'] = 'table'
+      expected_request['database'] = 'database'
+      expected_request['table'] = 'table'
       stub_api_request(:post, '/v3/bulk_loads').
         with(:body => expected_request.to_json).
         to_return(:body => bulk_load_session.to_json)
