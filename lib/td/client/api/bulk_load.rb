@@ -61,7 +61,7 @@ module BulkLoad
   class BulkLoadPreview < ToHashStruct.new(:schema, :records)
   end
 
-  class Job < ToHashStruct.new(:job_id, :account_id, :type, :status, :cpu_time, :config, :records, :schema, :database, :table, :priority, :created_at, :updated_at, :start_at, :end_at)
+  class Job < ToHashStruct.new(:job_id, :account_id, :type, :status, :cpu_time, :config, :records, :schema, :database, :table, :priority, :time_column, :created_at, :updated_at, :start_at, :end_at)
     model_property :config, BulkLoad::BulkLoadSessionConfig
   end
 
@@ -121,7 +121,7 @@ module BulkLoad
   def bulk_load_create(name, database, table, job, opts = {})
     job = job.dup
     job['name'] = name
-    [:cron, :timezone, :delay].each do |prop|
+    [:cron, :timezone, :delay, :time_column].each do |prop|
       job[prop.to_s] = opts[prop] if opts.key?(prop)
     end
     job['database'] = database
