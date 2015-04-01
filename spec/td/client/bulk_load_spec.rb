@@ -278,6 +278,26 @@ describe 'BulkImport API' do
         TreasureData::API::BulkLoad::BulkLoad.from_hash(guessed_config)
       ).to_h.should == bulk_load_session
     end
+
+    it 'accepts time_column option' do
+      expected_request = guessed_config.dup
+      expected_request['name'] = 'nahi_test_1'
+      expected_request['time_column'] = 'c0'
+      expected_request['database'] = 'database'
+      expected_request['table'] = 'table'
+      stub_api_request(:post, '/v3/bulk_loads').
+        with(:body => expected_request.to_json).
+        to_return(:body => bulk_load_session.to_json)
+      api.bulk_load_create(
+        'nahi_test_1',
+        'database',
+        'table',
+        TreasureData::API::BulkLoad::BulkLoad.from_hash(guessed_config),
+        {
+          time_column: 'c0'
+        }
+      ).to_h.should == bulk_load_session
+    end
   end
 
   describe 'show' do

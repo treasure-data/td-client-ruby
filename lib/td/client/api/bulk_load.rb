@@ -44,7 +44,7 @@ module BulkLoad
 
   ## Resource definitions
 
-  class BulkLoad < ToHashStruct.new(:config, :name, :cron, :timezone, :delay, :database, :table)
+  class BulkLoad < ToHashStruct.new(:config, :name, :cron, :timezone, :delay, :time_column, :database, :table)
     class BulkLoadSessionConfig < ToHashStruct.new(:type, :access_key_id, :secret_access_key, :endpoint, :bucket, :path_prefix, :parser, :decoders)
       def validate_self
         validate_presence_of :type
@@ -61,7 +61,7 @@ module BulkLoad
   class BulkLoadPreview < ToHashStruct.new(:schema, :records)
   end
 
-  class Job < ToHashStruct.new(:job_id, :account_id, :type, :status, :cpu_time, :config, :records, :schema, :database, :table, :priority, :time_column, :created_at, :updated_at, :start_at, :end_at)
+  class Job < ToHashStruct.new(:job_id, :account_id, :type, :status, :cpu_time, :config, :records, :schema, :database, :table, :priority, :created_at, :updated_at, :start_at, :end_at)
     model_property :config, BulkLoad::BulkLoadSessionConfig
   end
 
