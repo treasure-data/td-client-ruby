@@ -547,6 +547,56 @@ class Client
   def test_access_control(user, action, scope)
     @api.test_access_control(user, action, scope)
   end
+
+  # => BulkLoad::Job
+  def bulk_load_guess(job)
+    @api.bulk_load_guess(job)
+  end
+
+  # => BulkLoad::Job
+  def bulk_load_preview(job)
+    @api.bulk_load_preview(job)
+  end
+
+  # => String
+  def bulk_load_issue(database, table, job)
+    @api.bulk_load_issue(database, table, job)
+  end
+
+  # nil -> [BulkLoad]
+  def bulk_load_list
+    @api.bulk_load_list
+  end
+
+  # name: String, database: String, table: String, job: BulkLoad -> BulkLoad
+  def bulk_load_create(name, database, table, job, opts = {})
+    @api.bulk_load_create(name, database, table, job, opts)
+  end
+
+  # name: String -> BulkLoad
+  def bulk_load_show(name)
+    @api.bulk_load_show(name)
+  end
+
+  # name: String, job: BulkLoad -> BulkLoad
+  def bulk_load_update(name, job)
+    @api.bulk_load_update(name, job)
+  end
+
+  # name: String -> BulkLoad
+  def bulk_load_delete(name)
+    @api.bulk_load_delete(name)
+  end
+
+  # name: String -> [Job]
+  def bulk_load_history(name)
+    @api.bulk_load_history(name)
+  end
+
+  def bulk_load_run(name, scheduled_time = nil)
+    @api.bulk_load_run(name, scheduled_time)
+  end
+
 end
 
 end # module TreasureData

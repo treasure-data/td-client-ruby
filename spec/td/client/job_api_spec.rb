@@ -241,14 +241,16 @@ describe 'Job API' do
 
   describe 'job_result_each_with_compr_size' do
     let :packed do
-      s = StringIO.new
-      Zlib::GzipWriter.wrap(s) do |f|
-        pk = MessagePack::Packer.new(f)
-        pk.write('hello')
-        pk.write('world')
-        pk.flush
-      end
-      s.string
+      # Hard code fixture data to make the size stable
+      # s = StringIO.new
+      # Zlib::GzipWriter.wrap(s) do |f|
+      #   pk = MessagePack::Packer.new(f)
+      #   pk.write('hello')
+      #   pk.write('world')
+      #   pk.flush
+      # end
+      # s.string
+      "\u001F\x8B\b\u0000#\xA1\x93T\u0000\u0003[\x9A\x91\x9A\x93\x93\xBF\xB4<\xBF('\u0005\u0000e 0\xB3\f\u0000\u0000\u0000"
     end
 
     it 'yields job result for each row with progress' do
