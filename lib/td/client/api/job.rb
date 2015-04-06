@@ -35,8 +35,10 @@ module Job
       result_url = m['result']
       priority = m['priority']
       retry_limit = m['retry_limit']
+      duration = m['duration']
       result << [job_id, type, status, query, start_at, end_at, cpu_time,
-                 result_size, result_url, priority, retry_limit, nil, database]
+                 result_size, result_url, priority, retry_limit, nil, database,
+                 duration]
     }
     return result
   end

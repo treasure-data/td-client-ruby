@@ -30,7 +30,8 @@ describe 'Job API' do
 
         jobs = api.list_jobs
         jobs[i..i].map {|job_id, type, status, query, start_at, end_at, cpu_time,
-                      result_size, result_url, priority, retry_limit, org, db|
+                      result_size, result_url, priority, retry_limit, org, db,
+                      duration|
           job_id.should == job['job_id']
           type.should == job['type']
           status.should == job['status']
@@ -44,6 +45,7 @@ describe 'Job API' do
           retry_limit.should == job['retry_limit']
           org.should == job['organization']
           db.should == job['database']
+          duration.should == job['duration']
         }
       end
     }

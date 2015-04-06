@@ -85,6 +85,7 @@ shared_context 'job resources' do
         "cpu_time"           => i * 100 + i,
         "result_size"        => i * 1000,
         'retry_limit'        => 10,
+        "duration"           => i,
         'organization'       => nil,
         'hive_result_schema' => nil,
         'debug' => {
