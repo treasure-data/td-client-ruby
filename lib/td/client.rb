@@ -192,9 +192,11 @@ class Client
   def jobs(from=nil, to=nil, status=nil, conditions=nil)
     results = @api.list_jobs(from, to, status, conditions)
     results.map {|job_id, type, status, query, start_at, end_at, cpu_time,
-                 result_size, result_url, priority, retry_limit, org, db|
+                 result_size, result_url, priority, retry_limit, org, db,
+                 duration|
       Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, cpu_time,
-              result_size, nil, result_url, nil, priority, retry_limit, org, db)
+              result_size, nil, result_url, nil, priority, retry_limit, org, db,
+              duration)
     }
   end
 
