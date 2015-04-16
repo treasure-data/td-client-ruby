@@ -1,3 +1,10 @@
+== 2015-04-17 version 0.8.69
+
+* [experimental] bulk_load API support. The API is subject to change.
+* Use HTTPClient's wiredump debugging when TD_CLIENT_DEBUG is set.
+* YARD annotations. Thanks uu59!
+* Improved test coverage. Thanks to yotii23!
+
 == 2015-02-16 version 0.8.68
 
 * Fix non ASCII & UTF-8 filename issue in bulk_import:upload. API side
