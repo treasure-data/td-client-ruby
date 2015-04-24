@@ -298,9 +298,10 @@ class Client
   end
 
   # @param [String] name
+  # @param [Hash] opts options for API
   # @return [Job]
-  def perform_bulk_import(name)
-    job_id = @api.perform_bulk_import(name)
+  def perform_bulk_import(name, opts={})
+    job_id = @api.perform_bulk_import(name, opts)
     Job.new(self, job_id, :bulk_import, nil)
   end
 
