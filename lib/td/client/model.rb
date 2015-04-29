@@ -381,9 +381,10 @@ class Job < Model
   # @param [Fixnum] retry_limit
   # @param [String] org_name
   # @param [String] db_name
+  # @param [Fixnum] duration
   def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, cpu_time=nil,
                  result_size=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, retry_limit=nil,
-                 org_name=nil, db_name=nil)
+                 org_name=nil, db_name=nil, duration=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -401,6 +402,7 @@ class Job < Model
     @priority = priority
     @retry_limit = retry_limit
     @db_name = db_name
+    @duration = duration
   end
 
   # @!attribute [r] job_id
@@ -410,8 +412,10 @@ class Job < Model
   # @!attribute [r] retry_limit
   # @!attribute [r] org_name
   # @!attribute [r] db_name
+  # @!attribute [r] duration
   attr_reader :job_id, :type, :result_url
   attr_reader :priority, :retry_limit, :org_name, :db_name
+  attr_reader :duration
 
   def wait(timeout=nil)
     # TODO
