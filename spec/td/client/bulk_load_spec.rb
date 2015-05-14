@@ -114,7 +114,7 @@ describe 'BulkImport API' do
         with(:body => original_config.to_json).
         to_return(:body => guessed_config.to_json)
       api.bulk_load_guess(
-        TreasureData::API::BulkLoad::BulkLoad.from_hash(original_config)
+        original_config
       ).to_h.should == guessed_config
     end
 
@@ -124,24 +124,9 @@ describe 'BulkImport API' do
         to_return(:status => 500, :body => guessed_config.to_json)
       expect {
         api.bulk_load_guess(
-          TreasureData::API::BulkLoad::BulkLoad.from_hash(original_config)
+          original_config
         )
       }.to raise_error(TreasureData::APIError)
-    end
-
-    it 'raises on validation error' do
-      config = TreasureData::API::BulkLoad::BulkLoad.from_hash({})
-      expect {
-        api.bulk_load_guess(config)
-      }.to raise_error(ArgumentError)
-    end
-
-    it 'raises on nested validation error' do
-      config = TreasureData::API::BulkLoad::BulkLoad.from_hash(original_config)
-      config.config.type = nil
-      expect {
-        api.bulk_load_guess(config)
-      }.to raise_error(ArgumentError)
     end
 
     it 'perform redo on 500 error' do
@@ -150,7 +135,7 @@ describe 'BulkImport API' do
         to_return(:status => 500, :body => guessed_config.to_json)
       begin
         retry_api.bulk_load_guess(
-          TreasureData::API::BulkLoad::BulkLoad.from_hash(original_config)
+          original_config
         ).should != nil
       rescue TreasureData::APIError => e
         e.message.should =~ /^500: BulkLoad configuration guess failed/
@@ -162,7 +147,54 @@ describe 'BulkImport API' do
       api.instance_eval { @api }.stub(:post).and_raise(SocketError.new('>>'))
       begin
         retry_api.bulk_load_guess(
-          TreasureData::API::BulkLoad::BulkLoad.from_hash(original_config)
+          original_config
+        )
+      rescue SocketError => e
+        e.message.should == '>> (Retried 1 times in 1 seconds)'
+      end
+    end
+  end
+
+  describe 'guess with old format' do
+    it 'returns guessed json' do
+      stub_api_request(:post, '/v3/bulk_loads/guess').
+        with(:body => original_config.to_json).
+        to_return(:body => guessed_config.to_json)
+      api.bulk_load_guess(
+        original_config
+      ).to_h.should == guessed_config
+    end
+
+    it 'raises an error' do
+      stub_api_request(:post, '/v3/bulk_loads/guess').
+        with(:body => original_config.to_json).
+        to_return(:status => 500, :body => guessed_config.to_json)
+      expect {
+        api.bulk_load_guess(
+          original_config
+        )
+      }.to raise_error(TreasureData::APIError)
+    end
+
+    it 'perform redo on 500 error' do
+      stub_api_request(:post, '/v3/bulk_loads/guess').
+        with(:body => original_config.to_json).
+        to_return(:status => 500, :body => guessed_config.to_json)
+      begin
+        retry_api.bulk_load_guess(
+          original_config
+        ).should != nil
+      rescue TreasureData::APIError => e
+        e.message.should =~ /^500: BulkLoad configuration guess failed/
+      end
+    end
+
+    it 'perform retries on connection failure' do
+      api = retry_api
+      api.instance_eval { @api }.stub(:post).and_raise(SocketError.new('>>'))
+      begin
+        retry_api.bulk_load_guess(
+          original_config
         )
       rescue SocketError => e
         e.message.should == '>> (Retried 1 times in 1 seconds)'
@@ -176,7 +208,7 @@ describe 'BulkImport API' do
         with(:body => guessed_config.to_json).
         to_return(:body => preview_result.to_json)
       api.bulk_load_preview(
-        TreasureData::API::BulkLoad::BulkLoad.from_hash(guessed_config)
+        guessed_config
       ).to_h.should == preview_result
     end
 
@@ -186,16 +218,9 @@ describe 'BulkImport API' do
         to_return(:status => 500, :body => preview_result.to_json)
       expect {
         api.bulk_load_preview(
-          TreasureData::API::BulkLoad::BulkLoad.from_hash(guessed_config)
+          guessed_config
         )
       }.to raise_error(TreasureData::APIError)
-    end
-
-    it 'raises on validation error' do
-      config = TreasureData::API::BulkLoad::BulkLoad.from_hash({})
-      expect {
-        api.bulk_load_preview(config)
-      }.to raise_error(ArgumentError)
     end
   end
 
@@ -210,15 +235,8 @@ describe 'BulkImport API' do
       api.bulk_load_issue(
         'database',
         'table',
-        TreasureData::API::BulkLoad::BulkLoad.from_hash(guessed_config)
+        guessed_config
       ).should == '12345'
-    end
-
-    it 'raises on validation error' do
-      config = TreasureData::API::BulkLoad::BulkLoad.from_hash({})
-      expect {
-        api.bulk_load_issue(config)
-      }.to raise_error(ArgumentError)
     end
   end
 
@@ -254,7 +272,7 @@ describe 'BulkImport API' do
         'nahi_test_1',
         'database',
         'table',
-        TreasureData::API::BulkLoad::BulkLoad.from_hash(guessed_config),
+        guessed_config,
         {
           cron: '@daily',
           timezone: 'Asia/Tokyo',
@@ -275,7 +293,7 @@ describe 'BulkImport API' do
         'nahi_test_1',
         'database',
         'table',
-        TreasureData::API::BulkLoad::BulkLoad.from_hash(guessed_config)
+        guessed_config
       ).to_h.should == bulk_load_session
     end
 
@@ -292,7 +310,7 @@ describe 'BulkImport API' do
         'nahi_test_1',
         'database',
         'table',
-        TreasureData::API::BulkLoad::BulkLoad.from_hash(guessed_config),
+        guessed_config,
         {
           time_column: 'c0'
         }
@@ -315,7 +333,7 @@ describe 'BulkImport API' do
         to_return(:body => bulk_load_session.to_json)
       api.bulk_load_update(
         'nahi_test_1',
-        TreasureData::API::BulkLoad::BulkLoad.from_hash(bulk_load_session)
+        bulk_load_session
       ).to_h.should == bulk_load_session
     end
   end
