@@ -115,7 +115,7 @@ describe 'BulkImport API' do
         to_return(:body => guessed_config.to_json)
       api.bulk_load_guess(
         original_config
-      ).to_h.should == guessed_config
+      ).should == guessed_config
     end
 
     it 'raises an error' do
@@ -162,7 +162,7 @@ describe 'BulkImport API' do
         to_return(:body => guessed_config.to_json)
       api.bulk_load_guess(
         original_config
-      ).to_h.should == guessed_config
+      ).should == guessed_config
     end
 
     it 'raises an error' do
@@ -209,7 +209,7 @@ describe 'BulkImport API' do
         to_return(:body => preview_result.to_json)
       api.bulk_load_preview(
         guessed_config
-      ).to_h.should == preview_result
+      ).should == preview_result
     end
 
     it 'raises an error' do
@@ -246,7 +246,7 @@ describe 'BulkImport API' do
         to_return(:body => [bulk_load_session, bulk_load_session].to_json)
       result = api.bulk_load_list
       result.size.should == 2
-      result.first.to_h.should == bulk_load_session
+      result.first.should == bulk_load_session
     end
 
     it 'returns empty' do
@@ -278,7 +278,7 @@ describe 'BulkImport API' do
           timezone: 'Asia/Tokyo',
           delay: 3600
         }
-      ).to_h.should == bulk_load_session
+      ).should == bulk_load_session
     end
 
     it 'accepts empty option' do
@@ -294,7 +294,7 @@ describe 'BulkImport API' do
         'database',
         'table',
         guessed_config
-      ).to_h.should == bulk_load_session
+      ).should == bulk_load_session
     end
 
     it 'accepts time_column option' do
@@ -314,7 +314,7 @@ describe 'BulkImport API' do
         {
           time_column: 'c0'
         }
-      ).to_h.should == bulk_load_session
+      ).should == bulk_load_session
     end
   end
 
@@ -322,7 +322,7 @@ describe 'BulkImport API' do
     it 'returns bulk_load_session' do
       stub_api_request(:get, '/v3/bulk_loads/nahi_test_1').
         to_return(:body => bulk_load_session.to_json)
-      api.bulk_load_show('nahi_test_1').to_h.should == bulk_load_session
+      api.bulk_load_show('nahi_test_1').should == bulk_load_session
     end
   end
 
@@ -334,7 +334,7 @@ describe 'BulkImport API' do
       api.bulk_load_update(
         'nahi_test_1',
         bulk_load_session
-      ).to_h.should == bulk_load_session
+      ).should == bulk_load_session
     end
   end
 
@@ -342,7 +342,7 @@ describe 'BulkImport API' do
     it 'returns updated bulk_load_session' do
       stub_api_request(:delete, '/v3/bulk_loads/nahi_test_1').
         to_return(:body => bulk_load_session.to_json)
-      api.bulk_load_delete('nahi_test_1').to_h.should == bulk_load_session
+      api.bulk_load_delete('nahi_test_1').should == bulk_load_session
     end
   end
 
@@ -352,7 +352,7 @@ describe 'BulkImport API' do
         to_return(:body => [bulk_load_job, bulk_load_job].to_json)
       result = api.bulk_load_history('nahi_test_1')
       result.size.should == 2
-      result.first.to_h.should == bulk_load_job
+      result.first.should == bulk_load_job
     end
   end
 
