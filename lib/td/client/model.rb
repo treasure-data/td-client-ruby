@@ -245,11 +245,9 @@ class Table < Model
   end
 
   # @param [Fixnum] count
-  # @param [Fixnum] to
-  # @param [Fixnum] from
   # @return [Array, nil]
-  def tail(count, to=nil, from=nil)
-    @client.tail(@db_name, @table_name, count, to, from)
+  def tail(count)
+    @client.tail(@db_name, @table_name, count)
   end
 
   # @param [String] format

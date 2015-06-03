@@ -161,12 +161,10 @@ class Client
   # @param [String] db_name
   # @param [String] table_name
   # @param [Fixnum] count
-  # @param [Fixnum] to
-  # @param [Fixnum] from
   # @param [Proc] block
   # @return [Array, nil]
-  def tail(db_name, table_name, count, to=nil, from=nil, &block)
-    @api.tail(db_name, table_name, count, to, from, &block)
+  def tail(db_name, table_name, count, &block)
+    @api.tail(db_name, table_name, count, &block)
   end
 
   # @param [String] db_name
