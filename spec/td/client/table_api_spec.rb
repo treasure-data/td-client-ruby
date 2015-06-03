@@ -206,5 +206,21 @@ describe 'Table API' do
         to_return(:body => packed)
       api.tail('db', 'table', 10).should == [[1, 2, 3], [4, 5, 6]]
     end
+
+    it 'shows deprecated warning for from and to' do
+      stub_api_request(:get, '/v3/table/tail/db/table').
+        with(:query => {'format' => 'msgpack', 'count' => '10'}).
+        to_return(:body => packed)
+      r, w = IO.pipe
+      begin
+        backup = $stderr.dup
+        $stderr.reopen(w)
+        api.tail('db', 'table', 10, 100, 0)
+      ensure
+        $stderr.reopen(backup)
+        w.close
+      end
+      r.read.should == %Q(parameter "to" and "from" no longer work\n)
+    end
   end
 end

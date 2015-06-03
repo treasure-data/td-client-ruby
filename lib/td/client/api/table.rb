@@ -131,7 +131,10 @@ module Table
   # @param [Fixnum] count
   # @param [Proc] block
   # @return [Array, nil]
-  def tail(db, table, count, &block)
+  def tail(db, table, count, to = nil, from = nil, &block)
+    unless to.nil? and from.nil?
+      warn('parameter "to" and "from" no longer work')
+    end
     params = {'format' => 'msgpack'}
     params['count'] = count.to_s if count
     code, body, res = get("/v3/table/tail/#{e db}/#{e table}", params)
