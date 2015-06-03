@@ -191,10 +191,10 @@ describe 'Table API' do
 
     it 'yields row if block given' do
       stub_api_request(:get, '/v3/table/tail/db/table').
-        with(:query => {'format' => 'msgpack', 'count' => '10', 'from' => '0', 'to' => '100'}).
+        with(:query => {'format' => 'msgpack', 'count' => '10'}).
         to_return(:body => packed)
       result = []
-      api.tail('db', 'table', 10, 100, 0) do |row|
+      api.tail('db', 'table', 10) do |row|
         result << row
       end
       result.should == [[1, 2, 3], [4, 5, 6]]
@@ -202,9 +202,9 @@ describe 'Table API' do
 
     it 'returns rows' do
       stub_api_request(:get, '/v3/table/tail/db/table').
-        with(:query => {'format' => 'msgpack', 'count' => '10', 'from' => '0', 'to' => '100'}).
+        with(:query => {'format' => 'msgpack', 'count' => '10'}).
         to_return(:body => packed)
-      api.tail('db', 'table', 10, 100, 0).should == [[1, 2, 3], [4, 5, 6]]
+      api.tail('db', 'table', 10).should == [[1, 2, 3], [4, 5, 6]]
     end
   end
 end
