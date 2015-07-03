@@ -426,23 +426,18 @@ private
   # @param [String] url
   # @param [Hash] params
   def do_post(url, params=nil)
-    http, header = new_http
+    target = build_endpoint(url, @host)
 
-    path = @base_path + url
+    client, header = new_client
+    client.send_timeout       = @send_timeout
+    client.receive_timeout    = @read_timeout
+    header['Accept-Encoding'] = 'gzip'
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST POST call:"
       puts "DEBUG:   header: " + header.to_s
-      puts "DEBUG:   path:   " + path.to_s
+      puts "DEBUG:   path:   " + (@base_path + url).to_s
       puts "DEBUG:   params: " + params.to_s
-    end
-
-    if params && !params.empty?
-      request = Net::HTTP::Post.new(path, header)
-      request.set_form_data(params)
-    else
-      header['Content-Length'] = 0.to_s
-      request = Net::HTTP::Post.new(path, header)
     end
 
     # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
@@ -455,7 +450,7 @@ private
     response = nil
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
-        response = http.request(request)
+        response = client.post(target, params || {}, header)
 
         # if the HTTP error code is 500 or higher and the user requested retrying
         # on post request, attempt a retry
@@ -488,14 +483,18 @@ private
       end
     end while false
 
-    unless ENV['TD_CLIENT_DEBUG'].nil?
-      puts "DEBUG: REST POST response:"
-      puts "DEBUG:   header: " + response.header.to_s
-      puts "DEBUG:   status: " + response.code.to_s
-      puts "DEBUG:   body:   <omitted>"
+    begin
+      unless ENV['TD_CLIENT_DEBUG'].nil?
+        puts "DEBUG: REST POST response:"
+        puts "DEBUG:   header: " + response.header.to_s
+        puts "DEBUG:   status: " + response.code.to_s
+        puts "DEBUG:   body:   <omitted>"
+      end
+      return [response.code.to_s, response.body, response]
+    ensure
+      # Disconnect keep-alive connection explicitly here, not by GC.
+      client.reset(target) rescue nil
     end
-
-    return [response.code, response.body, response]
   end
 
   # @param [String] url
