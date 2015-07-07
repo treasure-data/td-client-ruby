@@ -1,21 +1,24 @@
 require 'rubygems'
 
-begin
-  if defined?(:RUBY_ENGINE) && RUBY_ENGINE == 'ruby'
-    # SimpleCov officially supports MRI 1.9+ only for now
-    # https://github.com/colszowka/simplecov#ruby-version-compatibility
+# XXX skip coverage setting if run appveyor. Because, fail to push coveralls in appveyor.
+unless ENV['APPVEYOR']
+  begin
+    if defined?(:RUBY_ENGINE) && RUBY_ENGINE == 'ruby'
+      # SimpleCov officially supports MRI 1.9+ only for now
+      # https://github.com/colszowka/simplecov#ruby-version-compatibility
 
-    require 'simplecov'
-    require 'coveralls'
+      require 'simplecov'
+      require 'coveralls'
 
-    SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
-      SimpleCov::Formatter::HTMLFormatter,
-      Coveralls::SimpleCov::Formatter
-    ]
-    SimpleCov.start("test_frameworks")
+      SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+        SimpleCov::Formatter::HTMLFormatter,
+        Coveralls::SimpleCov::Formatter
+      ]
+      SimpleCov.start("test_frameworks")
+    end
+  rescue NameError
+    # skip measuring coverage at Ruby 1.8
   end
-rescue NameError
-  # skip measuring coverage at Ruby 1.8
 end
 
 require 'rspec'
