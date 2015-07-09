@@ -140,14 +140,8 @@ module Job
           raise_error("Get job result failed", res)
         end
 
-        if ce = res.header['Content-Encoding']
-          res.extend(DeflateReadBodyMixin)
-          res.gzip = true if ce == 'gzip'
-        else
-          res.extend(DirectReadBodyMixin)
-        end
-
         res.extend(DirectReadBodyMixin)
+
         if ce = res.header['Content-Encoding']
           if ce == 'gzip'
             infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
