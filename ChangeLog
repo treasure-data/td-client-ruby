@@ -1,3 +1,7 @@
+== 2015-07-10 version 0.8.71
+
+* Remove to/from parameter from table/tail API
+
 == 2015-05-19 version 0.8.70
 
 * [experimenta] remove client side validation from bulk_load API.
