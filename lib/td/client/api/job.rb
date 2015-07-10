@@ -150,14 +150,18 @@ module Job
           end
         end
 
-        total_compr_size = 0
-        res.each_fragment {|fragment|
-          total_compr_size += fragment.size
-          # uncompressed if the 'Content-Enconding' header is set in response
-          fragment = infl.inflate(fragment) if ce
-          io.write(fragment)
-          block.call(total_compr_size) if block_given?
-        }
+        begin
+          total_compr_size = 0
+          res.each_fragment {|fragment|
+            total_compr_size += fragment.size
+            # uncompressed if the 'Content-Enconding' header is set in response
+            fragment = infl.inflate(fragment) if ce
+            io.write(fragment)
+            block.call(total_compr_size) if block_given?
+          }
+        ensure
+          infl.close if infl
+        end
       }
       nil
     else
