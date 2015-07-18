@@ -25,9 +25,7 @@ module Table
       estimated_storage_size = m['estimated_storage_size'].to_i
       schema = JSON.parse(m['schema'] || '[]')
       expire_days = m['expire_days']
-      primary_key = m['primary_key']
-      primary_key_type = m['primary_key_type']
-      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, primary_key, primary_key_type]
+      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days]
     }
     return result
   end
