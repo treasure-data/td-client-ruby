@@ -101,12 +101,6 @@ class Database < Model
     @client.create_log_table(@db_name, name)
   end
 
-  # @param [String] name
-  # @return [true]
-  def create_item_table(name)
-    @client.create_item_table(@db_name, name)
-  end
-
   # @param [String] table_name
   # @return [Table]
   def table(table_name)

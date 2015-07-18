@@ -34,32 +34,9 @@ module Table
 
   # @param [String] db
   # @param [String] table
-  # @param [String] type
-  # @return [true]
-  def create_log_or_item_table(db, table, type)
-    code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}")
-    if code != "200"
-      raise_error("Create #{type} table failed", res)
-    end
-    return true
-  end
-  private :create_log_or_item_table
-
-  # @param [String] db
-  # @param [String] table
   # @return [true]
   def create_log_table(db, table)
     create_table(db, table, :log)
-  end
-
-  # @param [String] db
-  # @param [String] table
-  # @param [String] primary_key
-  # @param [String] primary_key_type
-  # @return [true]
-  def create_item_table(db, table, primary_key, primary_key_type)
-    params = {'primary_key' => primary_key, 'primary_key_type' => primary_key_type}
-    create_table(db, table, :item, params)
   end
 
   # @param [String] db

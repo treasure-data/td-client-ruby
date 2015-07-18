@@ -93,15 +93,6 @@ class Client
     @api.create_log_table(db_name, table_name)
   end
 
-  # @param [String] db_name
-  # @param [String] table_name
-  # @param [String] primary_key
-  # @param [String] primary_key_type
-  # @return [true]
-  def create_item_table(db_name, table_name, primary_key, primary_key_type)
-    @api.create_item_table(db_name, table_name, primary_key, primary_key_type)
-  end
-
   # Swap table names
   #
   # @param [String] db_name
