@@ -271,11 +271,26 @@ describe 'Job API' do
   end
 
   describe 'job_result_raw' do
-    it 'returns raw result' do
-      stub_api_request(:get, '/v3/job/result/12345').
-        with(:query => {'format' => 'json'}).
-        to_return(:body => 'raw binary')
-      api.job_result_raw(12345, 'json').should == 'raw binary'
+    context 'with io' do
+      let(:io) { StringIO.new }
+
+      it 'returns raw result' do
+        stub_api_request(:get, '/v3/job/result/12345').
+          with(:query => {'format' => 'json'}).
+          to_return(:body => 'raw binary')
+        api.job_result_raw(12345, 'json', io)
+
+        io.string.should == 'raw binary'
+      end
+    end
+
+    context 'witout io' do
+      it 'returns raw result' do
+        stub_api_request(:get, '/v3/job/result/12345').
+          with(:query => {'format' => 'json'}).
+          to_return(:body => 'raw binary')
+        api.job_result_raw(12345, 'json').should == 'raw binary'
+      end
     end
   end
 
