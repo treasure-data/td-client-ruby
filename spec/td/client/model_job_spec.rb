@@ -34,4 +34,32 @@ describe 'Job Model' do
       expect(subject).to eq client
     end
   end
+
+  describe '#result_raw' do
+    let(:client) { Client.authenticate('user', 'password') }
+    let(:job_id) { 12345678 }
+    let(:job)    { Job.new(client, job_id, nil, nil) }
+    let(:format) { 'json' }
+    let(:io)     { StringIO.new }
+
+    context 'not finished?' do
+      before { job.stub(:finished?) { false } }
+
+      it 'do not call #job_result_raw' do
+        client.should_not_receive(:job_result_raw)
+
+        expect(job.result_raw(format, io)).to_not be
+      end
+    end
+
+    context 'finished?' do
+      before { job.stub(:finished?) { true } }
+
+      it 'call #job_result_raw' do
+        client.should_receive(:job_result_raw).with(job_id, format, io)
+
+        job.result_raw(format, io)
+      end
+    end
+  end
 end
