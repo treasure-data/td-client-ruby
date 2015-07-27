@@ -1,3 +1,8 @@
+== 2015-07-27 version 0.8.72
+
+* add new API Job#result_raw
+* update httpclient dependency version, because can't work under httpclient 2.5.1
+
 == 2015-07-10 version 0.8.71
 
 * Remove to/from parameter from table/tail API
