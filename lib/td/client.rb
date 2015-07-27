@@ -229,6 +229,10 @@ class Client
     @api.job_result_format(job_id, format, io, &block)
   end
 
+  def job_result_raw(job_id, format, io=nil, &block)
+    @api.job_result_raw(job_id, format, io, &block)
+  end
+
   # @param [String] job_id
   # @param [Proc] block
   # @return [nil]
