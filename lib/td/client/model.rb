@@ -495,6 +495,11 @@ class Job < Model
     @client.job_result_format(@job_id, format, io, &block)
   end
 
+  def result_raw(format, io=nil, &block)
+    return nil unless finished?
+    @client.job_result_raw(@job_id, format, io, &block)
+  end
+
   # @yield [result]
   # @return [nil]
   def result_each_with_compr_size(&block)
