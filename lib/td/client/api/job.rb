@@ -234,12 +234,14 @@ module Job
   # @param [String] format
   # @return [String]
   def job_result_raw(job_id, format, io = nil, &block)
-    if io
-      get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
-        if res.code != "200"
-          raise_error("Get job result failed", res)
-        end
+    body = nil
 
+    get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
+      if res.code != "200"
+        raise_error("Get job result failed", res)
+      end
+
+      if io
         res.extend(DirectReadBodyMixin)
 
         total_compr_size = 0
@@ -248,15 +250,11 @@ module Job
           io.write(fragment)
           block.call(total_compr_size) if block_given?
         }
-      }
-      nil
-    else
-      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
-      if code != "200"
-        raise_error("Get job result failed", res)
+      else
+        body = res.read_body
       end
-      return body
-    end
+    }
+    body
   end
 
   # @param [String] job_id
