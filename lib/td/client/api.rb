@@ -379,7 +379,7 @@ private
   end
 
   def completed_body?(response)
-    # NOTE If response isn't have content_length, we are assumed success.
+    # NOTE If response doesn't have content_length, we assume it succeeds.
     return true unless (content_length = response.header.content_length)
 
     content_length == response.body.length
