@@ -42,6 +42,8 @@ class API
   NEW_DEFAULT_ENDPOINT = 'api.treasuredata.com'
   NEW_DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
 
+  class IncompleteError < RuntimeError; end
+
   # @param [String] apikey
   # @param [Hash] opts
   def initialize(apikey, opts={})
@@ -316,6 +318,11 @@ private
           response = http.request(request)
         end
 
+        # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
+        #     and msgpack-ruby that used in block handles it as an end of stream == no exception.
+        #     Therefor, check content size.
+        raise IncompleteError if @ssl && !completed_body?(response)
+
         status = response.code.to_i
         # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
         if !block_given? && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
@@ -325,7 +332,7 @@ private
           retry_delay *= 2
           redo # restart from beginning of do-while loop
         end
-      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError, IncompleteError => e
         if block_given?
           raise e
         end
@@ -369,6 +376,13 @@ private
     end
 
     return [response.code, body, response]
+  end
+
+  def completed_body?(response)
+    # NOTE If response isn't have content_length, we are assumed success.
+    return true unless (content_length = response.header.content_length)
+
+    content_length == response.body.length
   end
 
   # @param [String] url
