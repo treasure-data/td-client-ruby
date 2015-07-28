@@ -27,7 +27,7 @@ provided by Treasure Data on a case-by-case basis.
 
 The default endpoint is:
 
-    https://api.treasureadata.com
+    https://api.treasuredata.com
 
 and configure communication using SSL encryption over HTTPS; the same happens
 every time the provided endpoint is prefixed by 'https'.
