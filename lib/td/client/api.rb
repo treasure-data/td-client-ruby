@@ -262,6 +262,27 @@ private
     end
   end
 
+  module CountReadBodyTotalSize
+    attr_reader :total_fragment_size
+
+    def read_body(&block)
+      return super if @total_fragment_size
+
+      if block_given?
+        @total_fragment_size = 0
+
+        super {|fragment|
+          @total_fragment_size += fragment.size
+          block.call(fragment)
+        }
+      else
+        super().tap {|body|
+          @total_fragment_size = body.size
+        }
+      end
+    end
+  end
+
   module DirectReadBodyMixin
     # @yield [fragment]
     def each_fragment(&block)
@@ -312,6 +333,7 @@ private
       begin
         if block
           response = http.request(request) {|res|
+            res.extend(CountReadBodyTotalSize)
             block.call(res)
           }
         else
@@ -382,7 +404,15 @@ private
     # NOTE If response doesn't have content_length, we assume it succeeds.
     return true unless (content_length = response.header.content_length)
 
-    content_length == response.body.length
+    if response.body.instance_of? String
+      content_length == response.body.length
+    else
+      if response.respond_to? :total_fragment_size
+        content_length == response.total_fragment_size
+      else
+        true
+      end
+    end
   end
 
   # @param [String] url
