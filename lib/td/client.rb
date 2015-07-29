@@ -93,15 +93,6 @@ class Client
     @api.create_log_table(db_name, table_name)
   end
 
-  # @param [String] db_name
-  # @param [String] table_name
-  # @param [String] primary_key
-  # @param [String] primary_key_type
-  # @return [true]
-  def create_item_table(db_name, table_name, primary_key, primary_key_type)
-    @api.create_item_table(db_name, table_name, primary_key, primary_key_type)
-  end
-
   # Swap table names
   #
   # @param [String] db_name
@@ -139,10 +130,10 @@ class Client
   # @return [Array] Tables
   def tables(db_name)
     m = @api.list_tables(db_name)
-    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, primary_key, primary_key_type)|
+    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days)|
       schema = Schema.new.from_json(schema)
       Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at,
-        estimated_storage_size, last_import, last_log_timestamp, expire_days, primary_key, primary_key_type)
+        estimated_storage_size, last_import, last_log_timestamp, expire_days)
     }
   end
 
