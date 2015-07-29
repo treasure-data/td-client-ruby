@@ -172,5 +172,74 @@ describe API do
         API.validate_name("generic", 3, 128, 'a' * 128).should == 'a' * 128
       end
     end
+
+    describe 'checking GET API content length with ssl' do
+      include_context 'common helper'
+
+      let(:api) { API.new(nil, endpoint: endpoint) }
+      let :packed do
+        s = StringIO.new
+        Zlib::GzipWriter.wrap(s) do |f|
+          f << ['hello', 'world'].to_json
+        end
+        s.string
+      end
+
+      before do
+        stub_api_request(:get, '/v3/job/result/12345', ssl: ssl).
+          with(:query => {'format' => 'json'}).
+          to_return(
+            :headers => {'Content-Encoding' => 'gzip'}.merge(content_length),
+            :body => packed
+          )
+      end
+
+      subject (:get_api_call) {
+        api.job_result_format(12345, 'json', StringIO.new)
+      }
+
+      context 'without ssl' do
+        let(:endpoint) { "http://#{API::DEFAULT_ENDPOINT}" }
+        let(:ssl) { false }
+        let(:content_length) { {'Content-Length' => packed.size} }
+
+        it 'not called #completed_body?' do
+          api.should_not_receive(:completed_body?)
+
+          get_api_call
+        end
+      end
+
+      context 'with ssl' do
+        let(:endpoint) { "https://#{API::DEFAULT_ENDPOINT}" }
+        let(:ssl) { true }
+
+        context 'without Content-Length' do
+          let(:content_length) { {} }
+
+          it 'api accuess succeded' do
+            expect { get_api_call }.not_to raise_error
+          end
+        end
+
+        context 'with Content-Length' do
+          context 'macth Content-Length and body.size' do
+            let(:content_length) { {'Content-Length' => packed.size} }
+
+            it 'api accuess succeded' do
+              expect { get_api_call }.not_to raise_error
+            end
+          end
+
+          context 'not macth Content-Length and body.size' do
+            let(:content_length) { {'Content-Length' => packed.size + 1} }
+
+            it 'api accuess succeded' do
+              expect { get_api_call }.to raise_error(TreasureData::API::IncompleteError)
+            end
+          end
+        end
+      end
+    end
   end
 end
