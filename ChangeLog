@@ -1,3 +1,9 @@
+== 2015-07-29 version 0.8.73
+
+* remove item table support.
+* raise TreasureData::IncompleteError if mismatched content-length and response body when GET request.
+  It occures by combination OpenSSL raise EOFError and use MessagePack::Unpacker.
+
 == 2015-07-27 version 0.8.72
 
 * add new API Job#result_raw
