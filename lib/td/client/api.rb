@@ -42,7 +42,7 @@ class API
   NEW_DEFAULT_ENDPOINT = 'api.treasuredata.com'
   NEW_DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
 
-  class IncompleteError < RuntimeError; end
+  class IncompleteError < APIError; end
 
   # @param [String] apikey
   # @param [Hash] opts
