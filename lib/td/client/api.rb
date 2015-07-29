@@ -42,6 +42,8 @@ class API
   NEW_DEFAULT_ENDPOINT = 'api.treasuredata.com'
   NEW_DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
 
+  class IncompleteError < APIError; end
+
   # @param [String] apikey
   # @param [Hash] opts
   def initialize(apikey, opts={})
@@ -260,6 +262,27 @@ private
     end
   end
 
+  module CountReadBodyTotalSize
+    attr_reader :total_fragment_size
+
+    def read_body(&block)
+      return super if @total_fragment_size
+
+      if block_given?
+        @total_fragment_size = 0
+
+        super {|fragment|
+          @total_fragment_size += fragment.size
+          block.call(fragment)
+        }
+      else
+        super().tap {|body|
+          @total_fragment_size = body.size
+        }
+      end
+    end
+  end
+
   module DirectReadBodyMixin
     # @yield [fragment]
     def each_fragment(&block)
@@ -310,11 +333,17 @@ private
       begin
         if block
           response = http.request(request) {|res|
+            res.extend(CountReadBodyTotalSize)
             block.call(res)
           }
         else
           response = http.request(request)
         end
+
+        # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
+        #     and msgpack-ruby that used in block handles it as an end of stream == no exception.
+        #     Therefor, check content size.
+        raise IncompleteError if @ssl && !completed_body?(response)
 
         status = response.code.to_i
         # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
@@ -325,7 +354,7 @@ private
           retry_delay *= 2
           redo # restart from beginning of do-while loop
         end
-      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError, IncompleteError => e
         if block_given?
           raise e
         end
@@ -369,6 +398,21 @@ private
     end
 
     return [response.code, body, response]
+  end
+
+  def completed_body?(response)
+    # NOTE If response doesn't have content_length, we assume it succeeds.
+    return true unless (content_length = response.header.content_length)
+
+    if response.body.instance_of? String
+      content_length == response.body.length
+    else
+      if response.respond_to? :total_fragment_size
+        content_length == response.total_fragment_size
+      else
+        true
+      end
+    end
   end
 
   # @param [String] url

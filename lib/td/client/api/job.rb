@@ -156,13 +156,11 @@ module Job
           end
         end
 
-        total_compr_size = 0
         res.each_fragment {|fragment|
-          total_compr_size += fragment.size
           # uncompressed if the 'Content-Enconding' header is set in response
           fragment = infl.inflate(fragment) if ce
           io.write(fragment)
-          block.call(total_compr_size) if block_given?
+          block.call(res.total_fragment_size) if block_given?
         }
       }
       nil
@@ -216,11 +214,9 @@ module Job
       end
       upkr = MessagePack::Unpacker.new
       begin
-        total_compr_size = 0
         res.each_fragment {|fragment|
-          total_compr_size += fragment.size
           upkr.feed_each(infl.inflate(fragment)) {|unpacked|
-            block.call(unpacked, total_compr_size) if block_given?
+            block.call(unpacked, res.total_fragment_size) if block_given?
           }
         }
       ensure
@@ -244,11 +240,9 @@ module Job
       if io
         res.extend(DirectReadBodyMixin)
 
-        total_compr_size = 0
         res.each_fragment {|fragment|
-          total_compr_size += fragment.size
           io.write(fragment)
-          block.call(total_compr_size) if block_given?
+          block.call(res.total_fragment_size) if block_given?
         }
       else
         body = res.read_body
