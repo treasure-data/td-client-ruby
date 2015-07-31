@@ -637,7 +637,7 @@ class Schedule < Model
   # @param [Fixnum] num
   # @return [Array]
   def run(time, num)
-    @client.run_schedule(time, num)
+    @client.run_schedule(@name, time, num)
   end
 end
 
