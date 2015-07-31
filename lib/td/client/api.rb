@@ -709,17 +709,17 @@ private
     status_code = res.code.to_s
     error_msg = get_error(res)
     if klass
-      raise klass, "#{status_code}: #{msg}: #{res.body}"
+      raise klass, "#{status_code}: #{msg}: #{error_msg}"
     elsif status_code == "404"
-      raise NotFoundError, "#{msg}: #{res.body}"
+      raise NotFoundError, "#{msg}: #{error_msg}"
     elsif status_code == "409"
-      raise AlreadyExistsError, "#{msg}: #{res.body}"
+      raise AlreadyExistsError, "#{msg}: #{error_msg}"
     elsif status_code == "401"
-      raise AuthError, "#{msg}: #{res.body}"
+      raise AuthError, "#{msg}: #{error_msg}"
     elsif status_code == "403"
-      raise ForbiddenError, "#{msg}: #{res.body}"
+      raise ForbiddenError, "#{msg}: #{error_msg}"
     else
-      raise APIError, "#{status_code}: #{msg}: #{res.body}"
+      raise APIError, "#{status_code}: #{msg}: #{error_msg}"
     end
     # TODO error
   end
