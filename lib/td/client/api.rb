@@ -715,21 +715,32 @@ private
   # @param [Class] klass
   def raise_error(msg, res, klass=nil)
     status_code = res.code.to_s
-    error = parse_error_response(res)
-    if klass
-      raise klass, "#{status_code}: #{msg}: #{error['message']}", error['stacktrace']
-    elsif status_code == "404"
-      raise NotFoundError.new("#{msg}: #{error['message']}", error['stacktrace'])
-    elsif status_code == "409"
-      raise AlreadyExistsError.new("#{msg}: #{error['message']}", error['stacktrace'])
-    elsif status_code == "401"
-      raise AuthError.new("#{msg}: #{error['message']}", error['stacktrace'])
-    elsif status_code == "403"
-      raise ForbiddenError.new("#{msg}: #{error['message']}", error['stacktrace'])
+    error       = parse_error_response(res)
+    message     = "#{msg}: #{error['message']}"
+
+    error_class = if klass
+      message = "#{status_code}: #{message}"
+      klass
     else
-      raise APIError.new("#{status_code}: #{msg}: #{error['message']}", error['stacktrace'])
+      case status_code
+      when "404"
+        NotFoundError
+      when "409"
+        AlreadyExistsError
+      when "401"
+        AuthError
+      when "403"
+        ForbiddenError
+      else
+        APIError
+      end
     end
-    # TODO error
+
+    if error_class.method_defined?(:api_backtrace)
+      raise error_class.new(message, error['stacktrace'])
+    else
+      raise error_class, message
+    end
   end
 
   if ''.respond_to?(:encode)
