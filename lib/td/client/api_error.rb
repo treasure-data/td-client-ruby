@@ -5,6 +5,12 @@ end
 
 # Generic API error
 class APIError < StandardError
+  attr_reader :api_backtrace
+
+  def initialize(error_message = nil, api_backtrace = nil)
+    super(error_message)
+    @api_backtrace = api_backtrace == '' ? nil : api_backtrace
+  end
 end
 
 # 401 API errors

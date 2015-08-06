@@ -685,21 +685,29 @@ private
   # @param [response] res
   # @return [String]
   def get_error(res)
+    parse_error_response(res)['message']
+  end
+
+  def parse_error_response(res)
+    error = {}
+
     begin
       js = JSON.load(res.body)
       if js.nil?
-        error_msg = if res.respond_to?(:message)
+        error['message'] = if res.respond_to?(:message)
                       res.message # Net::HTTP
                     else
                       res.reason # HttpClient
                     end
       else
-        error_msg = js['message'] || js['error']
+        error['message']    = js['message'] || js['error']
+        error['stacktrace'] = js['stacktrace']
       end
     rescue JSON::ParserError
-      error_msg = res.body
+      error['message'] = res.body
     end
-    error_msg
+
+    error
   end
 
   # @param [String] msg
@@ -707,21 +715,33 @@ private
   # @param [Class] klass
   def raise_error(msg, res, klass=nil)
     status_code = res.code.to_s
-    error_msg = get_error(res)
-    if klass
-      raise klass, "#{status_code}: #{msg}: #{res.body}"
-    elsif status_code == "404"
-      raise NotFoundError, "#{msg}: #{res.body}"
-    elsif status_code == "409"
-      raise AlreadyExistsError, "#{msg}: #{res.body}"
-    elsif status_code == "401"
-      raise AuthError, "#{msg}: #{res.body}"
-    elsif status_code == "403"
-      raise ForbiddenError, "#{msg}: #{res.body}"
+    error       = parse_error_response(res)
+    message     = "#{msg}: #{error['message']}"
+
+    error_class = if klass
+      message = "#{status_code}: #{message}"
+      klass
     else
-      raise APIError, "#{status_code}: #{msg}: #{res.body}"
+      case status_code
+      when "404"
+        NotFoundError
+      when "409"
+        AlreadyExistsError
+      when "401"
+        AuthError
+      when "403"
+        ForbiddenError
+      else
+        message = "#{status_code}: #{message}"
+        APIError
+      end
     end
-    # TODO error
+
+    if error_class.method_defined?(:api_backtrace)
+      raise error_class.new(message, error['stacktrace'])
+    else
+      raise error_class, message
+    end
   end
 
   if ''.respond_to?(:encode)
