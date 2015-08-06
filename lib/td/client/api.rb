@@ -732,6 +732,7 @@ private
       when "403"
         ForbiddenError
       else
+        message = "#{status_code}: #{message}"
         APIError
       end
     end
