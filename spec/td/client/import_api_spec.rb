@@ -34,7 +34,7 @@ describe 'Import API' do
   let(:endpoint) { 'api.treasuredata.com' }
   let(:endpoint_old) { 'api.treasure-data.com' }
   let(:endpoint_unknown) { "example.com" }
-  let(:endpoint_import) { "api.treasuredata.com" }
+  let(:endpoint_import) { "api-import.treasuredata.com" }
   let(:endpoint_import_old) { "api-import.treasure-data.com" }
   let(:endpoint_import_unknown) { endpoint_unknown }
 
