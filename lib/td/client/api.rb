@@ -298,22 +298,17 @@ private
       do_get(url, params, &block)
     end
   end
-
   # @param [String] url
   # @param [Hash] params
   # @yield [response]
   def do_get(url, params=nil, &block)
-    http, header = new_http
-
-    path = @base_path + url
-    if params && !params.empty?
-      path << "?"+params.map {|k,v|
-        "#{k}=#{e v}"
-      }.join('&')
-    end
+    client, header = new_client
+    client.send_timeout = @send_timeout
+    client.receive_timeout = @read_timeout
 
     header['Accept-Encoding'] = 'deflate, gzip'
-    request = Net::HTTP::Get.new(path, header)
+
+    target = build_endpoint(url, @host)
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST GET call:"
@@ -332,20 +327,23 @@ private
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
         if block
-          response = http.request(request) {|res|
-            res.extend(CountReadBodyTotalSize)
-            block.call(res)
+          current_total_chunk_size = 0
+          response = client.get(target, params, header) {|res, chunk|
+            current_total_chunk_size += chunk.size
+            block.call(res, chunk, current_total_chunk_size)
           }
+
+          # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
+          #     and msgpack-ruby that used in block handles it as an end of stream == no exception.
+          #     Therefor, check content size.
+          validate_content_length!(response, current_total_chunk_size) if @ssl
         else
-          response = http.request(request)
+          response = client.get(target, params, header)
+
+          validate_content_length!(response, response.body.size) if @ssl
         end
 
-        # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
-        #     and msgpack-ruby that used in block handles it as an end of stream == no exception.
-        #     Therefor, check content size.
-        raise IncompleteError if @ssl && !completed_body?(response)
-
-        status = response.code.to_i
+        status = response.code
         # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
         if !block_given? && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
           $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
@@ -383,8 +381,8 @@ private
 
     body = response.body
     unless block
-      if ce = response.header['content-encoding']
-        if ce == 'gzip'
+      if ce = response.header['Content-Encoding']
+        if ce.include?('gzip')
           infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
           begin
             body = infl.inflate(body)
@@ -392,27 +390,22 @@ private
             infl.close
           end
         else
-          body = Zlib::Inflate.inflate(body)
+          begin
+            # NOTE maybe for content-encoding is msgpack.gz ?
+            body = Zlib::Inflate.inflate(body)
+          rescue
+            # NOOP
+          end
         end
       end
     end
 
-    return [response.code, body, response]
+    return [response.code.to_s, body, response]
   end
 
-  def completed_body?(response)
-    # NOTE If response doesn't have content_length, we assume it succeeds.
-    return true unless (content_length = response.header.content_length)
-
-    if response.body.instance_of? String
-      content_length == response.body.length
-    else
-      if response.respond_to? :total_fragment_size
-        content_length == response.total_fragment_size
-      else
-        true
-      end
-    end
+  def validate_content_length!(response, body_size)
+    content_length = response.header['Content-Length'].first
+    raise IncompleteError if @ssl && content_length && content_length.to_i != body_size
   end
 
   # @param [String] url

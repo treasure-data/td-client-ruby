@@ -135,38 +135,27 @@ module Job
   # @return [nil, String]
   def job_result_format(job_id, format, io=nil, &block)
     if io
-      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
-        if res.code != "200"
+      infl = nil
+      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res, chunk, current_total_chunk_size|
+        if res.code != 200
           raise_error("Get job result failed", res)
         end
 
-        if ce = res.header['Content-Encoding']
-          res.extend(DeflateReadBodyMixin)
-          res.gzip = true if ce == 'gzip'
-        else
-          res.extend(DirectReadBodyMixin)
-        end
-
-        res.extend(DirectReadBodyMixin)
-        if ce = res.header['Content-Encoding']
-          if ce == 'gzip'
+        if !infl && ce = res.header['Content-Encoding']
+          if ce.include?('gzip')
             infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
           else
             infl = Zlib::Inflate.new
           end
         end
 
-        res.each_fragment {|fragment|
-          # uncompressed if the 'Content-Enconding' header is set in response
-          fragment = infl.inflate(fragment) if ce
-          io.write(fragment)
-          block.call(res.total_fragment_size) if block_given?
-        }
+        io.write(ce ? infl.inflate(chunk) : chunk)
+        block.call(current_total_chunk_size) if block_given?
       }
       nil
     else
       code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
-      if res.code != "200"
+      if code != "200"
         raise_error("Get job result failed", res)
       end
       body
@@ -179,20 +168,27 @@ module Job
   # @param [Proc] block
   # @return [nil]
   def job_result_each(job_id, &block)
-    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
-      if res.code != "200"
+    upkr = MessagePack::Unpacker.new
+    infl = nil
+
+    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res, chunk, current_total_chunk_size|
+      if res.code != 200
         raise_error("Get job result failed", res)
       end
 
       # default to decompressing the response since format is fixed to 'msgpack'
-      res.extend(DeflateReadBodyMixin)
-      res.gzip = (res.header['Content-Encoding'] == 'gzip')
-      upkr = MessagePack::Unpacker.new
-      res.each_fragment {|inflated_fragment|
-        upkr.feed_each(inflated_fragment, &block)
-      }
+      if !infl && (res.header['Content-Encoding'].include? 'gzip')
+        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+      else
+        infl = Zlib::Inflate.new
+      end
+
+      inflated_fragment = infl.inflate(chunk)
+      upkr.feed_each(inflated_fragment, &block)
     }
     nil
+  ensure
+    infl.close if infl
   end
 
   # block is optional and must accept 1 argument
@@ -201,29 +197,29 @@ module Job
   # @param [Proc] block
   # @return [nil]
   def job_result_each_with_compr_size(job_id, &block)
-    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res|
-      if res.code != "200"
+    upkr = MessagePack::Unpacker.new
+    infl = nil
+
+    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res, chunk, current_total_chunk_size|
+      if res.code != 200
         raise_error("Get job result failed", res)
       end
 
-      res.extend(DirectReadBodyMixin)
-      if res.header['Content-Encoding'] == 'gzip'
+      # default to decompressing the response since format is fixed to 'msgpack'
+      if !infl && (res.header['Content-Encoding'].include? 'gzip')
         infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
       else
         infl = Zlib::Inflate.new
       end
-      upkr = MessagePack::Unpacker.new
-      begin
-        res.each_fragment {|fragment|
-          upkr.feed_each(infl.inflate(fragment)) {|unpacked|
-            block.call(unpacked, res.total_fragment_size) if block_given?
-          }
-        }
-      ensure
-        infl.close
-      end
+
+      inflated_fragment = infl.inflate(chunk)
+      upkr.feed_each(inflated_fragment) {|unpacked|
+        block.call(unpacked, current_total_chunk_size) if block_given?
+      }
     }
     nil
+  ensure
+    infl.close if infl
   end
 
   # @param [String] job_id
@@ -232,20 +228,20 @@ module Job
   def job_result_raw(job_id, format, io = nil, &block)
     body = nil
 
-    get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res|
-      if res.code != "200"
+    get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res, chunk, current_total_chunk_size|
+      if res.code != 200
         raise_error("Get job result failed", res)
       end
 
       if io
-        res.extend(DirectReadBodyMixin)
-
-        res.each_fragment {|fragment|
-          io.write(fragment)
-          block.call(res.total_fragment_size) if block_given?
-        }
+        io.write(chunk)
+        block.call(current_total_chunk_size) if block_given?
       else
-        body = res.read_body
+        if body
+          body += chunk
+        else
+          body = chunk
+        end
       end
     }
     body
