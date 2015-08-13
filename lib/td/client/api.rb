@@ -228,55 +228,6 @@ class API
 
 private
 
-  module DeflateReadBodyMixin
-    attr_accessor :gzip
-
-    # @yield [fragment]
-    def each_fragment(&block)
-      if @gzip
-        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-      else
-        infl = Zlib::Inflate.new
-      end
-      begin
-        read_body {|fragment|
-          block.call infl.inflate(fragment)
-        }
-      ensure
-        infl.close
-      end
-      nil
-    end
-  end
-
-  module CountReadBodyTotalSize
-    attr_reader :total_fragment_size
-
-    def read_body(&block)
-      return super if @total_fragment_size
-
-      if block_given?
-        @total_fragment_size = 0
-
-        super {|fragment|
-          @total_fragment_size += fragment.size
-          block.call(fragment)
-        }
-      else
-        super().tap {|body|
-          @total_fragment_size = body.size
-        }
-      end
-    end
-  end
-
-  module DirectReadBodyMixin
-    # @yield [fragment]
-    def each_fragment(&block)
-      read_body(&block)
-    end
-  end
-
   # @param [String] url
   # @param [Hash] params
   # @yield [response]
