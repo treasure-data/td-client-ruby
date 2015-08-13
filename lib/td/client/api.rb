@@ -103,19 +103,6 @@ class API
     end
 
     @http_proxy = opts[:http_proxy] || ENV['HTTP_PROXY']
-    if @http_proxy
-      http_proxy = if @http_proxy =~ /\Ahttp:\/\/(.*)\z/
-                     $~[1]
-                   else
-                     @http_proxy
-                   end
-      proxy_host, proxy_port = http_proxy.split(':', 2)
-      proxy_port = (proxy_port ? proxy_port.to_i : 80)
-      @http_class = Net::HTTP::Proxy(proxy_host, proxy_port)
-    else
-      @http_class = Net::HTTP
-    end
-
     @headers = opts[:headers] || {}
     @api = api_client("#{@ssl ? 'https' : 'http'}://#{@host}:#{@port}")
   end
@@ -554,38 +541,6 @@ private
   end
 
   # @param [Hash] opts
-  # @return [http, Hash]
-  def new_http(opts = {})
-    host = opts[:host] || @host
-    http = @http_class.new(host, @port)
-    http.open_timeout = 60
-    if @ssl
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      #store = OpenSSL::X509::Store.new
-      #http.cert_store = store
-      http.ca_file = File.join(ssl_ca_file)
-      # Disable SSLv3 connection in favor of POODLE Attack protection
-      # ruby 1.8.7 uses own @ssl_context instead of calling
-      # SSLContext#set_params.
-      if ctx = http.instance_eval { @ssl_context }
-        ctx.options = OpenSSL::SSL::OP_ALL | OpenSSL::SSL::OP_NO_SSLv3
-      end
-    end
-
-    header = {}
-    if @apikey
-      header['Authorization'] = "TD1 #{apikey}"
-    end
-    header['Date'] = Time.now.rfc2822
-    header['User-Agent'] = @user_agent
-
-    header.merge!(@headers)
-
-    return http, header
-  end
-
-  # @param [Hash] opts
   # @return [HTTPClient, Hash]
   def new_client(opts = {})
     client = HTTPClient.new(@http_proxy, @user_agent)
@@ -686,11 +641,7 @@ private
     begin
       js = JSON.load(res.body)
       if js.nil?
-        error['message'] = if res.respond_to?(:message)
-                      res.message # Net::HTTP
-                    else
-                      res.reason # HttpClient
-                    end
+        error['message'] = res.reason
       else
         error['message']    = js['message'] || js['error']
         error['stacktrace'] = js['stacktrace']
