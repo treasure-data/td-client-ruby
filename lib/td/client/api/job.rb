@@ -157,7 +157,7 @@ module Job
   end
 
   # block is optional and must accept 1 argument
-  # 
+  #
   # @param [String] job_id
   # @param [Proc] block
   # @return [nil]
@@ -186,7 +186,7 @@ module Job
   end
 
   # block is optional and must accept 1 argument
-  # 
+  #
   # @param [String] job_id
   # @param [Proc] block
   # @return [nil]
