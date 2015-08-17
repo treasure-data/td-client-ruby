@@ -299,6 +299,9 @@ module Job
     def inflate(chunk)
       chunk
     end
+
+    def close
+    end
   end
 
   def create_inflalte_or_null_inflate(response)
