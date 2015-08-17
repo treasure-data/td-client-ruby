@@ -141,15 +141,9 @@ module Job
           raise_error("Get job result failed", res)
         end
 
-        if !infl && ce = res.header['Content-Encoding']
-          if ce.include?('gzip')
-            infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-          else
-            infl = Zlib::Inflate.new
-          end
-        end
+        infl ||= create_inflalte_or_null_inflate(res)
 
-        io.write(ce ? infl.inflate(chunk) : chunk)
+        io.write infl.inflate(chunk)
         block.call(current_total_chunk_size) if block_given?
       }
       nil
@@ -299,5 +293,28 @@ module Job
     return js['job_id'].to_s
   end
 
+  private
+
+  class NullInflate
+    def inflate(chunk)
+      chunk
+    end
+  end
+
+  def create_inflalte_or_null_inflate(response)
+    if response.header['Content-Encoding'].empty?
+      NullInflate.new
+    else
+      create_inflate(response)
+    end
+  end
+
+  def create_inflate(response)
+    if response.header['Content-Encoding'].include?('gzip')
+      Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+    else
+      Zlib::Inflate.new
+    end
+  end
 end
 end
