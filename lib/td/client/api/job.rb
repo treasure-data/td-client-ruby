@@ -171,11 +171,7 @@ module Job
       end
 
       # default to decompressing the response since format is fixed to 'msgpack'
-      if !infl && (res.header['Content-Encoding'].include? 'gzip')
-        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-      else
-        infl = Zlib::Inflate.new
-      end
+      infl ||= create_inflate(res)
 
       inflated_fragment = infl.inflate(chunk)
       upkr.feed_each(inflated_fragment, &block)
@@ -200,11 +196,7 @@ module Job
       end
 
       # default to decompressing the response since format is fixed to 'msgpack'
-      if !infl && (res.header['Content-Encoding'].include? 'gzip')
-        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-      else
-        infl = Zlib::Inflate.new
-      end
+      infl ||= create_inflate(res)
 
       inflated_fragment = infl.inflate(chunk)
       upkr.feed_each(inflated_fragment) {|unpacked|
