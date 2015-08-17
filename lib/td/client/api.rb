@@ -316,22 +316,8 @@ private
       puts "DEBUG:   status: " + response.code.to_s
       puts "DEBUG:   body:   " + response.body.to_s
     end
-    body = response.body
-    unless block
-      unless (ce = response.header['Content-Encoding']).empty?
-        if ce.include?('gzip')
-          infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-          begin
-            body = infl.inflate(body)
-          ensure
-            infl.close
-          end
-        else
-          # NOTE maybe for content-encoding is msgpack.gz ?
-          body = Zlib::Inflate.inflate(body)
-        end
-      end
-    end
+
+    body = block ? response.body : inflate_body(response)
 
     return [response.code.to_s, body, response]
   end
@@ -339,6 +325,22 @@ private
   def validate_content_length!(response, body_size)
     content_length = response.header['Content-Length'].first
     raise IncompleteError if @ssl && content_length && content_length.to_i != body_size
+  end
+
+  def inflate_body(response)
+    return response.body if (ce = response.header['Content-Encoding']).empty?
+
+    if ce.include?('gzip')
+      infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+      begin
+        infl.inflate(response.body)
+      ensure
+        infl.close
+      end
+    else
+      # NOTE maybe for content-encoding is msgpack.gz ?
+      Zlib::Inflate.inflate(response.body)
+    end
   end
 
   # @param [String] url
