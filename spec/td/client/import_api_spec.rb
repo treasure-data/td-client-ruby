@@ -32,7 +32,7 @@ describe 'Import API' do
   end
 
   let(:endpoint) { 'api.treasuredata.com' }
-  let(:endpoint_old) { 'api.treasure-data.com' }
+  let(:endpoint_old) { TreasureData::API::OLD_ENDPOINT }
   let(:endpoint_unknown) { "example.com" }
   let(:endpoint_import) { "api-import.treasuredata.com" }
   let(:endpoint_import_old) { "api-import.treasure-data.com" }

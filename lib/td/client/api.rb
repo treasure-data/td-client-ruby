@@ -42,11 +42,13 @@ class API
   # Deprecated. Use DEFAULT_ENDPOINT and DEFAULT_IMPORT_ENDPOINT instead
   NEW_DEFAULT_ENDPOINT = DEFAULT_ENDPOINT
   NEW_DEFAULT_IMPORT_ENDPOINT = DEFAULT_IMPORT_ENDPOINT
+  OLD_ENDPOINT = 'api.treasure-data.com'
 
   class IncompleteError < APIError; end
 
   # @param [String] apikey
   # @param [Hash] opts
+  # for backward compatibility
   def initialize(apikey, opts={})
     require 'json'
     require 'time'
@@ -93,7 +95,7 @@ class API
       # generic URI
       @host, @port = endpoint.split(':', 2)
       @port = @port.to_i
-      if opts[:ssl] === false || @host == "api.treasure-data.com"
+      if opts[:ssl] === false || @host == TreasureData::API::OLD_ENDPOINT
         # for backward compatibility, old endpoint specified without ssl option, use http
         #
         # opts[:ssl] would be nil if user doesn't specify ssl options,

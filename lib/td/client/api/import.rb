@@ -21,7 +21,7 @@ module Import
     opts = {}
     if @host == DEFAULT_ENDPOINT
       opts[:host] = DEFAULT_IMPORT_ENDPOINT
-    elsif @host == 'api.treasure-data.com' # backward compatibility
+    elsif @host == TreasureData::API::OLD_ENDPOINT # backward compatibility
       opts[:host] = 'api-import.treasure-data.com'
       opts[:ssl] = false
     end
