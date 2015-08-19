@@ -191,26 +191,45 @@ describe 'Job API' do
       s.string
     end
 
-    it 'returns formatted job result' do
-      stub_api_request(:get, '/v3/job/result/12345').
-        with(:query => {'format' => 'json'}).
-        to_return(
-          :headers => {'Content-Encoding' => 'gzip'},
-          :body => packed
-        )
-      api.job_result_format(12345, 'json').should == ['hello', 'world'].to_json
+    context 'Content-Encoding is empty' do
+      let(:io) { StringIO.new }
+      let(:json) { ['hello', 'world'].to_json }
+
+      it 'retrunes json' do
+        stub_api_request(:get, '/v3/job/result/12345').
+          with(:query => {'format' => 'json'}).
+          to_return(:body => json)
+
+        total_size = 0
+        api.job_result_format(12345, 'json', io) {|size| total_size += size }
+
+        io.string.should  == json
+        total_size.should == json.size
+      end
     end
 
-    it 'writes formatted job result' do
-      stub_api_request(:get, '/v3/job/result/12345').
-        with(:query => {'format' => 'json'}).
-        to_return(
-          :headers => {'Content-Encoding' => 'gzip'},
-          :body => packed
-        )
-      s = StringIO.new
-      api.job_result_format(12345, 'json', s)
-      s.string.should == ['hello', 'world'].to_json
+    context 'Content-Encoding is gzip' do
+      it 'returns formatted job result' do
+        stub_api_request(:get, '/v3/job/result/12345').
+          with(:query => {'format' => 'json'}).
+          to_return(
+            :headers => {'Content-Encoding' => 'gzip'},
+            :body => packed
+          )
+        api.job_result_format(12345, 'json').should == ['hello', 'world'].to_json
+      end
+
+      it 'writes formatted job result' do
+        stub_api_request(:get, '/v3/job/result/12345').
+          with(:query => {'format' => 'json'}).
+          to_return(
+            :headers => {'Content-Encoding' => 'gzip'},
+            :body => packed
+          )
+        s = StringIO.new
+        api.job_result_format(12345, 'json', s)
+        s.string.should == ['hello', 'world'].to_json
+      end
     end
   end
 

@@ -103,19 +103,6 @@ class API
     end
 
     @http_proxy = opts[:http_proxy] || ENV['HTTP_PROXY']
-    if @http_proxy
-      http_proxy = if @http_proxy =~ /\Ahttp:\/\/(.*)\z/
-                     $~[1]
-                   else
-                     @http_proxy
-                   end
-      proxy_host, proxy_port = http_proxy.split(':', 2)
-      proxy_port = (proxy_port ? proxy_port.to_i : 80)
-      @http_class = Net::HTTP::Proxy(proxy_host, proxy_port)
-    else
-      @http_class = Net::HTTP
-    end
-
     @headers = opts[:headers] || {}
     @api = api_client("#{@ssl ? 'https' : 'http'}://#{@host}:#{@port}")
   end
@@ -241,55 +228,6 @@ class API
 
 private
 
-  module DeflateReadBodyMixin
-    attr_accessor :gzip
-
-    # @yield [fragment]
-    def each_fragment(&block)
-      if @gzip
-        infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-      else
-        infl = Zlib::Inflate.new
-      end
-      begin
-        read_body {|fragment|
-          block.call infl.inflate(fragment)
-        }
-      ensure
-        infl.close
-      end
-      nil
-    end
-  end
-
-  module CountReadBodyTotalSize
-    attr_reader :total_fragment_size
-
-    def read_body(&block)
-      return super if @total_fragment_size
-
-      if block_given?
-        @total_fragment_size = 0
-
-        super {|fragment|
-          @total_fragment_size += fragment.size
-          block.call(fragment)
-        }
-      else
-        super().tap {|body|
-          @total_fragment_size = body.size
-        }
-      end
-    end
-  end
-
-  module DirectReadBodyMixin
-    # @yield [fragment]
-    def each_fragment(&block)
-      read_body(&block)
-    end
-  end
-
   # @param [String] url
   # @param [Hash] params
   # @yield [response]
@@ -298,22 +236,17 @@ private
       do_get(url, params, &block)
     end
   end
-
   # @param [String] url
   # @param [Hash] params
   # @yield [response]
   def do_get(url, params=nil, &block)
-    http, header = new_http
-
-    path = @base_path + url
-    if params && !params.empty?
-      path << "?"+params.map {|k,v|
-        "#{k}=#{e v}"
-      }.join('&')
-    end
+    client, header = new_client
+    client.send_timeout = @send_timeout
+    client.receive_timeout = @read_timeout
 
     header['Accept-Encoding'] = 'deflate, gzip'
-    request = Net::HTTP::Get.new(path, header)
+
+    target = build_endpoint(url, @host)
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST GET call:"
@@ -332,20 +265,23 @@ private
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
         if block
-          response = http.request(request) {|res|
-            res.extend(CountReadBodyTotalSize)
-            block.call(res)
+          current_total_chunk_size = 0
+          response = client.get(target, params, header) {|res, chunk|
+            current_total_chunk_size += chunk.size
+            block.call(res, chunk, current_total_chunk_size)
           }
+
+          # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
+          #     and msgpack-ruby that used in block handles it as an end of stream == no exception.
+          #     Therefor, check content size.
+          validate_content_length!(response, current_total_chunk_size) if @ssl
         else
-          response = http.request(request)
+          response = client.get(target, params, header)
+
+          validate_content_length!(response, response.body.size) if @ssl
         end
 
-        # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
-        #     and msgpack-ruby that used in block handles it as an end of stream == no exception.
-        #     Therefor, check content size.
-        raise IncompleteError if @ssl && !completed_body?(response)
-
-        status = response.code.to_i
+        status = response.code
         # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
         if !block_given? && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
           $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
@@ -381,37 +317,29 @@ private
       puts "DEBUG:   body:   " + response.body.to_s
     end
 
-    body = response.body
-    unless block
-      if ce = response.header['content-encoding']
-        if ce == 'gzip'
-          infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-          begin
-            body = infl.inflate(body)
-          ensure
-            infl.close
-          end
-        else
-          body = Zlib::Inflate.inflate(body)
-        end
-      end
-    end
+    body = block ? response.body : inflate_body(response)
 
-    return [response.code, body, response]
+    return [response.code.to_s, body, response]
   end
 
-  def completed_body?(response)
-    # NOTE If response doesn't have content_length, we assume it succeeds.
-    return true unless (content_length = response.header.content_length)
+  def validate_content_length!(response, body_size)
+    content_length = response.header['Content-Length'].first
+    raise IncompleteError if @ssl && content_length && content_length.to_i != body_size
+  end
 
-    if response.body.instance_of? String
-      content_length == response.body.length
-    else
-      if response.respond_to? :total_fragment_size
-        content_length == response.total_fragment_size
-      else
-        true
+  def inflate_body(response)
+    return response.body if (ce = response.header['Content-Encoding']).empty?
+
+    if ce.include?('gzip')
+      infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+      begin
+        infl.inflate(response.body)
+      ensure
+        infl.close
       end
+    else
+      # NOTE maybe for content-encoding is msgpack.gz ?
+      Zlib::Inflate.inflate(response.body)
     end
   end
 
@@ -426,23 +354,18 @@ private
   # @param [String] url
   # @param [Hash] params
   def do_post(url, params=nil)
-    http, header = new_http
+    target = build_endpoint(url, @host)
 
-    path = @base_path + url
+    client, header = new_client
+    client.send_timeout       = @send_timeout
+    client.receive_timeout    = @read_timeout
+    header['Accept-Encoding'] = 'gzip'
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST POST call:"
       puts "DEBUG:   header: " + header.to_s
-      puts "DEBUG:   path:   " + path.to_s
+      puts "DEBUG:   path:   " + (@base_path + url).to_s
       puts "DEBUG:   params: " + params.to_s
-    end
-
-    if params && !params.empty?
-      request = Net::HTTP::Post.new(path, header)
-      request.set_form_data(params)
-    else
-      header['Content-Length'] = 0.to_s
-      request = Net::HTTP::Post.new(path, header)
     end
 
     # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
@@ -455,7 +378,7 @@ private
     response = nil
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
-        response = http.request(request)
+        response = client.post(target, params || {}, header)
 
         # if the HTTP error code is 500 or higher and the user requested retrying
         # on post request, attempt a retry
@@ -488,14 +411,18 @@ private
       end
     end while false
 
-    unless ENV['TD_CLIENT_DEBUG'].nil?
-      puts "DEBUG: REST POST response:"
-      puts "DEBUG:   header: " + response.header.to_s
-      puts "DEBUG:   status: " + response.code.to_s
-      puts "DEBUG:   body:   <omitted>"
+    begin
+      unless ENV['TD_CLIENT_DEBUG'].nil?
+        puts "DEBUG: REST POST response:"
+        puts "DEBUG:   header: " + response.header.to_s
+        puts "DEBUG:   status: " + response.code.to_s
+        puts "DEBUG:   body:   <omitted>"
+      end
+      return [response.code.to_s, response.body, response]
+    ensure
+      # Disconnect keep-alive connection explicitly here, not by GC.
+      client.reset(target) rescue nil
     end
-
-    return [response.code, response.body, response]
   end
 
   # @param [String] url
@@ -559,38 +486,6 @@ private
       # backup could be nil, but assigning nil to TLS means 'delete'
       Thread.current[key] = backup
     end
-  end
-
-  # @param [Hash] opts
-  # @return [http, Hash]
-  def new_http(opts = {})
-    host = opts[:host] || @host
-    http = @http_class.new(host, @port)
-    http.open_timeout = 60
-    if @ssl
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      #store = OpenSSL::X509::Store.new
-      #http.cert_store = store
-      http.ca_file = File.join(ssl_ca_file)
-      # Disable SSLv3 connection in favor of POODLE Attack protection
-      # ruby 1.8.7 uses own @ssl_context instead of calling
-      # SSLContext#set_params.
-      if ctx = http.instance_eval { @ssl_context }
-        ctx.options = OpenSSL::SSL::OP_ALL | OpenSSL::SSL::OP_NO_SSLv3
-      end
-    end
-
-    header = {}
-    if @apikey
-      header['Authorization'] = "TD1 #{apikey}"
-    end
-    header['Date'] = Time.now.rfc2822
-    header['User-Agent'] = @user_agent
-
-    header.merge!(@headers)
-
-    return http, header
   end
 
   # @param [Hash] opts
@@ -694,11 +589,7 @@ private
     begin
       js = JSON.load(res.body)
       if js.nil?
-        error['message'] = if res.respond_to?(:message)
-                      res.message # Net::HTTP
-                    else
-                      res.reason # HttpClient
-                    end
+        error['message'] = res.reason
       else
         error['message']    = js['message'] || js['error']
         error['stacktrace'] = js['stacktrace']
