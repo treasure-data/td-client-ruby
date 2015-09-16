@@ -15,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.files         = Dir["lib/**/*", "ext/**/*", "data/**/*", "spec/**/*.rb"]
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths = ["lib"]
+  gem.required_ruby_version = '>= 1.8.7'
 
   if RUBY_ENGINE == 'ruby' && RUBY_VERSION.split('.')[0..1].join('.').to_f < 2.2
     gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.5.12"]
