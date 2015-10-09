@@ -61,4 +61,9 @@ shared_context 'common helper' do
     require 'cgi'
     CGI.escape(s.to_s)
   end
+
+  def ue(s)
+    require 'webrick'
+    WEBrick::HTTPUtils.escape(s.to_s)
+  end
 end

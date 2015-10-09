@@ -16,7 +16,7 @@ describe 'Schedule API' do
 
     it 'should create a new schedule' do
       start = Time.now
-      stub_api_request(:post, "/v3/schedule/create/#{e(sched_name)}").
+      stub_api_request(:post, "/v3/schedule/create/#{ue(sched_name)}").
         with(:body => opts.merge('type' => 'hive')).
         to_return(:body => {'name' => sched_name, 'start' => start.to_s}.to_json)
 
@@ -26,7 +26,7 @@ describe 'Schedule API' do
     it 'should return 422 error with invalid name' do
       name = '1'
       err_msg = "Validation failed: Name is too short" # " (minimum is 3 characters)"
-      stub_api_request(:post, "/v3/schedule/create/#{e(name)}").
+      stub_api_request(:post, "/v3/schedule/create/#{ue(name)}").
         with(:body => opts.merge('type' => 'hive')).
         to_return(:status => 422, :body => {'message' => err_msg}.to_json)
 
@@ -38,7 +38,7 @@ describe 'Schedule API' do
 
   describe 'delete_schedule' do
     it 'should delete the schedule' do
-      stub_api_request(:post, "/v3/schedule/delete/#{e(sched_name)}").
+      stub_api_request(:post, "/v3/schedule/delete/#{ue(sched_name)}").
         to_return(:body => {'cron' => 'cron', 'query' => 'query'}.to_json)
       api.delete_schedule(sched_name).should == ['cron', 'query']
     end
@@ -53,7 +53,7 @@ describe 'Schedule API' do
     end
 
     it 'should not return 414 even if the query text is very long' do
-      stub_api_request(:post, "/v3/schedule/update/#{e(sched_name)}").
+      stub_api_request(:post, "/v3/schedule/update/#{ue(sched_name)}").
         with(:body => opts.merge('type' => 'pig')).
         to_return(:body => {'name' => sched_name, 'query' => pig_query}.to_json)
 
@@ -63,7 +63,7 @@ describe 'Schedule API' do
     end
 
     it 'should update the schedule with the new query' do
-      stub_api_request(:post, "/v3/schedule/update/#{e(sched_name)}").
+      stub_api_request(:post, "/v3/schedule/update/#{ue(sched_name)}").
         with(:body => opts.merge('type' => 'pig')).
         to_return(:body => {'name' => sched_name, 'query' => pig_query}.to_json)
 
@@ -83,7 +83,7 @@ describe 'Schedule API' do
     end
 
     it 'should return history records' do
-      stub_api_request(:get, "/v3/schedule/history/#{e(sched_name)}").
+      stub_api_request(:get, "/v3/schedule/history/#{ue(sched_name)}").
         with(:query => {'from' => 0, 'to' => 100}).
         to_return(:body => {'history' => [history]}.to_json)
         api.history(sched_name, 0, 100).should == [[nil, 'job_id', :type, 'status', 'query', 'start_at', 'end_at', 'result', 'priority', 'database']]
@@ -92,7 +92,7 @@ describe 'Schedule API' do
 
   describe 'run_schedule' do
     it 'should return history records' do
-      stub_api_request(:post, "/v3/schedule/run/#{e(sched_name)}/123456789").
+      stub_api_request(:post, "/v3/schedule/run/#{ue(sched_name)}/123456789").
         with(:body => {'num' => '5'}).
         to_return(:body => {'jobs' => [{'job_id' => 'job_id', 'scheduled_at' => 'scheduled_at', 'type' => 'type'}]}.to_json)
         api.run_schedule(sched_name, 123456789, 5).should == [['job_id', :type, 'scheduled_at']]

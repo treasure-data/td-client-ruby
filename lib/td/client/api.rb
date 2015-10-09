@@ -638,14 +638,34 @@ private
   if ''.respond_to?(:encode)
     # @param [String] s
     # @return [String]
+    # CGI escape; this converts spaces into '+'.
     def e(s)
       CGI.escape(s.to_s.encode("UTF-8"))
+    end
+
+    # @param [String] s
+    # @return [String]
+    # normal %-encode; this converts spaces into '%20'
+    def ue(s)
+      s = s.to_s.encode(Encoding::UTF_8).force_encoding(Encoding::ASCII_8BIT)
+      s.gsub!(/[^*\-.0-9A-Z_a-z]/){|x|'%%%02X' % x.ord}
+      s
     end
   else
     # @param [String] s
     # @return [String]
+    # CGI escape; this converts spaces into '+'.
     def e(s)
       CGI.escape(s.to_s)
+    end
+
+    # @param [String] s
+    # @return [String]
+    # normal %-encode; this converts spaces into '%20'
+    def ue(s)
+      s = s.to_s
+      s.gsub!(/[^*\-.0-9A-Z_a-z]/){|x|'%%%02X' % x.ord}
+      s
     end
   end
 

@@ -15,7 +15,7 @@ shared_context 'spec symbols' do
   end
 
   let :sched_name do
-    'sched_test'
+    'sched test'
   end
 
   let :result_name do
