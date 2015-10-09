@@ -29,7 +29,7 @@ describe 'Schedule Command' do
 
     it 'returns scheduled_job' do
       h = history; h['scheduled_at'] = '2015-02-17 14:16:00 +0900'
-      stub_api_request(:get, "/v3/schedule/history/#{e(sched_name)}?from=0&to=19").
+      stub_api_request(:get, "/v3/schedule/history/#{ue(sched_name)}?from=0&to=19").
         to_return(:body => {'count' => 1, 'history' => [h]}.to_json)
 
       client.history(sched_name, 0, 19).each do |scheduled_job|
@@ -43,7 +43,7 @@ describe 'Schedule Command' do
 
     it 'works when scheduled_at == ""' do
       h = history; h['scheduled_at'] = ''
-      stub_api_request(:get, "/v3/schedule/history/#{e(sched_name)}?from=0&to=19").
+      stub_api_request(:get, "/v3/schedule/history/#{ue(sched_name)}?from=0&to=19").
         to_return(:body => {'count' => 1, 'history' => [h]}.to_json)
 
       client.history(sched_name, 0, 19).each do |scheduled_job|

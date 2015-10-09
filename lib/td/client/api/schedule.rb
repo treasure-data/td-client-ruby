@@ -10,7 +10,7 @@ module Schedule
   # @return [String]
   def create_schedule(name, opts)
     params = opts.update({:type=> opts[:type] || opts['type'] || 'hive'})
-    code, body, res = post("/v3/schedule/create/#{e name}", params)
+    code, body, res = post("/v3/schedule/create/#{ue name}", params)
     if code != "200"
       raise_error("Create schedule failed", res)
     end
@@ -21,7 +21,7 @@ module Schedule
   # @param [String] name
   # @return [Array]
   def delete_schedule(name)
-    code, body, res = post("/v3/schedule/delete/#{e name}")
+    code, body, res = post("/v3/schedule/delete/#{ue name}")
     if code != "200"
       raise_error("Delete schedule failed", res)
     end
@@ -57,7 +57,7 @@ module Schedule
   # @param [Hash] params
   # @return [nil]
   def update_schedule(name, params)
-    code, body, res = post("/v3/schedule/update/#{e name}", params)
+    code, body, res = post("/v3/schedule/update/#{ue name}", params)
     if code != "200"
       raise_error("Update schedule failed", res)
     end
@@ -72,7 +72,7 @@ module Schedule
     params = {}
     params['from'] = from.to_s if from
     params['to'] = to.to_s if to
-    code, body, res = get("/v3/schedule/history/#{e name}", params)
+    code, body, res = get("/v3/schedule/history/#{ue name}", params)
     if code != "200"
       raise_error("List history failed", res)
     end
@@ -101,7 +101,7 @@ module Schedule
   def run_schedule(name, time, num)
     params = {}
     params = {'num' => num} if num
-    code, body, res = post("/v3/schedule/run/#{e name}/#{e time}", params)
+    code, body, res = post("/v3/schedule/run/#{ue name}/#{ue time}", params)
     if code != "200"
       raise_error("Run schedule failed", res)
     end
