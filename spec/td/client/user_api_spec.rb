@@ -53,8 +53,8 @@ describe 'User API' do
 
     # TODO
     it 'does not escape sp but it must be a bug' do
-      stub_api_request(:post, "/v3/user/add/!++++@%23$%25%5E&*()_+%7C~").to_return(:body => {}.to_json)
-      api.add_user('!    @#$%^&*()_+|~', "org", 'name+suffix@example.com', 'password').should == true
+      stub_api_request(:post, "/v3/user/add/!%20%20%20%20@%23$%25%5E&*()_%2B%7C~%2Ecom").to_return(:body => {}.to_json)
+      api.add_user('!    @#$%^&*()_+|~.com', "org", 'name+suffix@example.com', 'password').should == true
     end
   end
 

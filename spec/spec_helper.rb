@@ -58,7 +58,6 @@ shared_context 'common helper' do
   end
 
   def e(s)
-    require 'cgi'
-    CGI.escape(s.to_s)
+    s.to_s.gsub(/[^*\-0-9A-Z_a-z]/){|x|'%%%02X' % x.ord}
   end
 end
