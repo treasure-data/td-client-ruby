@@ -638,14 +638,22 @@ private
   if ''.respond_to?(:encode)
     # @param [String] s
     # @return [String]
+    # * ' ' and '+' must be escaped into %20 and %2B because escaped text may be
+    #   used as both URI and query.
+    # * '.' must be escaped as %2E because it may be cunfused with extension.
     def e(s)
-      CGI.escape(s.to_s.encode("UTF-8"))
+      s = s.to_s.encode(Encoding::UTF_8).force_encoding(Encoding::ASCII_8BIT)
+      s.gsub!(/[^\-_!~*'()~0-9A-Z_a-z]/){|x|'%%%02X' % x.ord}
+      s
     end
   else
     # @param [String] s
     # @return [String]
+    # * ' ' and '+' must be escaped into %20 and %2B because escaped text may be
+    #   used as both URI and query.
+    # * '.' must be escaped as %2E because it may be cunfused with extension.
     def e(s)
-      CGI.escape(s.to_s)
+      s.to_s.gsub(/[^\-_!~*'()~0-9A-Z_a-z]/){|x|'%%%02X' % x.ord}
     end
   end
 
