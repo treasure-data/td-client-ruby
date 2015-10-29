@@ -1,3 +1,9 @@
+== 2015-10-29 version 0.8.76
+
+* fix BulkLoad#bulk_load_run with scheduled_time.
+* change url encode pattern. ' '(space) -> %20, '+' -> %2b, '.' -> %2E
+* fix some typos.
+
 == 2015-08-10 version 0.8.75
 
 * add APIError#api_backtrace.
