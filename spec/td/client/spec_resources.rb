@@ -51,7 +51,7 @@ end
 shared_context 'job resources' do
   include_context 'database resources'
 
-  MAX_JOB = 20
+  MAX_JOB ||= 20
 
   let :job_types do
     [

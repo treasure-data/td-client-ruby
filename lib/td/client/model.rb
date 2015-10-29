@@ -577,7 +577,7 @@ class ScheduledJob < Job
 
   # @param [TreasureData::Client] client
   # @param [String] scheduled_at
-  # @param [...] args for Job#initialize
+  # @param [...] super_args for Job#initialize
   def initialize(client, scheduled_at, *super_args)
     super(client, *super_args)
     if scheduled_at.to_s.empty?
@@ -739,4 +739,3 @@ end
 
 
 end
-

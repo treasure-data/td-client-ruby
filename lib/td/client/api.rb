@@ -209,7 +209,7 @@ class API
     when /double/i
       "double"
     else
-      raise "Type name must eather of int, long, string float or double"
+      raise "Type name must either of int, long, string float or double"
     end
   end
 
