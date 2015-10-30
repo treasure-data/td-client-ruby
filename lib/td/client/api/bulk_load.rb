@@ -149,8 +149,8 @@ module BulkLoad
   def bulk_load_run(name, scheduled_time = nil)
     path = job_path(name)
     opts = {}
-    opts[:scheduled_time] = scheduled_time unless scheduled_time.nil?
-    res = api { post(path, opts) }
+    opts[:scheduled_time] = scheduled_time.to_s unless scheduled_time.nil?
+    res = api { post(path, opts.to_json) }
     unless res.ok?
       raise_error("BulkLoadSession: #{name} job create failed", res)
     end

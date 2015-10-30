@@ -359,7 +359,7 @@ describe 'BulkImport API' do
   describe 'run' do
     it 'returns job_id' do
       stub_api_request(:post, '/v3/bulk_loads/nahi_test_1/jobs').
-        with(:body => '').
+        with(:body => '{}').
         to_return(:body => {'job_id' => 12345}.to_json)
       api.bulk_load_run('nahi_test_1').should == '12345'
     end
@@ -367,7 +367,7 @@ describe 'BulkImport API' do
     it 'accepts scheduled_time' do
       now = Time.now.to_i
       stub_api_request(:post, '/v3/bulk_loads/nahi_test_1/jobs').
-        with(:body => "scheduled_time=#{now}").
+        with(:body => {scheduled_time: now.to_s}.to_json).
         to_return(:body => {'job_id' => 12345}.to_json)
       api.bulk_load_run('nahi_test_1', now).should == '12345'
     end
