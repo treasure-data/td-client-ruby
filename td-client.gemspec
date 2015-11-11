@@ -25,6 +25,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "json", ">= 1.7.6"
   gem.add_dependency "httpclient", [">= 2.5.2", "< 2.6.0"]
   gem.add_development_dependency "rspec", "~> 2.8"
+  gem.add_development_dependency "tins", "~> 1.6.0"
   gem.add_development_dependency 'mime-types', "1.25" # mime-types => 2.0, does not support Ruby 1.8.
   gem.add_development_dependency 'rest-client', "1.6.8" # rest-client => 1.6.8, does not support Ruby 1.8.
   gem.add_development_dependency 'coveralls'
