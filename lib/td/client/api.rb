@@ -591,7 +591,13 @@ private
       if js.nil?
         error['message'] = res.reason
       else
-        error['message']    = js['message'] || js['error']
+        # js = {"errors"=>{"cron"=>["Invalid cron specification", "Another error"],"another_par"=>["Message for another parameter"]}} => "cron: Invalid cron specification, Another error. another_par: Message for another parameter"
+        # js = {"message"=>"This is an error message"} => "This is an error message"
+        # js = {"error"=>"This is an error message"} => "This is an error message"
+        error['message'] = \
+          js['message'] || \
+          js['error']   || \
+          js['errors'].map{|k,v| "#{k}: #{v.join(", ")}"}.join(". ")
         error['stacktrace'] = js['stacktrace']
       end
     rescue JSON::ParserError
