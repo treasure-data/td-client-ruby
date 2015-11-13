@@ -251,7 +251,7 @@ private
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST GET call:"
       puts "DEBUG:   header: " + header.to_s
-      puts "DEBUG:   path:   " + path.to_s
+      puts "DEBUG:   path:   " + target.to_s
       puts "DEBUG:   params: " + params.to_s
     end
 
@@ -364,7 +364,7 @@ private
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST POST call:"
       puts "DEBUG:   header: " + header.to_s
-      puts "DEBUG:   path:   " + (@base_path + url).to_s
+      puts "DEBUG:   path:   " + target.to_s
       puts "DEBUG:   params: " + params.to_s
     end
 
