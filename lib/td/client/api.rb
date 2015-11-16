@@ -345,15 +345,15 @@ private
 
   # @param [String] url
   # @param [Hash] params
-  def post(url, params=nil)
+  def post(url, params=nil, &block)
     guard_no_sslv3 do
-      do_post(url, params)
+      do_post(url, params, &block)
     end
   end
 
   # @param [String] url
   # @param [Hash] params
-  def do_post(url, params=nil)
+  def do_post(url, params=nil, &block)
     target = build_endpoint(url, @host)
 
     client, header = new_client
@@ -411,6 +411,8 @@ private
       end
     end while false
 
+    body = block ? response.body : inflate_body(response)
+
     begin
       unless ENV['TD_CLIENT_DEBUG'].nil?
         puts "DEBUG: REST POST response:"
@@ -418,7 +420,7 @@ private
         puts "DEBUG:   status: " + response.code.to_s
         puts "DEBUG:   body:   <omitted>"
       end
-      return [response.code.to_s, response.body, response]
+      return [response.code.to_s, body, response]
     ensure
       # Disconnect keep-alive connection explicitly here, not by GC.
       client.reset(target) rescue nil
