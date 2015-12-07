@@ -267,7 +267,7 @@ private
         if block
           current_total_chunk_size = 0
           response = client.get(target, params, header) {|res, chunk|
-            current_total_chunk_size += chunk.size
+            current_total_chunk_size += chunk.bytesize
             block.call(res, chunk, current_total_chunk_size)
           }
 
