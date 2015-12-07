@@ -278,7 +278,7 @@ private
         else
           response = client.get(target, params, header)
 
-          validate_content_length!(response, response.body.size) if @ssl
+          validate_content_length!(response, response.body.bytesize) if @ssl
         end
 
         status = response.code
