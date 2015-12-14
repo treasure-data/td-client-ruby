@@ -1,3 +1,9 @@
+== 2015-12-14 version 0.8.77
+
+* fix inflate post body
+* fix response byte size check for multibyte string
+* fix TD_CLIENT_DEBUG mode
+
 == 2015-10-29 version 0.8.76
 
 * fix BulkLoad#bulk_load_run with scheduled_time.
