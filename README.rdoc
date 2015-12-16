@@ -1,4 +1,7 @@
 = Treasure Data API library for Ruby
+{<img src="https://travis-ci.org/treasure-data/td-client-ruby.svg?branch=master" alt="Build Status" />}[https://travis-ci.org/treasure-data/td-client-ruby]
+{<img src="https://ci.appveyor.com/api/projects/status/github/treasure-data/td-client-ruby?branch=master&svg=true" alt="Build Status" />}[https://ci.appveyor.com/project/treasure-data/td-client-ruby/branch/master]
+{<img src="https://coveralls.io/repos/treasure-data/td-client-ruby/badge.svg?branch=master&service=github" alt="Coverage Status" />}[https://coveralls.io/github/treasure-data/td-client-ruby?branch=master]
 
 == Getting Started
 
