@@ -78,22 +78,30 @@ describe 'Job Model' do
 
     context 'without timeout' do
       it 'waits the job to be finished' do
-        thread = Thread.start { job.wait }
-        expect(thread).to be_alive
-        change_job_status(Job::STATUS_SUCCESS)
-        expect(thread).to be_stop
-        thread.kill # just in case
+        begin
+          thread = Thread.start { job.wait }
+          expect(thread).to be_alive
+          change_job_status(Job::STATUS_SUCCESS)
+          thread.join(1)
+          expect(thread).to be_stop
+        ensure
+          thread.kill # just in case
+        end
       end
 
       it 'calls a given block in every wait_interval second' do
         expect { |b|
-          thread = Thread.start {
-            job.wait(nil, 0.1, &b)
-          }
-          sleep 0.3
-          change_job_status(Job::STATUS_SUCCESS)
-          thread.join(0.5)
-          thread.kill # just in case
+          begin
+            thread = Thread.start {
+              job.wait(nil, 0.1, &b)
+            }
+            sleep 0.3
+            change_job_status(Job::STATUS_SUCCESS)
+            thread.join(0.5)
+            expect(thread).to be_stop
+          ensure
+            thread.kill # just in case
+          end
         }.to yield_control.at_least(2).at_most(3).times
       end
     end
