@@ -62,4 +62,50 @@ describe 'Job Model' do
       end
     end
   end
+
+  describe '#wait' do
+    let(:client) { Client.authenticate('user', 'password') }
+    let(:job_id) { 12345678 }
+    let(:job)    { Job.new(client, job_id, nil, nil) }
+
+    def change_job_status(status)
+      allow(client).to receive(:job_status).with(job_id).and_return(status)
+    end
+
+    before do
+      change_job_status(Job::STATUS_QUEUED)
+    end
+
+    context 'without timeout' do
+      it 'waits the job to be finished' do
+        thread = Thread.start { job.wait }
+        expect(thread).to be_alive
+        change_job_status(Job::STATUS_SUCCESS)
+        expect(thread).to be_stop
+        thread.kill # just in case
+      end
+
+      it 'calls a given block in every wait_interval second' do
+        expect { |b|
+          thread = Thread.start {
+            job.wait(nil, 0.1, &b)
+          }
+          sleep 0.3
+          change_job_status(Job::STATUS_SUCCESS)
+          thread.join(0.5)
+          thread.kill # just in case
+        }.to yield_control.at_least(2).at_most(3).times
+      end
+    end
+
+    context 'with timeout' do
+      context 'the job running time is too long' do
+        it 'raise TreasureData::Job::TimeoutError' do
+          expect {
+            job.wait(0.1)
+          }.to raise_error(Job::TimeoutError)
+        end
+      end
+    end
+  end
 end

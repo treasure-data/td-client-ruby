@@ -349,6 +349,8 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
+  class TimeoutError < StandardError; end
+
   # @param [TreasureData::Client] client
   # @param [String] job_id
   # @param [String] type
@@ -403,8 +405,17 @@ class Job < Model
   attr_reader :priority, :retry_limit, :org_name, :db_name
   attr_reader :duration
 
-  def wait(timeout=nil)
-    # TODO
+  def wait(timeout=nil, wait_interval=2)
+    started_at = Time.now
+    until finished?
+      if !timeout || ((Time.now - started_at).abs < timeout && wait_interval > timeout)
+        sleep wait_interval
+        yield self if block_given?
+      else
+        raise TimeoutError, "timeout"
+      end
+      update_progress!
+    end
   end
 
   def kill!
