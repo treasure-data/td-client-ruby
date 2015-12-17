@@ -408,7 +408,7 @@ class Job < Model
   def wait(timeout=nil, wait_interval=2)
     started_at = Time.now
     until finished?
-      if !timeout || ((Time.now - started_at).abs < timeout && wait_interval > timeout)
+      if !timeout || ((Time.now - started_at).abs < timeout && wait_interval <= timeout)
         sleep wait_interval
         yield self if block_given?
       else
