@@ -121,7 +121,12 @@ class API
         record[k] = v.to_s
       end
     }
-    record.to_msgpack(out)
+    if out
+      out << record.to_msgpack
+      out
+    else
+      record.to_msgpack
+    end
   end
 
   # @param [String] target
