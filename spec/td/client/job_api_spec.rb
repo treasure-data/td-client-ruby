@@ -236,13 +236,16 @@ describe 'Job API' do
   describe 'job_result_each' do
     let :packed do
       s = StringIO.new
-      Zlib::GzipWriter.wrap(s) do |f|
-        pk = MessagePack::Packer.new(f)
-        pk.write('hello')
-        pk.write('world')
-        pk.flush
+      pk = MessagePack::Packer.new(s)
+      pk.write('hello')
+      pk.write('world')
+      pk.flush
+      s.rewind
+      out = StringIO.new
+      Zlib::GzipWriter.wrap(out) do |f|
+        f.write s.read
       end
-      s.string
+      out.string
     end
 
     it 'yields job result for each row' do

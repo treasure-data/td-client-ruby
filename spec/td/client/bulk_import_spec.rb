@@ -14,14 +14,17 @@ describe 'BulkImport API' do
 
   let :packed do
     s = StringIO.new
-    Zlib::GzipWriter.wrap(s) do |f|
-      pk = MessagePack::Packer.new(f)
-      pk.write([1, '2', 3.0])
-      pk.write([4, '5', 6.0])
-      pk.write([7, '8', 9.0])
-      pk.flush
+    pk = MessagePack::Packer.new(s)
+    pk.write([1, '2', 3.0])
+    pk.write([4, '5', 6.0])
+    pk.write([7, '8', 9.0])
+    pk.flush
+    s.rewind
+    out = StringIO.new
+    Zlib::GzipWriter.wrap(out) do |f|
+      f.write s.read
     end
-    s.string
+    out.string
   end
 
   describe 'create_bulk_import' do

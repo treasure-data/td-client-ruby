@@ -161,7 +161,8 @@ module BulkImport
       end
     end
     require File.expand_path('../compat_gzip_reader', File.dirname(__FILE__))
-    u = MessagePack::Unpacker.new(Zlib::GzipReader.new(StringIO.new(body)))
+    io = StringIO.new(Zlib::GzipReader.new(StringIO.new(body)).read)
+    u = MessagePack::Unpacker.new(io)
     if block
       begin
         u.each(&block)
