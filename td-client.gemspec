@@ -19,6 +19,8 @@ Gem::Specification.new do |gem|
 
   if RUBY_ENGINE == 'ruby' && RUBY_VERSION.split('.')[0..1].join('.').to_f < 2.2
     gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.5.12"]
+  elsif RUBY_ENGINE == 'java'
+    gem.add_dependency "msgpack", "~> 0.7.1"
   else
     gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.6.0"]
   end
