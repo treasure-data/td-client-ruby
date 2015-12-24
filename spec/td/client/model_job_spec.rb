@@ -108,11 +108,25 @@ describe 'Job Model' do
 
     context 'with timeout' do
       context 'the job running time is too long' do
-        it 'raise TreasureData::Job::TimeoutError' do
+        it 'raise ::TimeoutError' do
           expect {
             job.wait(0.1)
-          }.to raise_error(Job::TimeoutError)
+          }.to raise_error(::TimeoutError)
         end
+      end
+
+      it 'calls a given block in every wait_interval second, and timeout' do
+        expect { |b|
+          begin
+            thread = Thread.start {
+              job.wait(0.3, 0.1, &b)
+            }
+            expect{ thread.value }.to raise_error(::TimeoutError)
+            expect(thread).to be_stop
+          ensure
+            thread.kill # just in case
+          end
+        }.to yield_control.at_least(2).times
       end
     end
   end
