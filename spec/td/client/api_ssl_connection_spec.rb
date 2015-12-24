@@ -8,7 +8,7 @@ describe 'API SSL connection' do
   DIR = File.dirname(File.expand_path(__FILE__))
 
   after :each do
-    @server.shutdown
+    @server && @server.shutdown
   end
 
   it 'should fail to connect SSLv3 only server' do
