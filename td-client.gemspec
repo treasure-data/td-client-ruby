@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   # see https://github.com/treasure-data/td-client-ruby/commit/d52a69d958d6d60c3e0ffa9ad3a12d44f1b28b44#diff-dbeab9be8670a67bee63cc6d8b3c4c9a
   if RUBY_ENGINE == 'ruby' && RUBY_VERSION.split('.')[0..1].join('.').to_f < 2.2
     gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.5.12"]
-  elsif RUBY_ENGINE == 'java'
+  elsif RUBY_PLATFORM =~ /java/
     gem.add_dependency "msgpack", "= 0.7.2dev1"
   else
     gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.6.0"]
