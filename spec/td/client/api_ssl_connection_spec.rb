@@ -4,11 +4,34 @@ require 'logger'
 require 'webrick'
 require 'webrick/https'
 
+# Workaround for https://github.com/jruby/jruby-openssl/issues/78
+# With recent JRuby + jruby-openssl, X509CRL#extentions_to_text causes
+# StringIndexOOBException when we try to dump SSL Server Certificate.
+# when one of extensions has "" as value.
+# This hack is from httpclient https://github.com/nahi/httpclient/blob/master/lib/httpclient/util.rb#L27-L46
+if defined? JRUBY_VERSION
+  require 'openssl'
+  require 'java'
+  module OpenSSL
+    module X509
+      class Certificate
+        java_import 'java.security.cert.Certificate'
+        java_import 'java.security.cert.CertificateFactory'
+        java_import 'java.io.ByteArrayInputStream'
+        def to_text
+          cf = CertificateFactory.getInstance('X.509')
+          cf.generateCertificate(ByteArrayInputStream.new(self.to_der.to_java_bytes)).toString
+        end
+      end
+    end
+  end
+end
+
 describe 'API SSL connection' do
   DIR = File.dirname(File.expand_path(__FILE__))
 
   after :each do
-    @server.shutdown
+    @server.shutdown if @server
   end
 
   it 'should fail to connect SSLv3 only server' do
