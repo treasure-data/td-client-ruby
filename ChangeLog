@@ -1,3 +1,9 @@
+== 2016-01-25 version 0.8.78
+
+* Implement Job#wait
+* add JRuby to supported list
+* Allow MessagePack 0.7
+
 == 2015-12-14 version 0.8.77
 
 * fix inflate post body
