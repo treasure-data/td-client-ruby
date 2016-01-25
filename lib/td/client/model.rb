@@ -1,6 +1,6 @@
+require 'timeout'
 
 module TreasureData
-
 
 class Model
   # @param [TreasureData::Client] client
@@ -349,8 +349,6 @@ class Job < Model
   STATUS_KILLED = "killed"
   FINISHED_STATUS = [STATUS_SUCCESS, STATUS_ERROR, STATUS_KILLED]
 
-  class TimeoutError < StandardError; end
-
   # @param [TreasureData::Client] client
   # @param [String] job_id
   # @param [String] type
@@ -406,14 +404,22 @@ class Job < Model
   attr_reader :duration
 
   def wait(timeout=nil, wait_interval=2)
-    started_at = Time.now
+    # this should use monotonic clock but td-client-ruby supports Ruby 1.8.7 now.
+    # therefore add workaround to initializing clock on each delta
+    if timeout
+      orig_timeout = timeout
+      t1 = Time.now.to_f
+    end
     until finished?
-      if !timeout || ((Time.now - started_at).abs < timeout && wait_interval <= timeout)
-        sleep wait_interval
-        yield self if block_given?
-      else
-        raise TimeoutError, "timeout"
+      if timeout
+        t = Time.now.to_f
+        d = t - t1
+        t1 = t
+        timeout -= d if d > 0
+        raise ::TimeoutError, "timeout=#{orig_timeout} wait_interval=#{wait_interval}" if timeout <= 0
       end
+      sleep wait_interval
+      yield self if block_given?
       update_progress!
     end
   end
