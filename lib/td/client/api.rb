@@ -277,8 +277,7 @@ private
           }
 
           # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
-          #     and msgpack-ruby that used in block handles it as an end of stream == no exception.
-          #     Therefor, check content size.
+          #     but httpclient ignores it. Therefor, check content size.
           validate_content_length!(response, current_total_chunk_size) if @ssl
         else
           response = client.get(target, params, header)
