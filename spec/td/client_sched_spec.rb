@@ -15,6 +15,31 @@ describe 'Schedule Command' do
     client
   end
 
+  describe 'create' do
+    let :opts do
+      {:database => db_name, :cron => '', :type => 'hive', :query => 'select 1;'}
+    end
+
+    before do
+      stub_api_request(:post, "/v3/schedule/create/#{e(sched_name)}").
+      with(:body => opts).
+        to_return(:body => {'name' => sched_name, 'start' => start}.to_json)
+    end
+    context 'start is now' do
+      let (:start){ Time.now.round }
+      it 'returns Time object' do
+        client.create_schedule(sched_name, opts).should == start
+      end
+    end
+
+    context 'start is nil' do
+      let (:start){ nil }
+      it do
+        client.create_schedule(sched_name, opts).should == start
+      end
+    end
+  end
+
   describe 'history' do
     let :opts do
       {'database' => db_name}

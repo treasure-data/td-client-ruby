@@ -14,7 +14,7 @@ module Schedule
     if code != "200"
       raise_error("Create schedule failed", res)
     end
-    js = checked_json(body, %w[start])
+    js = checked_json(body)
     return js['start']
   end
 
