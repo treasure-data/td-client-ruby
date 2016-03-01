@@ -311,6 +311,53 @@ describe 'Job API' do
         api.job_result_raw(12345, 'json').should == 'raw binary'
       end
     end
+
+    let :packed do
+      # Hard code fixture data to make the size stable
+      # s = StringIO.new
+      # Zlib::GzipWriter.wrap(s) do |f|
+      #   pk = MessagePack::Packer.new(f)
+      #   pk.write('hello')
+      #   pk.write('world')
+      #   pk.flush
+      # end
+      # s.string
+      "\x1F\x8B\b\x00#\xA1\x93T\x00\x03[\x9A\x91\x9A\x93\x93\xBF\xB4<\xBF('\x05\x00e 0\xB3\f\x00\x00\x00".force_encoding(Encoding::ASCII_8BIT)
+    end
+
+    it 'can resume' do
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'msgpack.gz'}).
+        to_return(
+          :headers => {
+            'Content-Length' => 32,
+            'Etag' => '"abcdefghijklmn"',
+          },
+          :body => packed[0, 20]
+        )
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(
+          :headers => {
+            'If-Range' => '"abcdefghijklmn"',
+            'Range' => 'bytes=20-',
+          },
+          :query => {'format' => 'msgpack.gz'}
+        ).
+        to_return(
+          :headers => {
+            'Content-Length' => 12,
+            'Content-Range' => 'bytes 20-31/32',
+            'Etag' => '"abcdefghijklmn"',
+          },
+          :body => packed[20, 12]
+        )
+      expect(api).to receive(:sleep).once
+      expect($stderr).to receive(:print)
+      expect($stderr).to receive(:puts)
+      sio = StringIO.new(''.force_encoding(Encoding::ASCII_8BIT))
+      api.job_result_raw(12345, 'msgpack.gz', sio)
+      sio.string.should == packed
+    end
   end
 
   describe 'kill' do
