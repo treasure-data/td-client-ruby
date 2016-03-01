@@ -235,7 +235,7 @@ private
 
   # @param [String] url
   # @param [Hash] params
-  # @param [Hash] option
+  # @param [Hash] opt
   # @yield [response]
   def get(url, params=nil, opt={}, &block)
     guard_no_sslv3 do
@@ -245,7 +245,7 @@ private
 
   # @param [String] url
   # @param [Hash] params
-  # @param [Hash] option
+  # @param [Hash] opt
   # @yield [response]
   def do_get(url, params=nil, opt={}, &block)
     client, header = new_client
