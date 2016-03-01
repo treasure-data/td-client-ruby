@@ -214,8 +214,8 @@ module Job
   def job_result_raw(job_id, format, io = nil, &block)
     body = nil
 
-    get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res, chunk, current_total_chunk_size|
-      if res.code != 200
+    get("/v3/job/result/#{e job_id}", {'format'=>format}, {:resume => true}) {|res, chunk, current_total_chunk_size|
+      unless res.ok?
         raise_error("Get job result failed", res)
       end
 
