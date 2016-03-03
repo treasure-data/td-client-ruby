@@ -23,6 +23,14 @@ describe 'Schedule API' do
       api.create_schedule(sched_name, opts.merge('type' => 'hive')).should == start.to_s
     end
 
+    it 'should create a dummy schedule' do
+      stub_api_request(:post, "/v3/schedule/create/#{e(sched_name)}").
+        with(:body => opts.merge('type' => 'hive')).
+        to_return(:body => {'name' => sched_name, 'start' => nil}.to_json)
+
+      api.create_schedule(sched_name, opts.merge('type' => 'hive')).should be_nil
+    end
+
     it 'should return 422 error with invalid name' do
       name = '1'
       err_msg = "Validation failed: Name is too short" # " (minimum is 3 characters)"

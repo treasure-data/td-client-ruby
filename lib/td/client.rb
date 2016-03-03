@@ -356,7 +356,7 @@ class Client
     raise ArgumentError, "'cron' option is required" unless opts[:cron] || opts['cron']
     raise ArgumentError, "'query' option is required" unless opts[:query] || opts['query']
     start = @api.create_schedule(name, opts)
-    return Time.parse(start)
+    return start && Time.parse(start)
   end
 
   # @param [String] name
