@@ -336,6 +336,31 @@ describe 'BulkImport API' do
         bulk_load_session
       )).to eq(bulk_load_session)
     end
+
+    it 'returns updated bulk_load_session' do
+      updated_bulk_load_session = bulk_load_session.merge({'timezone' => 'America/Los Angeles'})
+      stub_api_request(:put, '/v3/bulk_loads/nahi_test_1').
+        with(:body => updated_bulk_load_session.to_json).
+        to_return(:body => updated_bulk_load_session.to_json)
+      api.bulk_load_update(
+        'nahi_test_1',
+        updated_bulk_load_session
+      ).should == updated_bulk_load_session
+    end
+
+    it 'can remove the cron schedule ' do
+      updated_bulk_load_session = bulk_load_session.merge({'cron' => ''})
+      # NOTE: currently the API just ignores an empty 'cron' specification update
+      # I am assuming that once fixed, the API will return a nil for cron if unscheduled.
+      expected_bulk_load_session = (bulk_load_session['cron'] = nil)
+      stub_api_request(:put, '/v3/bulk_loads/nahi_test_1').
+        with(:body => updated_bulk_load_session.to_json).
+        to_return(:body => expected_bulk_load_session.to_json)
+      api.bulk_load_update(
+        'nahi_test_1',
+        updated_bulk_load_session
+      ).should == expected_bulk_load_session
+    end
   end
 
   describe 'delete' do
