@@ -174,7 +174,26 @@ class API
 
   # @param [String] name
   def self.validate_column_name(name)
-    validate_name("column", 1, 255, name)
+    target = 'column'
+    min_len = 1
+    max_len = 128
+    name = name.to_s
+    if name.empty?
+      raise ParameterValidationError,
+            "Empty #{target} name is not allowed"
+    end
+    if name.length < min_len || name.length > max_len
+      raise ParameterValidationError,
+            "#{target.capitalize} name must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
+            (name.length == 1 ? "character" : "characters") + "."
+    end
+
+    name
+  end
+
+  # @param [String] name
+  def self.validate_sql_alias_name(name)
+    validate_name("sql_alias", 1, 128, name)
   end
 
   # @param [String] name

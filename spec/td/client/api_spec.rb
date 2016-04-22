@@ -126,7 +126,7 @@ describe API do
 
     describe "'validate_column_name'" do
       it 'should raise a ParameterValidationError exception' do
-        ['/', '', 'D'].each { |ng|
+        [''].each { |ng|
           expect {
             API.validate_column_name(ng)
           }.to raise_error(ParameterValidationError)

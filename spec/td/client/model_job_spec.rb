@@ -97,7 +97,7 @@ describe 'Job Model' do
             }
             sleep 0.3
             change_job_status(Job::STATUS_SUCCESS)
-            thread.join(0.5)
+            thread.join(1)
             expect(thread).to be_stop
           ensure
             thread.kill # just in case

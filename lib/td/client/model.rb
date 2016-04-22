@@ -269,29 +269,38 @@ class Table < Model
   def update_database!
     @database = @client.database(@db_name)
   end
+
+  # @return [String]
+  def inspect
+    %[#<%s:%#0#{1.size*2}x @db_name="%s" @table_name="%s">] %
+    [self.class.name, self.__id__*2, @db_name, @table_name]
+  end
 end
 
 class Schema
   class Field
     # @param [String] name
     # @param [String] type
-    def initialize(name, type)
+    # @param [String] sql_alias
+    def initialize(name, type, sql_alias=nil)
       @name = name
       @type = type
+      @sql_alias = sql_alias
     end
 
     # @!attribute [r] name
     # @!attribute [r] type
     attr_reader :name
     attr_reader :type
+    attr_reader :sql_alias
   end
 
   # @param [String] cols
   # @return [Schema]
   def self.parse(cols)
     fields = cols.split(',').map {|col|
-      name, type, *_ = col.split(':')
-      Field.new(name, type)
+      name, type, sql_alias, *_ = col.split(':')
+      Field.new(name, type, sql_alias)
     }
     Schema.new(fields)
   end
@@ -307,8 +316,8 @@ class Schema
   # @param [String] name
   # @param [String] type
   # @return [Array]
-  def add_field(name, type)
-    @fields << Field.new(name, type)
+  def add_field(name, type, sql_alias=nil)
+    @fields << Field.new(name, type, sql_alias)
   end
 
   # @param [Schema] schema
@@ -327,14 +336,14 @@ class Schema
 
   # @return [Array<Field>]
   def to_json(*args)
-    @fields.map {|f| [f.name, f.type] }.to_json(*args)
+    @fields.map {|f| f.sql_alias ? [f.name, f.type, f.sql_alias] : [f.name, f.type] }.to_json(*args)
   end
 
   # @param [Object] obj
   # @return [self]
   def from_json(obj)
     @fields = obj.map {|f|
-      Field.new(f[0], f[1])
+      Field.new(*f)
     }
     self
   end
