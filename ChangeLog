@@ -1,3 +1,8 @@
+== 2016-04-25 version 0.8.79
+
+* Support dummy schedule #78
+* Resuming job result downloading #79
+
 == 2016-01-25 version 0.8.78
 
 * Implement Job#wait
