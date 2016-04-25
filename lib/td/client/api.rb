@@ -235,16 +235,19 @@ private
 
   # @param [String] url
   # @param [Hash] params
+  # @param [Hash] opt
   # @yield [response]
-  def get(url, params=nil, &block)
+  def get(url, params=nil, opt={}, &block)
     guard_no_sslv3 do
-      do_get(url, params, &block)
+      do_get(url, params, opt, &block)
     end
   end
+
   # @param [String] url
   # @param [Hash] params
+  # @param [Hash] opt
   # @yield [response]
-  def do_get(url, params=nil, &block)
+  def do_get(url, params=nil, opt={}, &block)
     client, header = new_client
     client.send_timeout = @send_timeout
     client.receive_timeout = @read_timeout
@@ -267,23 +270,29 @@ private
     # for both exceptions and 500+ errors retrying is enabled by default.
     # The total number of retries cumulatively should not exceed 10 minutes / 600 seconds
     response = nil
+    etag = nil
+    current_total_chunk_size = 0
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
-        if block
+        if etag
+          header['If-Range'] = etag
+          header['Range'] = "bytes=#{current_total_chunk_size}-"
+        else
           current_total_chunk_size = 0
+        end
+        if block
           response = client.get(target, params, header) {|res, chunk|
             current_total_chunk_size += chunk.bytesize
             block.call(res, chunk, current_total_chunk_size)
           }
-
-          # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
-          #     but httpclient ignores it. Therefor, check content size.
-          validate_content_length!(response, current_total_chunk_size) if @ssl
         else
           response = client.get(target, params, header)
-
-          validate_content_length!(response, response.body.bytesize) if @ssl
+          current_total_chunk_size += response.body.bytesize
         end
+        # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
+        #     but httpclient ignores it. Therefor, check content size.
+        #     https://github.com/nahi/httpclient/issues/296
+        validate_content_length!(response, current_total_chunk_size)
 
         status = response.code
         # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
@@ -295,7 +304,9 @@ private
           redo # restart from beginning of do-while loop
         end
       rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError, IncompleteError => e
-        if block_given?
+        if opt[:resume]
+          etag = response.header['ETag'].first
+        elsif block_given?
           raise e
         end
         $stderr.print "#{e.class}: #{e.message}. "
@@ -327,8 +338,14 @@ private
   end
 
   def validate_content_length!(response, body_size)
-    content_length = response.header['Content-Length'].first
-    raise IncompleteError if @ssl && content_length && content_length.to_i != body_size
+    if content_length = response.header['Content-Range'].first
+      content_length = content_length[/\d+$/]
+    else
+      content_length = response.header['Content-Length'].first
+    end
+    if content_length && content_length.to_i != body_size
+      raise IncompleteError, "#{content_length} bytes expected, but got #{body_size} bytes"
+    end
   end
 
   def inflate_body(response)
