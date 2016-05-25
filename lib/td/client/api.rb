@@ -272,6 +272,7 @@ private
     response = nil
     etag = nil
     current_total_chunk_size = 0
+    body = nil
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
         if etag
@@ -288,6 +289,11 @@ private
         else
           response = client.get(target, params, header)
           current_total_chunk_size += response.body.bytesize
+        end
+        if body
+          body << response.body
+        else
+          body = response.body
         end
         # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
         #     but httpclient ignores it. Therefor, check content size.
@@ -332,7 +338,7 @@ private
       puts "DEBUG:   body:   " + response.body.to_s
     end
 
-    body = block ? response.body : inflate_body(response)
+    body = inflate_body(response, body) unless block
 
     return [response.code.to_s, body, response]
   end
@@ -348,19 +354,19 @@ private
     end
   end
 
-  def inflate_body(response)
-    return response.body if (ce = response.header['Content-Encoding']).empty?
+  def inflate_body(response, body=response.body)
+    return body if (ce = response.header['Content-Encoding']).empty?
 
     if ce.include?('gzip')
       infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
       begin
-        infl.inflate(response.body)
+        infl.inflate(body)
       ensure
         infl.close
       end
     else
       # NOTE maybe for content-encoding is msgpack.gz ?
-      Zlib::Inflate.inflate(response.body)
+      Zlib::Inflate.inflate(body)
     end
   end
 

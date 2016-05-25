@@ -180,6 +180,38 @@ describe 'Job API' do
         to_return(:body => packed)
       expect(api.job_result(12345)).to eq(['hello', 'world'])
     end
+
+    it 'can resume' do
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'msgpack'}).
+        to_return(
+          :headers => {
+            'Content-Length' => 12,
+            'Etag' => '"abcdefghijklmn"',
+          },
+          :body => packed[0, 8]
+        )
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(
+          :headers => {
+            'If-Range' => '"abcdefghijklmn"',
+            'Range' => 'bytes=8-',
+          },
+          :query => {'format' => 'msgpack'}
+        ).
+        to_return(
+          :headers => {
+            'Content-Length' => 4,
+            'Content-Range' => 'bytes 8-11/12',
+            'Etag' => '"abcdefghijklmn"',
+          },
+          :body => packed[8, 4]
+        )
+      expect(api).to receive(:sleep).once
+      expect($stderr).to receive(:print)
+      expect($stderr).to receive(:puts)
+      api.job_result(12345).should == ['hello', 'world']
+    end
   end
 
   describe 'job_result_format' do
