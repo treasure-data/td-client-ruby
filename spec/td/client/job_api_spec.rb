@@ -264,42 +264,48 @@ describe 'Job API' do
         expect(s.string).to eq(['hello', 'world'].to_json)
       end
 
-      it 'can resume' do
-        sz = packed.bytesize / 3
-        stub_api_request(:get, '/v3/job/result/12345').
-          with(:query => {'format' => 'json'}).
+      context 'can resume' do
+        before do
+          sz = packed.bytesize / 3
+          stub_api_request(:get, '/v3/job/result/12345').
+            with(:query => {'format' => 'json'}).
+            to_return(
+              :headers => {
+                'Content-Encoding' => 'gzip',
+                'Content-Length' => packed.bytesize,
+                'Etag' => '"abcdefghijklmn"',
+              },
+              :body => packed[0, sz]
+            )
+          stub_api_request(:get, '/v3/job/result/12345').
+            with(
+              :headers => {
+                'If-Range' => '"abcdefghijklmn"',
+                'Range' => "bytes=#{sz}-",
+              },
+              :query => {'format' => 'json'}
+            ).
           to_return(
             :headers => {
               'Content-Encoding' => 'gzip',
-              'Content-Length' => packed.bytesize,
+              'Content-Length' => packed.bytesize-sz,
+              'Content-Range' => "bytes #{sz}-#{packed.bytesize-1}/#{packed.bytesize}",
               'Etag' => '"abcdefghijklmn"',
             },
-            :body => packed[0, sz]
+            :body => packed[sz, packed.bytesize-sz]
           )
-        stub_api_request(:get, '/v3/job/result/12345').
-          with(
-            :headers => {
-              'If-Range' => '"abcdefghijklmn"',
-              'Range' => "bytes=#{sz}-",
-            },
-            :query => {'format' => 'json'}
-          ).
-        to_return(
-          :headers => {
-            'Content-Encoding' => 'gzip',
-            'Content-Length' => packed.bytesize-sz,
-            'Content-Range' => "bytes #{sz}-#{packed.bytesize-1}/#{packed.bytesize}",
-            'Etag' => '"abcdefghijklmn"',
-          },
-          :body => packed[sz, packed.bytesize-sz]
-        )
-        expect(api).to receive(:sleep).once
-        expect($stderr).to receive(:print)
-        expect($stderr).to receive(:puts)
-        s = StringIO.new
-        api.job_result_format(12345, 'json', s)
-        s.string.should == ['hello', 'world'].to_json
-        api.job_result_format(12345, 'json').should == ['hello', 'world'].to_json
+          expect(api).to receive(:sleep).once
+          expect($stderr).to receive(:print)
+          expect($stderr).to receive(:puts)
+        end
+        it 'can work with io' do
+          s = StringIO.new
+          api.job_result_format(12345, 'json', s)
+          s.string.should == ['hello', 'world'].to_json
+        end
+        it 'can work without block' do
+          api.job_result_format(12345, 'json').should == ['hello', 'world'].to_json
+        end
       end
     end
   end

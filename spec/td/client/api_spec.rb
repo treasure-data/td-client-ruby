@@ -223,19 +223,11 @@ describe API do
         end
 
         context 'with Content-Length' do
-          context 'macth Content-Length and body.size' do
+          context 'match Content-Length and body.size' do
             let(:content_length) { {'Content-Length' => packed.size} }
 
             it 'api accuess succeded' do
               expect { get_api_call }.not_to raise_error
-            end
-          end
-
-          context 'not macth Content-Length and body.size' do
-            let(:content_length) { {'Content-Length' => packed.size + 1} }
-
-            it 'api accuess succeded' do
-              expect { get_api_call }.to raise_error(TreasureData::API::IncompleteError)
             end
           end
         end
