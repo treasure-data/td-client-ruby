@@ -40,26 +40,26 @@ describe API do
 
     it 'normalize_database_name should return normalized data' do
       INVALID_NAMES.each_pair {|ng,ok|
-        API.normalize_database_name(ng).should == ok
+        expect(API.normalize_database_name(ng)).to eq(ok)
       }
-      lambda {
+      expect {
         API.normalize_database_name('')
-      }.should raise_error(RuntimeError)
+      }.to raise_error(RuntimeError)
     end
 
     it 'normalize_table_name should return normalized data' do
       INVALID_NAMES.each_pair {|ng,ok|
-        API.normalize_table_name(ng).should == ok
+        expect(API.normalize_table_name(ng)).to eq(ok)
       }
       # empty
-      lambda {
+      expect {
         API.normalize_table_name('')
-      }.should raise_error(RuntimeError)
+      }.to raise_error(RuntimeError)
     end
 
     it 'normalize_database_name should return valid data' do
       VALID_NAMES.each {|ok|
-        API.normalize_database_name(ok).should == ok
+        expect(API.normalize_database_name(ok)).to eq(ok)
       }
     end
   end
@@ -68,19 +68,19 @@ describe API do
     describe "'validate_database_name'" do
       it 'should raise a ParameterValidationError exceptions' do
         INVALID_NAMES.each_pair {|ng,ok|
-          lambda {
+          expect {
             API.validate_database_name(ng)
-          }.should raise_error(ParameterValidationError)
+          }.to raise_error(ParameterValidationError)
         }
         # empty
-        lambda {
+        expect {
           API.validate_database_name('')
-        }.should raise_error(ParameterValidationError)
+        }.to raise_error(ParameterValidationError)
       end
 
       it 'should return valid data' do
         VALID_NAMES.each {|ok|
-          API.validate_database_name(ok).should == ok
+          expect(API.validate_database_name(ok)).to eq(ok)
         }
       end
     end
@@ -88,18 +88,18 @@ describe API do
     describe "'validate_table_name'" do
       it 'should raise a ParameterValidationError exception' do
         INVALID_NAMES.each_pair {|ng,ok|
-          lambda {
+          expect {
             API.validate_table_name(ng)
-          }.should raise_error(ParameterValidationError)
+          }.to raise_error(ParameterValidationError)
         }
-        lambda {
+        expect {
           API.validate_table_name('')
-        }.should raise_error(ParameterValidationError)
+        }.to raise_error(ParameterValidationError)
       end
 
       it 'should return valid data' do
         VALID_NAMES.each {|ok|
-          API.validate_database_name(ok).should == ok
+          expect(API.validate_database_name(ok)).to eq(ok)
         }
       end
     end
@@ -107,19 +107,19 @@ describe API do
     describe "'validate_result_set_name'" do
       it 'should raise a ParameterValidationError exception' do
         INVALID_NAMES.each_pair {|ng,ok|
-          lambda {
+          expect {
             API.validate_result_set_name(ng)
-          }.should raise_error(ParameterValidationError)
+          }.to raise_error(ParameterValidationError)
         }
         # empty
-        lambda {
+        expect {
           API.validate_result_set_name('')
-        }.should raise_error(ParameterValidationError)
+        }.to raise_error(ParameterValidationError)
       end
 
       it 'should return valid data' do
         VALID_NAMES.each {|ok|
-          API.validate_result_set_name(ok).should == ok
+          expect(API.validate_result_set_name(ok)).to eq(ok)
         }
       end
     end
@@ -127,18 +127,18 @@ describe API do
     describe "'validate_column_name'" do
       it 'should raise a ParameterValidationError exception' do
         ['/', '', 'D'].each { |ng|
-          lambda {
+          expect {
             API.validate_column_name(ng)
-          }.should raise_error(ParameterValidationError)
+          }.to raise_error(ParameterValidationError)
         }
       end
 
       it 'should return valid data' do
         VALID_NAMES.each {|ok|
-          API.validate_column_name(ok).should == ok
+          expect(API.validate_column_name(ok)).to eq(ok)
         }
         # columns can be as short as 2 characters
-        API.validate_column_name('ab').should == 'ab'
+        expect(API.validate_column_name('ab')).to eq('ab')
       end
     end
 
@@ -146,30 +146,30 @@ describe API do
     describe "'generic validate_name'" do
       it 'should raise a ParameterValidationError exception' do
         INVALID_NAMES.each_pair {|ng,ok|
-          lambda {
+          expect {
             API.validate_name("generic", 3, 256, ng)
-          }.should raise_error(ParameterValidationError)
+          }.to raise_error(ParameterValidationError)
         }
         # empty
-        lambda {
+        expect {
           API.validate_name("generic", 3, 256, '')
-        }.should raise_error(ParameterValidationError)
+        }.to raise_error(ParameterValidationError)
         # too short - one less than left limit
-        lambda {
+        expect {
           API.validate_name("generic", 3, 256, 'ab')
-        }.should raise_error(ParameterValidationError)
+        }.to raise_error(ParameterValidationError)
       end
 
       it 'should return valid data' do
         VALID_NAMES.each {|ok|
-          API.validate_name("generic", 3, 256, ok).should == ok
+          expect(API.validate_name("generic", 3, 256, ok)).to eq(ok)
         }
         # esplore left boundary
-        API.validate_name("generic", 2, 256, 'ab').should == 'ab'
-        API.validate_name("generic", 1, 256, 'a').should == 'a'
+        expect(API.validate_name("generic", 2, 256, 'ab')).to eq('ab')
+        expect(API.validate_name("generic", 1, 256, 'a')).to eq('a')
         # explore right boundary
-        API.validate_name("generic", 3, 256, 'a' * 256).should == 'a' * 256
-        API.validate_name("generic", 3, 128, 'a' * 128).should == 'a' * 128
+        expect(API.validate_name("generic", 3, 256, 'a' * 256)).to eq('a' * 256)
+        expect(API.validate_name("generic", 3, 128, 'a' * 128)).to eq('a' * 128)
       end
     end
 
@@ -204,7 +204,7 @@ describe API do
         let(:content_length) { {'Content-Length' => packed.size} }
 
         it 'not called #completed_body?' do
-          api.should_not_receive(:completed_body?)
+          expect(api).not_to receive(:completed_body?)
 
           get_api_call
         end

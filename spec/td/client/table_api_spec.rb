@@ -27,7 +27,7 @@ describe 'Table API' do
     it 'should create a new table if the database exists' do
       stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
         to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log'}.to_json)
-      api.create_log_table(db_name, table_name).should be true
+      expect(api.create_log_table(db_name, table_name)).to be true
     end
 
     it 'should return 400 error with invalid name' do
@@ -166,7 +166,7 @@ describe 'Table API' do
   describe 'swap_table' do
     it 'should swap tables' do
       stub_api_request(:post, '/v3/table/swap/db/table1/table2')
-      api.swap_table('db', 'table1', 'table2').should == true
+      expect(api.swap_table('db', 'table1', 'table2')).to eq(true)
     end
   end
 
@@ -175,7 +175,7 @@ describe 'Table API' do
       stub_api_request(:post, '/v3/table/update/db/table').
         with(:body => {'expire_days' => '5'}).
         to_return(:body => {'type' => 'type'}.to_json)
-      api.update_expire('db', 'table', 5).should == true
+      expect(api.update_expire('db', 'table', 5)).to eq(true)
     end
   end
 
@@ -197,14 +197,14 @@ describe 'Table API' do
       api.tail('db', 'table', 10) do |row|
         result << row
       end
-      result.should == [[1, 2, 3], [4, 5, 6]]
+      expect(result).to eq([[1, 2, 3], [4, 5, 6]])
     end
 
     it 'returns rows' do
       stub_api_request(:get, '/v3/table/tail/db/table').
         with(:query => {'format' => 'msgpack', 'count' => '10'}).
         to_return(:body => packed)
-      api.tail('db', 'table', 10).should == [[1, 2, 3], [4, 5, 6]]
+      expect(api.tail('db', 'table', 10)).to eq([[1, 2, 3], [4, 5, 6]])
     end
 
     it 'shows deprecated warning for from and to' do
@@ -220,7 +220,7 @@ describe 'Table API' do
         $stderr.reopen(backup)
         w.close
       end
-      r.read.should == %Q(parameter "to" and "from" no longer work\n)
+      expect(r.read).to eq(%Q(parameter "to" and "from" no longer work\n))
     end
   end
 end

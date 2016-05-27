@@ -20,7 +20,7 @@ describe 'Job API' do
     it 'should returns 20 jobs by default' do
       stub_api_request(:get, "/v3/job/list", :query => {'from' => '0'}).to_return(:body => {'jobs' => raw_jobs}.to_json)
       jobs = api.list_jobs
-      jobs.size.should == 20
+      expect(jobs.size).to eq(20)
     end
 
     (0...MAX_JOB).each {|i|
@@ -32,20 +32,20 @@ describe 'Job API' do
         jobs[i..i].map {|job_id, type, status, query, start_at, end_at, cpu_time,
                       result_size, result_url, priority, retry_limit, org, db,
                       duration|
-          job_id.should == job['job_id']
-          type.should == job['type']
-          status.should == job['status']
-          query.should == job['query']
-          start_at.should == job['start_at']
-          end_at.should == job['end_at']
-          cpu_time.should == job['cpu_time']
-          result_size.should == job['result_size']
-          result_url.should == job['result_url']
-          priority.should == job['priority']
-          retry_limit.should == job['retry_limit']
-          org.should == job['organization']
-          db.should == job['database']
-          duration.should == job['duration']
+          expect(job_id).to eq(job['job_id'])
+          expect(type).to eq(job['type'])
+          expect(status).to eq(job['status'])
+          expect(query).to eq(job['query'])
+          expect(start_at).to eq(job['start_at'])
+          expect(end_at).to eq(job['end_at'])
+          expect(cpu_time).to eq(job['cpu_time'])
+          expect(result_size).to eq(job['result_size'])
+          expect(result_url).to eq(job['result_url'])
+          expect(priority).to eq(job['priority'])
+          expect(retry_limit).to eq(job['retry_limit'])
+          expect(org).to eq(job['organization'])
+          expect(db).to eq(job['database'])
+          expect(duration).to eq(job['duration'])
         }
       end
     }
@@ -53,14 +53,14 @@ describe 'Job API' do
     it 'should returns 10 jobs with to parameter' do
       stub_api_request(:get, "/v3/job/list", :query => {'from' => '0', 'to' => '10'}).to_return(:body => {'jobs' => raw_jobs[0...10]}.to_json)
       jobs = api.list_jobs(0, 10)
-      jobs.size.should == 10
+      expect(jobs.size).to eq(10)
     end
 
     it 'should returns 10 jobs with to status parameter' do
       error_jobs = raw_jobs.select { |j| j['status'] == 'error' }
       stub_api_request(:get, "/v3/job/list", :query => {'from' => '0', 'status' => 'error'}).to_return(:body => {'jobs' => error_jobs}.to_json)
       jobs = api.list_jobs(0, nil, 'error')
-      jobs.size.should == error_jobs.size
+      expect(jobs.size).to eq(error_jobs.size)
     end
 
     #it 'should contain the result_size field' do
@@ -75,21 +75,21 @@ describe 'Job API' do
 
         type, query, status, url, debug, start_at, end_at, cpu_time,
           result_size, result_url, hive_result_schema, priority, retry_limit, org, db = api.show_job(i)
-        type.should == job['type']
-        query.should == job['query']
-        status.should == job['status']
-        url.should == job['url']
-        debug.should == job['debug']
-        start_at.should == job['start_at']
-        end_at.should == job['end_at']
-        cpu_time.should == job['cpu_time']
-        result_size.should == job['result_size']
-        result_url.should == job['result_url']
-        hive_result_schema.should == job['hive_result_schema']
-        result_url.should == job['result_url']
-        priority.should == job['priority']
-        org.should == job['organization']
-        db.should == job['database']
+        expect(type).to eq(job['type'])
+        expect(query).to eq(job['query'])
+        expect(status).to eq(job['status'])
+        expect(url).to eq(job['url'])
+        expect(debug).to eq(job['debug'])
+        expect(start_at).to eq(job['start_at'])
+        expect(end_at).to eq(job['end_at'])
+        expect(cpu_time).to eq(job['cpu_time'])
+        expect(result_size).to eq(job['result_size'])
+        expect(result_url).to eq(job['result_url'])
+        expect(hive_result_schema).to eq(job['hive_result_schema'])
+        expect(result_url).to eq(job['result_url'])
+        expect(priority).to eq(job['priority'])
+        expect(org).to eq(job['organization'])
+        expect(db).to eq(job['database'])
       end
     }
 
@@ -129,7 +129,7 @@ describe 'Job API' do
         stub_api_request(:get, "/v3/job/status/#{e(job_id)}").to_return(:body => result_job.to_json)
 
         status = api.job_status(job_id)
-        status.should == (i.odd? ? 'success' : 'error')
+        expect(status).to eq(i.odd? ? 'success' : 'error')
       end
     }
   end
@@ -144,7 +144,7 @@ describe 'Job API' do
       stub_api_request(:post, "/v3/job/issue/hive/#{e(db_name)}").with(:body => params).to_return(return_body)
 
       job_id = api.hive_query(query, db_name)
-      job_id.should == '1'
+      expect(job_id).to eq('1')
     end
 
     it 'issue a query with result_url' do
@@ -152,7 +152,7 @@ describe 'Job API' do
       stub_api_request(:post, "/v3/job/issue/hive/#{e(db_name)}").with(:body => params).to_return(return_body)
 
       job_id = api.hive_query(query, db_name, 'td://@/test/table')
-      job_id.should == '1'
+      expect(job_id).to eq('1')
     end
 
     it 'issue a query with priority' do
@@ -160,7 +160,7 @@ describe 'Job API' do
       stub_api_request(:post, "/v3/job/issue/hive/#{e(db_name)}").with(:body => params).to_return(return_body)
 
       job_id = api.hive_query(query, db_name, nil, 1)
-      job_id.should == '1'
+      expect(job_id).to eq('1')
     end
   end
 
@@ -178,7 +178,7 @@ describe 'Job API' do
       stub_api_request(:get, '/v3/job/result/12345').
         with(:query => {'format' => 'msgpack'}).
         to_return(:body => packed)
-      api.job_result(12345).should == ['hello', 'world']
+      expect(api.job_result(12345)).to eq(['hello', 'world'])
     end
   end
 
@@ -203,8 +203,8 @@ describe 'Job API' do
         total_size = 0
         api.job_result_format(12345, 'json', io) {|size| total_size += size }
 
-        io.string.should  == json
-        total_size.should == json.size
+        expect(io.string).to  eq(json)
+        expect(total_size).to eq(json.size)
       end
     end
 
@@ -216,7 +216,7 @@ describe 'Job API' do
             :headers => {'Content-Encoding' => 'gzip'},
             :body => packed
           )
-        api.job_result_format(12345, 'json').should == ['hello', 'world'].to_json
+        expect(api.job_result_format(12345, 'json')).to eq(['hello', 'world'].to_json)
       end
 
       it 'writes formatted job result' do
@@ -228,7 +228,7 @@ describe 'Job API' do
           )
         s = StringIO.new
         api.job_result_format(12345, 'json', s)
-        s.string.should == ['hello', 'world'].to_json
+        expect(s.string).to eq(['hello', 'world'].to_json)
       end
     end
   end
@@ -256,7 +256,7 @@ describe 'Job API' do
       api.job_result_each(12345) do |row|
         result << row
       end
-      result.should == ['hello', 'world']
+      expect(result).to eq(['hello', 'world'])
     end
   end
 
@@ -285,7 +285,7 @@ describe 'Job API' do
       api.job_result_each_with_compr_size(12345) do |row, size|
         result << [row, size]
       end
-      result.should == [['hello', 32], ['world', 32]]
+      expect(result).to eq([['hello', 32], ['world', 32]])
     end
   end
 
@@ -299,7 +299,7 @@ describe 'Job API' do
           to_return(:body => 'raw binary')
         api.job_result_raw(12345, 'json', io)
 
-        io.string.should == 'raw binary'
+        expect(io.string).to eq('raw binary')
       end
     end
 
@@ -308,7 +308,7 @@ describe 'Job API' do
         stub_api_request(:get, '/v3/job/result/12345').
           with(:query => {'format' => 'json'}).
           to_return(:body => 'raw binary')
-        api.job_result_raw(12345, 'json').should == 'raw binary'
+        expect(api.job_result_raw(12345, 'json')).to eq('raw binary')
       end
     end
 
@@ -356,7 +356,7 @@ describe 'Job API' do
       expect($stderr).to receive(:puts)
       sio = StringIO.new(''.force_encoding(Encoding::ASCII_8BIT))
       api.job_result_raw(12345, 'msgpack.gz', sio)
-      sio.string.should == packed
+      expect(sio.string).to eq(packed)
     end
   end
 
@@ -364,7 +364,7 @@ describe 'Job API' do
     it 'kills a job' do
       stub_api_request(:post, '/v3/job/kill/12345').
         to_return(:body => {'former_status' => 'status'}.to_json)
-      api.kill(12345).should == 'status'
+      expect(api.kill(12345)).to eq('status')
     end
   end
 end

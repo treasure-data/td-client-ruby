@@ -20,7 +20,7 @@ describe 'Schedule API' do
         with(:body => opts.merge('type' => 'hive')).
         to_return(:body => {'name' => sched_name, 'start' => start.to_s}.to_json)
 
-      api.create_schedule(sched_name, opts.merge('type' => 'hive')).should == start.to_s
+      expect(api.create_schedule(sched_name, opts.merge('type' => 'hive'))).to eq(start.to_s)
     end
 
     it 'should create a dummy schedule' do
@@ -28,7 +28,7 @@ describe 'Schedule API' do
         with(:body => opts.merge('type' => 'hive')).
         to_return(:body => {'name' => sched_name, 'start' => nil}.to_json)
 
-      api.create_schedule(sched_name, opts.merge('type' => 'hive')).should be_nil
+      expect(api.create_schedule(sched_name, opts.merge('type' => 'hive'))).to be_nil
     end
 
     it 'should return 422 error with invalid name' do
@@ -48,7 +48,7 @@ describe 'Schedule API' do
     it 'should delete the schedule' do
       stub_api_request(:post, "/v3/schedule/delete/#{e(sched_name)}").
         to_return(:body => {'cron' => 'cron', 'query' => 'query'}.to_json)
-      api.delete_schedule(sched_name).should == ['cron', 'query']
+      expect(api.delete_schedule(sched_name)).to eq(['cron', 'query'])
     end
   end
 
@@ -94,7 +94,7 @@ describe 'Schedule API' do
       stub_api_request(:get, "/v3/schedule/history/#{e(sched_name)}").
         with(:query => {'from' => 0, 'to' => 100}).
         to_return(:body => {'history' => [history]}.to_json)
-        api.history(sched_name, 0, 100).should == [[nil, 'job_id', :type, 'status', 'query', 'start_at', 'end_at', 'result', 'priority', 'database']]
+        expect(api.history(sched_name, 0, 100)).to eq([[nil, 'job_id', :type, 'status', 'query', 'start_at', 'end_at', 'result', 'priority', 'database']])
     end
   end
 
@@ -103,7 +103,7 @@ describe 'Schedule API' do
       stub_api_request(:post, "/v3/schedule/run/#{e(sched_name)}/123456789").
         with(:body => {'num' => '5'}).
         to_return(:body => {'jobs' => [{'job_id' => 'job_id', 'scheduled_at' => 'scheduled_at', 'type' => 'type'}]}.to_json)
-        api.run_schedule(sched_name, 123456789, 5).should == [['job_id', :type, 'scheduled_at']]
+        expect(api.run_schedule(sched_name, 123456789, 5)).to eq([['job_id', :type, 'scheduled_at']])
     end
   end
 end

@@ -13,13 +13,13 @@ describe 'ServerStatus API' do
     it 'returns status' do
       stub_api_request(:get, '/v3/system/server_status').
         to_return(:body => {'status' => 'OK'}.to_json)
-      api.server_status.should == 'OK'
+      expect(api.server_status).to eq('OK')
     end
 
     it 'returns error description' do
       stub_api_request(:get, '/v3/system/server_status').
         to_return(:status => 500)
-      api.server_status.should == 'Server is down (500)'
+      expect(api.server_status).to eq('Server is down (500)')
     end
   end
 end
