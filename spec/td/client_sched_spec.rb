@@ -28,14 +28,14 @@ describe 'Schedule Command' do
     context 'start is now' do
       let (:start){ Time.now.round }
       it 'returns Time object' do
-        client.create_schedule(sched_name, opts).should == start
+        expect(client.create_schedule(sched_name, opts)).to eq(start)
       end
     end
 
     context 'start is nil' do
       let (:start){ nil }
       it do
-        client.create_schedule(sched_name, opts).should == start
+        expect(client.create_schedule(sched_name, opts)).to eq(start)
       end
     end
   end
@@ -58,11 +58,11 @@ describe 'Schedule Command' do
         to_return(:body => {'count' => 1, 'history' => [h]}.to_json)
 
       client.history(sched_name, 0, 19).each do |scheduled_job|
-        scheduled_job.scheduled_at.xmlschema.should == Time.parse('2015-02-17T14:16:00+09:00').xmlschema #avoid depending on CI's Locale
-        scheduled_job.job_id.should == 'job_id'
-        scheduled_job.status.should == 'status'
-        scheduled_job.priority.should == 'priority'
-        scheduled_job.result_url.should == 'result'
+        expect(scheduled_job.scheduled_at.xmlschema).to eq(Time.parse('2015-02-17T14:16:00+09:00').xmlschema) #avoid depending on CI's Locale
+        expect(scheduled_job.job_id).to eq('job_id')
+        expect(scheduled_job.status).to eq('status')
+        expect(scheduled_job.priority).to eq('priority')
+        expect(scheduled_job.result_url).to eq('result')
       end
     end
 
@@ -72,7 +72,7 @@ describe 'Schedule Command' do
         to_return(:body => {'count' => 1, 'history' => [h]}.to_json)
 
       client.history(sched_name, 0, 19).each do |scheduled_job|
-        scheduled_job.scheduled_at.should == nil
+        expect(scheduled_job.scheduled_at).to eq(nil)
       end
     end
   end

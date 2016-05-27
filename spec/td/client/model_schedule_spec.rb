@@ -14,11 +14,11 @@ describe 'Schedule Model' do
     let(:num) { 1 }
 
     before do
-      API.stub(:new).with(api_key, {}).and_return(api)
+      allow(API).to receive(:new).with(api_key, {}).and_return(api)
     end
 
     it 'success call api' do
-      api.should_receive(:run_schedule).with(name, time, num).and_return([])
+      expect(api).to receive(:run_schedule).with(name, time, num).and_return([])
 
       schedule.run(time, num)
     end

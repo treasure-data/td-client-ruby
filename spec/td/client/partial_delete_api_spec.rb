@@ -27,7 +27,7 @@ describe 'PartialDelete API' do
       stub_api_request(:post, "/v3/table/partialdelete/#{e(db_name)}/#{e(table_name)}").with(:body => from_to).
         to_return(:body => {'database' => db_name, 'table' => table_name, 'job_id' => '1'}.to_json)
 
-      api.partial_delete(db_name, table_name, to, from).should == '1'
+      expect(api.partial_delete(db_name, table_name, to, from)).to eq('1')
     end
 
     it 'should return 404 error with non exist database name' do

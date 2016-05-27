@@ -29,7 +29,7 @@ describe 'BulkImport API' do
       stub_api_request(:post, "/v3/bulk_import/create/#{e(bi_name)}/#{e(db_name)}/#{e(table_name)}").
         to_return(:body => {'bulk_import' => bi_name}.to_json)
 
-      api.create_bulk_import(bi_name, db_name, table_name).should be_nil
+      expect(api.create_bulk_import(bi_name, db_name, table_name)).to be_nil
     end
 
     it 'should return 422 error with invalid name' do
@@ -70,7 +70,7 @@ describe 'BulkImport API' do
     it 'runs' do
       stub_api_request(:post, '/v3/bulk_import/delete/name').
         with(:body => 'foo=bar')
-      api.delete_bulk_import('name', 'foo' => 'bar').should == nil
+      expect(api.delete_bulk_import('name', 'foo' => 'bar')).to eq(nil)
     end
   end
 
@@ -78,7 +78,7 @@ describe 'BulkImport API' do
     it 'runs' do
       stub_api_request(:get, '/v3/bulk_import/show/name').
         to_return(:body => {'status' => 'status', 'other' => 'other'}.to_json)
-      api.show_bulk_import('name')['status'].should == 'status'
+      expect(api.show_bulk_import('name')['status']).to eq('status')
     end
   end
 
@@ -87,7 +87,7 @@ describe 'BulkImport API' do
       stub_api_request(:get, '/v3/bulk_import/list').
         with(:query => 'foo=bar').
         to_return(:body => {'bulk_imports' => %w(1 2 3)}.to_json)
-      api.list_bulk_imports('foo' => 'bar').should == %w(1 2 3)
+      expect(api.list_bulk_imports('foo' => 'bar')).to eq(%w(1 2 3))
     end
   end
 
@@ -96,7 +96,7 @@ describe 'BulkImport API' do
       stub_api_request(:get, '/v3/bulk_import/list_parts/name').
         with(:query => 'foo=bar').
         to_return(:body => {'parts' => %w(1 2 3)}.to_json)
-      api.list_bulk_import_parts('name', 'foo' => 'bar').should == %w(1 2 3)
+      expect(api.list_bulk_import_parts('name', 'foo' => 'bar')).to eq(%w(1 2 3))
     end
   end
 
@@ -109,7 +109,7 @@ describe 'BulkImport API' do
       stub_request(:put, 'http://api.treasure-data.com/v3/bulk_import/upload_part/name/part').
         with(:body => '12345')
       File.open(t.path) do |f|
-        api.bulk_import_upload_part('name', 'part', f, 5).should == nil
+        expect(api.bulk_import_upload_part('name', 'part', f, 5)).to eq(nil)
       end
     end
 
@@ -122,7 +122,7 @@ describe 'BulkImport API' do
         stub_request(:put, 'http://api.treasure-data.com/v3/bulk_import/upload_part/name/' + CGI.escape('日本語(Japanese)'.encode('UTF-8'))).
           with(:body => '12345')
         File.open(t.path) do |f|
-          api.bulk_import_upload_part('name', '日本語(Japanese)'.encode('Windows-31J'), f, 5).should == nil
+          expect(api.bulk_import_upload_part('name', '日本語(Japanese)'.encode('Windows-31J'), f, 5)).to eq(nil)
         end
       end
     end
@@ -131,21 +131,21 @@ describe 'BulkImport API' do
   describe 'bulk_import_delete_part' do
     it 'runs' do
       stub_api_request(:post, '/v3/bulk_import/delete_part/name/part')
-      api.bulk_import_delete_part('name', 'part').should == nil
+      expect(api.bulk_import_delete_part('name', 'part')).to eq(nil)
     end
   end
 
   describe 'freeze_bulk_import' do
     it 'runs' do
       stub_api_request(:post, '/v3/bulk_import/freeze/name')
-      api.freeze_bulk_import('name').should == nil
+      expect(api.freeze_bulk_import('name')).to eq(nil)
     end
   end
 
   describe 'unfreeze_bulk_import' do
     it 'runs' do
       stub_api_request(:post, '/v3/bulk_import/unfreeze/name')
-      api.unfreeze_bulk_import('name').should == nil
+      expect(api.unfreeze_bulk_import('name')).to eq(nil)
     end
   end
 
@@ -153,7 +153,7 @@ describe 'BulkImport API' do
     it 'runs' do
       stub_api_request(:post, '/v3/bulk_import/perform/name').
         to_return(:body => {'job_id' => 12345}.to_json)
-      api.perform_bulk_import('name').should == '12345'
+      expect(api.perform_bulk_import('name')).to eq('12345')
     end
   end
 
@@ -161,7 +161,7 @@ describe 'BulkImport API' do
     it 'runs' do
       stub_api_request(:post, '/v3/bulk_import/commit/name').
         to_return(:body => {'job_id' => 12345}.to_json)
-      api.commit_bulk_import('name').should == nil
+      expect(api.commit_bulk_import('name')).to eq(nil)
     end
   end
 
@@ -169,19 +169,19 @@ describe 'BulkImport API' do
     it 'returns [] on empty' do
       stub_api_request(:get, '/v3/bulk_import/error_records/name').
         to_return(:body => '')
-      api.bulk_import_error_records('name').should == []
+      expect(api.bulk_import_error_records('name')).to eq([])
     end
 
     it 'returns nil on empty if block given' do
       stub_api_request(:get, '/v3/bulk_import/error_records/name').
         to_return(:body => '')
-      api.bulk_import_error_records('name'){}.should == nil
+      expect(api.bulk_import_error_records('name'){}).to eq(nil)
     end
 
     it 'returns unpacked result' do
       stub_api_request(:get, '/v3/bulk_import/error_records/name').
         to_return(:body => packed)
-      api.bulk_import_error_records('name').should == [[1, '2', 3.0], [4, '5', 6.0], [7, '8', 9.0]]
+      expect(api.bulk_import_error_records('name')).to eq([[1, '2', 3.0], [4, '5', 6.0], [7, '8', 9.0]])
     end
 
     it 'yields unpacked result if block given' do
@@ -191,7 +191,7 @@ describe 'BulkImport API' do
       api.bulk_import_error_records('name') do |row|
         result << row
       end
-      result.should == [[1, '2', 3.0], [4, '5', 6.0], [7, '8', 9.0]]
+      expect(result).to eq([[1, '2', 3.0], [4, '5', 6.0], [7, '8', 9.0]])
     end
   end
 end

@@ -25,7 +25,7 @@ describe 'Import API' do
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
-        api.import('db', 'table', 'format', f, 5, 'unique_id').should == 1.23
+        expect(api.import('db', 'table', 'format', f, 5, 'unique_id')).to eq(1.23)
       end
     end
 
@@ -38,7 +38,7 @@ describe 'Import API' do
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
-        api.import('db', 'table', 'format', f, 5).should == 1.23
+        expect(api.import('db', 'table', 'format', f, 5)).to eq(1.23)
       end
     end
 
@@ -51,7 +51,7 @@ describe 'Import API' do
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
-        api_old.import('db', 'table', 'format', f, 5).should == 1.23
+        expect(api_old.import('db', 'table', 'format', f, 5)).to eq(1.23)
       end
     end
 

@@ -18,7 +18,7 @@ describe 'Database API' do
       stub_api_request(:post, "/v3/database/create/#{e(db_name)}").
         to_return(:body => {'database' => db_name}.to_json)
 
-      api.create_database(db_name).should be true
+      expect(api.create_database(db_name)).to be true
     end
 
     it 'should return 400 error with invalid name' do

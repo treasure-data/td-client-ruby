@@ -113,9 +113,9 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads/guess').
         with(:body => original_config.to_json).
         to_return(:body => guessed_config.to_json)
-      api.bulk_load_guess(
+      expect(api.bulk_load_guess(
         original_config
-      ).should == guessed_config
+      )).to eq(guessed_config)
     end
 
     it 'raises an error' do
@@ -134,23 +134,23 @@ describe 'BulkImport API' do
         with(:body => original_config.to_json).
         to_return(:status => 500, :body => guessed_config.to_json)
       begin
-        retry_api.bulk_load_guess(
+        expect(retry_api.bulk_load_guess(
           original_config
-        ).should != nil
+        )).to != nil
       rescue TreasureData::APIError => e
-        e.message.should =~ /^500: BulkLoad configuration guess failed/
+        expect(e.message).to match(/^500: BulkLoad configuration guess failed/)
       end
     end
 
     it 'perform retries on connection failure' do
       api = retry_api
-      api.instance_eval { @api }.stub(:post).and_raise(SocketError.new('>>'))
+      allow(api.instance_eval { @api }).to receive(:post).and_raise(SocketError.new('>>'))
       begin
         retry_api.bulk_load_guess(
           original_config
         )
       rescue SocketError => e
-        e.message.should == '>> (Retried 1 times in 1 seconds)'
+        expect(e.message).to eq('>> (Retried 1 times in 1 seconds)')
       end
     end
   end
@@ -160,9 +160,9 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads/guess').
         with(:body => original_config.to_json).
         to_return(:body => guessed_config.to_json)
-      api.bulk_load_guess(
+      expect(api.bulk_load_guess(
         original_config
-      ).should == guessed_config
+      )).to eq(guessed_config)
     end
 
     it 'raises an error' do
@@ -181,23 +181,23 @@ describe 'BulkImport API' do
         with(:body => original_config.to_json).
         to_return(:status => 500, :body => guessed_config.to_json)
       begin
-        retry_api.bulk_load_guess(
+        expect(retry_api.bulk_load_guess(
           original_config
-        ).should != nil
+        )).to != nil
       rescue TreasureData::APIError => e
-        e.message.should =~ /^500: BulkLoad configuration guess failed/
+        expect(e.message).to match(/^500: BulkLoad configuration guess failed/)
       end
     end
 
     it 'perform retries on connection failure' do
       api = retry_api
-      api.instance_eval { @api }.stub(:post).and_raise(SocketError.new('>>'))
+      allow(api.instance_eval { @api }).to receive(:post).and_raise(SocketError.new('>>'))
       begin
         retry_api.bulk_load_guess(
           original_config
         )
       rescue SocketError => e
-        e.message.should == '>> (Retried 1 times in 1 seconds)'
+        expect(e.message).to eq('>> (Retried 1 times in 1 seconds)')
       end
     end
   end
@@ -207,9 +207,9 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads/preview').
         with(:body => guessed_config.to_json).
         to_return(:body => preview_result.to_json)
-      api.bulk_load_preview(
+      expect(api.bulk_load_preview(
         guessed_config
-      ).should == preview_result
+      )).to eq(preview_result)
     end
 
     it 'raises an error' do
@@ -232,11 +232,11 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/job/issue/bulkload/database').
         with(:body => expected_request.to_json).
         to_return(:body => {'job_id' => 12345}.to_json)
-      api.bulk_load_issue(
+      expect(api.bulk_load_issue(
         'database',
         'table',
         guessed_config
-      ).should == '12345'
+      )).to eq('12345')
     end
   end
 
@@ -245,14 +245,14 @@ describe 'BulkImport API' do
       stub_api_request(:get, '/v3/bulk_loads').
         to_return(:body => [bulk_load_session, bulk_load_session].to_json)
       result = api.bulk_load_list
-      result.size.should == 2
-      result.first.should == bulk_load_session
+      expect(result.size).to eq(2)
+      expect(result.first).to eq(bulk_load_session)
     end
 
     it 'returns empty' do
       stub_api_request(:get, '/v3/bulk_loads').
         to_return(:body => [].to_json)
-      api.bulk_load_list.size.should == 0
+      expect(api.bulk_load_list.size).to eq(0)
     end
   end
 
@@ -268,7 +268,7 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads').
         with(:body => expected_request.to_json).
         to_return(:body => bulk_load_session.to_json)
-      api.bulk_load_create(
+      expect(api.bulk_load_create(
         'nahi_test_1',
         'database',
         'table',
@@ -278,7 +278,7 @@ describe 'BulkImport API' do
           timezone: 'Asia/Tokyo',
           delay: 3600
         }
-      ).should == bulk_load_session
+      )).to eq(bulk_load_session)
     end
 
     it 'accepts empty option' do
@@ -289,12 +289,12 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads').
         with(:body => expected_request.to_json).
         to_return(:body => bulk_load_session.to_json)
-      api.bulk_load_create(
+      expect(api.bulk_load_create(
         'nahi_test_1',
         'database',
         'table',
         guessed_config
-      ).should == bulk_load_session
+      )).to eq(bulk_load_session)
     end
 
     it 'accepts time_column option' do
@@ -306,7 +306,7 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads').
         with(:body => expected_request.to_json).
         to_return(:body => bulk_load_session.to_json)
-      api.bulk_load_create(
+      expect(api.bulk_load_create(
         'nahi_test_1',
         'database',
         'table',
@@ -314,7 +314,7 @@ describe 'BulkImport API' do
         {
           time_column: 'c0'
         }
-      ).should == bulk_load_session
+      )).to eq(bulk_load_session)
     end
   end
 
@@ -322,7 +322,7 @@ describe 'BulkImport API' do
     it 'returns bulk_load_session' do
       stub_api_request(:get, '/v3/bulk_loads/nahi_test_1').
         to_return(:body => bulk_load_session.to_json)
-      api.bulk_load_show('nahi_test_1').should == bulk_load_session
+      expect(api.bulk_load_show('nahi_test_1')).to eq(bulk_load_session)
     end
   end
 
@@ -331,10 +331,10 @@ describe 'BulkImport API' do
       stub_api_request(:put, '/v3/bulk_loads/nahi_test_1').
         with(:body => bulk_load_session.to_json).
         to_return(:body => bulk_load_session.to_json)
-      api.bulk_load_update(
+      expect(api.bulk_load_update(
         'nahi_test_1',
         bulk_load_session
-      ).should == bulk_load_session
+      )).to eq(bulk_load_session)
     end
   end
 
@@ -342,7 +342,7 @@ describe 'BulkImport API' do
     it 'returns updated bulk_load_session' do
       stub_api_request(:delete, '/v3/bulk_loads/nahi_test_1').
         to_return(:body => bulk_load_session.to_json)
-      api.bulk_load_delete('nahi_test_1').should == bulk_load_session
+      expect(api.bulk_load_delete('nahi_test_1')).to eq(bulk_load_session)
     end
   end
 
@@ -351,8 +351,8 @@ describe 'BulkImport API' do
       stub_api_request(:get, '/v3/bulk_loads/nahi_test_1/jobs').
         to_return(:body => [bulk_load_job, bulk_load_job].to_json)
       result = api.bulk_load_history('nahi_test_1')
-      result.size.should == 2
-      result.first.should == bulk_load_job
+      expect(result.size).to eq(2)
+      expect(result.first).to eq(bulk_load_job)
     end
   end
 
@@ -361,7 +361,7 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads/nahi_test_1/jobs').
         with(:body => '{}').
         to_return(:body => {'job_id' => 12345}.to_json)
-      api.bulk_load_run('nahi_test_1').should == '12345'
+      expect(api.bulk_load_run('nahi_test_1')).to eq('12345')
     end
 
     it 'accepts scheduled_time' do
@@ -369,7 +369,7 @@ describe 'BulkImport API' do
       stub_api_request(:post, '/v3/bulk_loads/nahi_test_1/jobs').
         with(:body => {scheduled_time: now.to_s}.to_json).
         to_return(:body => {'job_id' => 12345}.to_json)
-      api.bulk_load_run('nahi_test_1', now).should == '12345'
+      expect(api.bulk_load_run('nahi_test_1', now)).to eq('12345')
     end
   end
 
