@@ -211,7 +211,7 @@ describe 'Job API' do
       expect(api).to receive(:sleep).once
       expect($stderr).to receive(:print)
       expect($stderr).to receive(:puts)
-      api.job_result(12345).should == ['hello', 'world']
+      expect(api.job_result(12345)).to eq ['hello', 'world']
     end
   end
 
@@ -301,10 +301,10 @@ describe 'Job API' do
         it 'can work with io' do
           s = StringIO.new
           api.job_result_format(12345, 'json', s)
-          s.string.should == ['hello', 'world'].to_json
+          expect(s.string).to eq ['hello', 'world'].to_json
         end
         it 'can work without block' do
-          api.job_result_format(12345, 'json').should == ['hello', 'world'].to_json
+          expect(api.job_result_format(12345, 'json')).to eq ['hello', 'world'].to_json
         end
       end
     end
@@ -371,7 +371,7 @@ describe 'Job API' do
       api.job_result_each(12345) do |row|
         result << row
       end
-      result.should == ['hello', 'world']
+      expect(result).to eq ['hello', 'world']
     end
   end
 
@@ -438,7 +438,7 @@ describe 'Job API' do
       api.job_result_each_with_compr_size(12345) do |row, size|
         result << [row, size]
       end
-      result.should == [['hello', 32], ['world', 32]]
+      expect(result).to eq [['hello', 32], ['world', 32]]
     end
   end
 
