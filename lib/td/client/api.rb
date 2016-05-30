@@ -286,13 +286,15 @@ private
 
         if block_given?
           response = client.get(target, params, header) {|res, chunk|
-            current_total_chunk_size += chunk.bytesize
+            current_total_chunk_size += chunk.bytesize if res.status == 200
             yield res, chunk, current_total_chunk_size
           }
         else
           response = client.get(target, params, header)
-          current_total_chunk_size += response.body.bytesize
-          body << response.body
+          if response.status == 200
+            current_total_chunk_size += response.body.bytesize
+            body << response.body
+          end
         end
 
         # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
