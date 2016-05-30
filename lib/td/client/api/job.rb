@@ -115,7 +115,7 @@ module Job
   # @param [String] job_id
   # @return [Array]
   def job_result(job_id)
-    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'})
+    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}, {:resume => true})
     if code != "200"
       raise_error("Get job result failed", res)
     end
@@ -136,7 +136,7 @@ module Job
   def job_result_format(job_id, format, io=nil, &block)
     if io
       infl = nil
-      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}) {|res, chunk, current_total_chunk_size|
+      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}, {:resume => true}) {|res, chunk, current_total_chunk_size|
         if res.code != 200
           raise_error("Get job result failed", res)
         end
@@ -148,7 +148,7 @@ module Job
       }
       nil
     else
-      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
+      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}, {:resume => true})
       if code != "200"
         raise_error("Get job result failed", res)
       end
@@ -165,7 +165,7 @@ module Job
     upkr = MessagePack::Unpacker.new
     infl = nil
 
-    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res, chunk, current_total_chunk_size|
+    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}, {:resume => true}) {|res, chunk, current_total_chunk_size|
       if res.code != 200
         raise_error("Get job result failed", res)
       end
@@ -190,7 +190,7 @@ module Job
     upkr = MessagePack::Unpacker.new
     infl = nil
 
-    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}) {|res, chunk, current_total_chunk_size|
+    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}, {:resume => true}) {|res, chunk, current_total_chunk_size|
       if res.code != 200
         raise_error("Get job result failed", res)
       end

@@ -247,7 +247,7 @@ private
   # @param [Hash] params
   # @param [Hash] opt
   # @yield [response]
-  def do_get(url, params=nil, opt={}, &block)
+  def do_get(url, params=nil, opt={})
     client, header = new_client
     client.send_timeout = @send_timeout
     client.receive_timeout = @read_timeout
@@ -272,27 +272,48 @@ private
     response = nil
     etag = nil
     current_total_chunk_size = 0
+    body = String.new unless block_given?
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
         if etag
           header['If-Range'] = etag
           header['Range'] = "bytes=#{current_total_chunk_size}-"
         else
+          etag = nil
           current_total_chunk_size = 0
+          body.clear if body
         end
-        if block
+
+        if block_given?
           response = client.get(target, params, header) {|res, chunk|
-            current_total_chunk_size += chunk.bytesize
-            block.call(res, chunk, current_total_chunk_size)
+            current_total_chunk_size += chunk.bytesize if res.status == 200
+            yield res, chunk, current_total_chunk_size
           }
         else
           response = client.get(target, params, header)
-          current_total_chunk_size += response.body.bytesize
+          if response.status == 200
+            current_total_chunk_size += response.body.bytesize
+            body << response.body
+          end
         end
+
         # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
         #     but httpclient ignores it. Therefor, check content size.
         #     https://github.com/nahi/httpclient/issues/296
-        validate_content_length!(response, current_total_chunk_size)
+        if expected_size = response.header['Content-Range'].first
+          expected_size = expected_size[/\d+$/]
+        else
+          expected_size = response.header['Content-Length'].first
+        end
+        if expected_size
+          expected_size = expected_size.to_i
+          if expected_size != current_total_chunk_size
+            if expected_size < current_total_chunk_size
+              etag = false
+            end
+            raise IncompleteError, "#{expected_size} bytes expected, but got #{current_total_chunk_size} bytes"
+          end
+        end
 
         status = response.code
         # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
@@ -305,7 +326,7 @@ private
         end
       rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError, IncompleteError => e
         if opt[:resume]
-          etag = response.header['ETag'].first
+          etag = response.header['ETag'].first if etag != false
         elsif block_given?
           raise e
         end
@@ -332,35 +353,24 @@ private
       puts "DEBUG:   body:   " + response.body.to_s
     end
 
-    body = block ? response.body : inflate_body(response)
+    body = inflate_body(response, body) unless block_given?
 
     return [response.code.to_s, body, response]
   end
 
-  def validate_content_length!(response, body_size)
-    if content_length = response.header['Content-Range'].first
-      content_length = content_length[/\d+$/]
-    else
-      content_length = response.header['Content-Length'].first
-    end
-    if content_length && content_length.to_i != body_size
-      raise IncompleteError, "#{content_length} bytes expected, but got #{body_size} bytes"
-    end
-  end
-
-  def inflate_body(response)
-    return response.body if (ce = response.header['Content-Encoding']).empty?
+  def inflate_body(response, body=response.body)
+    return body if (ce = response.header['Content-Encoding']).empty?
 
     if ce.include?('gzip')
       infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
       begin
-        infl.inflate(response.body)
+        infl.inflate(body)
       ensure
         infl.close
       end
     else
       # NOTE maybe for content-encoding is msgpack.gz ?
-      Zlib::Inflate.inflate(response.body)
+      Zlib::Inflate.inflate(body)
     end
   end
 
