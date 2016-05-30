@@ -1,3 +1,7 @@
+== 2016-05-30 version 0.8.80
+
+* Support resume on more APIs (#81)
+
 == 2016-04-25 version 0.8.79
 
 * Support dummy schedule #78
