@@ -235,19 +235,17 @@ private
 
   # @param [String] url
   # @param [Hash] params
-  # @param [Hash] opt
   # @yield [response]
-  def get(url, params=nil, opt={}, &block)
+  def get(url, params=nil, &block)
     guard_no_sslv3 do
-      do_get(url, params, opt, &block)
+      do_get(url, params, &block)
     end
   end
 
   # @param [String] url
   # @param [Hash] params
-  # @param [Hash] opt
   # @yield [response]
-  def do_get(url, params=nil, opt={})
+  def do_get(url, params=nil, &block)
     client, header = new_client
     client.send_timeout = @send_timeout
     client.receive_timeout = @read_timeout
@@ -270,49 +268,23 @@ private
     # for both exceptions and 500+ errors retrying is enabled by default.
     # The total number of retries cumulatively should not exceed 10 minutes / 600 seconds
     response = nil
-    etag = nil
-    current_total_chunk_size = 0
-    body = String.new unless block_given?
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
-        if etag
-          header['If-Range'] = etag
-          header['Range'] = "bytes=#{current_total_chunk_size}-"
-        else
-          etag = nil
+        if block
           current_total_chunk_size = 0
-          body.clear if body
-        end
-
-        if block_given?
           response = client.get(target, params, header) {|res, chunk|
-            current_total_chunk_size += chunk.bytesize if res.status == 200
-            yield res, chunk, current_total_chunk_size
+            current_total_chunk_size += chunk.bytesize
+            block.call(res, chunk, current_total_chunk_size)
           }
+
+          # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
+          #     and msgpack-ruby that used in block handles it as an end of stream == no exception.
+          #     Therefor, check content size.
+          validate_content_length!(response, current_total_chunk_size) if @ssl
         else
           response = client.get(target, params, header)
-          if response.status == 200
-            current_total_chunk_size += response.body.bytesize
-            body << response.body
-          end
-        end
 
-        # XXX ext/openssl raises EOFError in case where underlying connection causes an error,
-        #     but httpclient ignores it. Therefor, check content size.
-        #     https://github.com/nahi/httpclient/issues/296
-        if expected_size = response.header['Content-Range'].first
-          expected_size = expected_size[/\d+$/]
-        else
-          expected_size = response.header['Content-Length'].first
-        end
-        if expected_size
-          expected_size = expected_size.to_i
-          if expected_size != current_total_chunk_size
-            if expected_size < current_total_chunk_size
-              etag = false
-            end
-            raise IncompleteError, "#{expected_size} bytes expected, but got #{current_total_chunk_size} bytes"
-          end
+          validate_content_length!(response, response.body.bytesize) if @ssl
         end
 
         status = response.code
@@ -325,9 +297,7 @@ private
           redo # restart from beginning of do-while loop
         end
       rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError, IncompleteError => e
-        if opt[:resume]
-          etag = response.header['ETag'].first if etag != false
-        elsif block_given?
+        if block_given?
           raise e
         end
         $stderr.print "#{e.class}: #{e.message}. "
@@ -353,24 +323,29 @@ private
       puts "DEBUG:   body:   " + response.body.to_s
     end
 
-    body = inflate_body(response, body) unless block_given?
+    body = block ? response.body : inflate_body(response)
 
     return [response.code.to_s, body, response]
   end
 
-  def inflate_body(response, body=response.body)
-    return body if (ce = response.header['Content-Encoding']).empty?
+  def validate_content_length!(response, body_size)
+    content_length = response.header['Content-Length'].first
+    raise IncompleteError if @ssl && content_length && content_length.to_i != body_size
+  end
+
+  def inflate_body(response)
+    return response.body if (ce = response.header['Content-Encoding']).empty?
 
     if ce.include?('gzip')
       infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
       begin
-        infl.inflate(body)
+        infl.inflate(response.body)
       ensure
         infl.close
       end
     else
       # NOTE maybe for content-encoding is msgpack.gz ?
-      Zlib::Inflate.inflate(body)
+      Zlib::Inflate.inflate(response.body)
     end
   end
 
@@ -628,7 +603,7 @@ private
         error['stacktrace'] = js['stacktrace']
       end
     rescue JSON::ParserError
-      error['message'] = res.body
+      error['message'] = res.body[0,1000].dump
     end
 
     error
