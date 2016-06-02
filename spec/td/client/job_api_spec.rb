@@ -166,7 +166,7 @@ describe 'Job API' do
 
   describe 'job_result' do
     let :packed do
-      s = StringIO.new
+      s = StringIO.new(String.new)
       pk = MessagePack::Packer.new(s)
       pk.write('hello')
       pk.write('world')
@@ -338,7 +338,7 @@ describe 'Job API' do
 
   describe 'job_result_format' do
     let :packed do
-      s = StringIO.new
+      s = StringIO.new(String.new)
       Zlib::GzipWriter.wrap(s) do |f|
         f << ['hello', 'world'].to_json
       end
@@ -434,7 +434,7 @@ describe 'Job API' do
 
   describe 'job_result_each' do
     let :packed do
-      s = StringIO.new
+      s = StringIO.new(String.new)
       Zlib::GzipWriter.wrap(s) do |f|
         pk = MessagePack::Packer.new(f)
         pk.write('hello')
@@ -509,7 +509,7 @@ describe 'Job API' do
       #   pk.flush
       # end
       # s.string
-      "\u001F\x8B\b\u0000#\xA1\x93T\u0000\u0003[\x9A\x91\x9A\x93\x93\xBF\xB4<\xBF('\u0005\u0000e 0\xB3\f\u0000\u0000\u0000"
+      "\x1F\x8B\b\x00#\xA1\x93T\x00\x03[\x9A\x91\x9A\x93\x93\xBF\xB4<\xBF('\x05\x00e 0\xB3\f\x00\x00\x00".force_encoding(Encoding::ASCII_8BIT)
     end
 
     it 'yields job result for each row with progress' do
@@ -633,7 +633,7 @@ describe 'Job API' do
       expect(api).to receive(:sleep).once
       expect($stderr).to receive(:print)
       expect($stderr).to receive(:puts)
-      sio = StringIO.new(''.force_encoding(Encoding::ASCII_8BIT))
+      sio = StringIO.new(String.new)
       api.job_result_raw(12345, 'msgpack.gz', sio)
       expect(sio.string).to eq(packed)
     end
@@ -662,11 +662,11 @@ describe 'Job API' do
       end
     end
     let :gziped do
-      s = StringIO.new
+      s = StringIO.new(String.new)
       Zlib::GzipWriter.wrap(s) do |f|
         f.write formatted
       end
-      s.string.force_encoding(Encoding::ASCII_8BIT)
+      s.string
     end
     let :deflated do
       Zlib.deflate(formatted)
