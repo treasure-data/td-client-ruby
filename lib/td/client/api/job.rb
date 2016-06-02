@@ -258,6 +258,10 @@ module Job
     if expected_size.nil?
     elsif current_total_chunk_size < expected_size
       # too small
+      # NOTE:
+      #   ext/openssl raises EOFError in case where underlying connection
+      #   causes an error, but httpclient ignores it.
+      #   https://github.com/nahi/httpclient/blob/v3.2.8/lib/httpclient/session.rb#L1003
       raise EOFError, 'httpclient IncompleteError'
     elsif current_total_chunk_size > expected_size
       # too large
