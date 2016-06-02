@@ -259,7 +259,7 @@ module Job
     elsif current_total_chunk_size < expected_size
       # too small
       raise EOFError, 'httpclient IncompleteError'
-    elsif current_total_chunk_size < expected_size
+    elsif current_total_chunk_size > expected_size
       # too large
       raise_error("Get job result failed", res)
     end
