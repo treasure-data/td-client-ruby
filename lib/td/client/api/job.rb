@@ -248,7 +248,7 @@ module Job
 
   private
 
-  def validate_content_length(response, current_total_chunk_size)
+  def validate_content_length_with_range(response, current_total_chunk_size)
     if expected_size = response.header['Content-Range'][0]
       expected_size = expected_size[/\d+$/].to_i
     elsif expected_size = response.header['Content-Length'][0]
@@ -324,7 +324,7 @@ module Job
       end
 
       # completed?
-      validate_content_length(response, current_total_chunk_size)
+      validate_content_length_with_range(response, current_total_chunk_size)
     rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
       if response # at least a chunk is downloaded
         if etag = response.header['ETag'][0]
