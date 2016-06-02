@@ -275,14 +275,13 @@ module Job
     client.receive_timeout = @read_timeout
     header['Accept-Encoding'] = 'deflate, gzip'
 
-    url = "/v3/job/result/#{e job_id}"
-    target = build_endpoint(url, @host)
+    url = build_endpoint("/v3/job/result/#{e job_id}", @host)
     params = {'format' => format}
 
     unless ENV['TD_CLIENT_DEBUG'].nil?
       puts "DEBUG: REST GET call:"
       puts "DEBUG:   header: " + header.to_s
-      puts "DEBUG:   path:   " + target.to_s
+      puts "DEBUG:   url:    " + url.to_s
       puts "DEBUG:   params: " + params.to_s
     end
 
@@ -293,7 +292,7 @@ module Job
     infl = nil
     begin # LOOP of Network/Server errors
       response = nil
-      client.get(target, params, header) do |res, chunk|
+      client.get(url, params, header) do |res, chunk|
         unless response
           case res.status
           when 200
