@@ -265,7 +265,7 @@ module Job
     end
   end
 
-  def job_result_download(job_id, format='msgpack', decode_p=true)
+  def job_result_download(job_id, format='msgpack', autodecode=true)
     client, header = new_client
     client.send_timeout = @send_timeout
     client.receive_timeout = @read_timeout
@@ -308,7 +308,7 @@ module Job
             end
             raise_error("Get job result failed", res)
           end
-          if infl.nil? && decode_p
+          if infl.nil? && autodecode
             case res.header['Content-Encoding'][0].to_s.downcase
             when 'gzip'
               infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
