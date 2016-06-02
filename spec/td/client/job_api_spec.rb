@@ -683,12 +683,12 @@ describe 'Job API' do
           with(:query => {'format' => format}).
           to_return(
             :headers => {
-          'Content-Encoding' => content_encoding,
-          'Content-Length' => packed.bytesize,
-          'Etag' => '"abcdefghijklmn"',
-        },
-        :body => packed
-        )
+              'Content-Encoding' => content_encoding,
+              'Content-Length' => packed.bytesize,
+              'Etag' => '"abcdefghijklmn"',
+            },
+            :body => packed
+          )
         expect(api).not_to receive(:sleep)
         expect($stderr).not_to receive(:print)
         expect($stderr).not_to receive(:puts)
@@ -726,29 +726,29 @@ describe 'Job API' do
           with(:query => {'format' => format}).
           to_return(
             :headers => {
-          'Content-Encoding' => content_encoding,
-          'Content-Length' => packed.bytesize,
-          'Etag' => '"abcdefghijklmn"',
-        },
-        :body => packed[0, sz]
+              'Content-Encoding' => content_encoding,
+              'Content-Length' => packed.bytesize,
+              'Etag' => '"abcdefghijklmn"',
+            },
+            :body => packed[0, sz]
         )
         stub_api_request(:get, '/v3/job/result/12345').
           with(
             :headers => {
-          'If-Range' => '"abcdefghijklmn"',
-          'Range' => "bytes=#{sz}-",
-        },
+              'If-Range' => '"abcdefghijklmn"',
+              'Range' => "bytes=#{sz}-",
+          },
           :query => {'format' => format}
         ).
           to_return(
             :status => 206,
             :headers => {
-          'Content-Encoding' => content_encoding,
-          'Content-Length' => packed.bytesize - sz,
-          'Content-Range' => "bytes #{sz}-#{packed.bytesize-1}/#{packed.bytesize}",
-        'Etag' => '"abcdefghijklmn"',
-        },
-        :body => packed[sz, packed.bytesize - sz]
+              'Content-Encoding' => content_encoding,
+              'Content-Length' => packed.bytesize - sz,
+              'Content-Range' => "bytes #{sz}-#{packed.bytesize-1}/#{packed.bytesize}",
+              'Etag' => '"abcdefghijklmn"',
+            },
+            :body => packed[sz, packed.bytesize - sz]
         )
         expect(api).to receive(:sleep).once
         allow($stderr).to receive(:print)
