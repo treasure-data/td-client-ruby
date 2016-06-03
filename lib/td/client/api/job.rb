@@ -115,14 +115,13 @@ module Job
   # @param [String] job_id
   # @return [Array]
   def job_result(job_id)
-    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}, {:resume => true})
-    if code != "200"
-      raise_error("Get job result failed", res)
-    end
     result = []
-    MessagePack::Unpacker.new.feed_each(body) {|row|
-      result << row
-    }
+    unpacker = MessagePack::Unpacker.new
+    job_result_download(job_id) do |chunk|
+      unpacker.feed_each(chunk) do |row|
+        result << row
+      end
+    end
     return result
   end
 
@@ -133,24 +132,17 @@ module Job
   # @param [IO] io
   # @param [Proc] block
   # @return [nil, String]
-  def job_result_format(job_id, format, io=nil, &block)
+  def job_result_format(job_id, format, io=nil)
     if io
-      infl = nil
-      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}, {:resume => true}) {|res, chunk, current_total_chunk_size|
-        if res.code != 200
-          raise_error("Get job result failed", res)
-        end
-
-        infl ||= create_inflalte_or_null_inflate(res)
-
-        io.write infl.inflate(chunk)
-        block.call(current_total_chunk_size) if block_given?
-      }
+      job_result_download(job_id, format) do |chunk, total|
+        io.write chunk
+        yield total if block_given?
+      end
       nil
     else
-      code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format}, {:resume => true})
-      if code != "200"
-        raise_error("Get job result failed", res)
+      body = String.new
+      job_result_download(job_id, format) do |chunk|
+        body << chunk
       end
       body
     end
@@ -163,22 +155,11 @@ module Job
   # @return [nil]
   def job_result_each(job_id, &block)
     upkr = MessagePack::Unpacker.new
-    infl = nil
-
-    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}, {:resume => true}) {|res, chunk, current_total_chunk_size|
-      if res.code != 200
-        raise_error("Get job result failed", res)
-      end
-
-      # default to decompressing the response since format is fixed to 'msgpack'
-      infl ||= create_inflate(res)
-
-      inflated_fragment = infl.inflate(chunk)
-      upkr.feed_each(inflated_fragment, &block)
-    }
+    # default to decompressing the response since format is fixed to 'msgpack'
+    job_result_download(job_id) do |chunk|
+      upkr.feed_each(chunk, &block)
+    end
     nil
-  ensure
-    infl.close if infl
   end
 
   # block is optional and must accept 1 argument
@@ -186,50 +167,30 @@ module Job
   # @param [String] job_id
   # @param [Proc] block
   # @return [nil]
-  def job_result_each_with_compr_size(job_id, &block)
+  def job_result_each_with_compr_size(job_id)
     upkr = MessagePack::Unpacker.new
-    infl = nil
-
-    get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'}, {:resume => true}) {|res, chunk, current_total_chunk_size|
-      if res.code != 200
-        raise_error("Get job result failed", res)
-      end
-
-      # default to decompressing the response since format is fixed to 'msgpack'
-      infl ||= create_inflate(res)
-
-      inflated_fragment = infl.inflate(chunk)
-      upkr.feed_each(inflated_fragment) {|unpacked|
-        block.call(unpacked, current_total_chunk_size) if block_given?
+    # default to decompressing the response since format is fixed to 'msgpack'
+    job_result_download(job_id) do |chunk, total|
+      upkr.feed_each(chunk) {|unpacked|
+        yield unpacked, total if block_given?
       }
-    }
+    end
     nil
-  ensure
-    infl.close if infl
   end
 
   # @param [String] job_id
   # @param [String] format
   # @return [String]
-  def job_result_raw(job_id, format, io = nil, &block)
-    body = nil
-
-    get("/v3/job/result/#{e job_id}", {'format'=>format}, {:resume => true}) {|res, chunk, current_total_chunk_size|
-      unless res.ok?
-        raise_error("Get job result failed", res)
-      end
-
+  def job_result_raw(job_id, format, io = nil)
+    body = io ? nil : String.new
+    job_result_download(job_id, format, false) do |chunk, total|
       if io
         io.write(chunk)
-        block.call(current_total_chunk_size) if block_given?
+        yield total if block_given?
       else
-        if body
-          body += chunk
-        else
-          body = chunk
-        end
+        body << chunk
       end
-    }
+    end
     body
   end
 
@@ -286,6 +247,117 @@ module Job
   end
 
   private
+
+  def validate_content_length_with_range(response, current_total_chunk_size)
+    if expected_size = response.header['Content-Range'][0]
+      expected_size = expected_size[/\d+$/].to_i
+    elsif expected_size = response.header['Content-Length'][0]
+      expected_size = expected_size.to_i
+    end
+
+    if expected_size.nil?
+    elsif current_total_chunk_size < expected_size
+      # too small
+      # NOTE:
+      #   ext/openssl raises EOFError in case where underlying connection
+      #   causes an error, but httpclient ignores it.
+      #   https://github.com/nahi/httpclient/blob/v3.2.8/lib/httpclient/session.rb#L1003
+      raise EOFError, 'httpclient IncompleteError'
+    elsif current_total_chunk_size > expected_size
+      # too large
+      raise_error("Get job result failed", response)
+    end
+  end
+
+  def job_result_download(job_id, format='msgpack', autodecode=true)
+    client, header = new_client
+    client.send_timeout = @send_timeout
+    client.receive_timeout = @read_timeout
+    header['Accept-Encoding'] = 'deflate, gzip'
+
+    url = build_endpoint("/v3/job/result/#{e job_id}", @host)
+    params = {'format' => format}
+
+    unless ENV['TD_CLIENT_DEBUG'].nil?
+      puts "DEBUG: REST GET call:"
+      puts "DEBUG:   header: " + header.to_s
+      puts "DEBUG:   url:    " + url.to_s
+      puts "DEBUG:   params: " + params.to_s
+    end
+
+    # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
+    retry_delay = @retry_delay
+    cumul_retry_delay = 0
+    current_total_chunk_size = 0
+    infl = nil
+    begin # LOOP of Network/Server errors
+      response = nil
+      client.get(url, params, header) do |res, chunk|
+        unless response
+          case res.status
+          when 200
+            if current_total_chunk_size != 0
+              # try to resume but the server returns 200
+              raise_error("Get job result failed", res)
+            end
+          when 206 # resuming
+          else
+            if res.status/100 == 5 && cumul_retry_delay < @max_cumul_retry_delay
+              $stderr.puts "Error #{res.status}: #{get_error(res)}. Retrying after #{retry_delay} seconds..."
+              sleep retry_delay
+              cumul_retry_delay += retry_delay
+              retry_delay *= 2
+              redo
+            end
+            raise_error("Get job result failed", res)
+          end
+          if infl.nil? && autodecode
+            case res.header['Content-Encoding'][0].to_s.downcase
+            when 'gzip'
+              infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+            when 'deflate'
+              infl = Zlib::Inflate.new
+            end
+          end
+        end
+        response = res
+        current_total_chunk_size += chunk.bytesize
+        chunk = infl.inflate(chunk) if infl
+        yield chunk, current_total_chunk_size
+      end
+
+      # completed?
+      validate_content_length_with_range(response, current_total_chunk_size)
+    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
+      if response # at least a chunk is downloaded
+        if etag = response.header['ETag'][0]
+          header['If-Range'] = etag
+          header['Range'] = "bytes=#{current_total_chunk_size}-"
+        end
+      end
+
+      $stderr.print "#{e.class}: #{e.message}. "
+      if cumul_retry_delay < @max_cumul_retry_delay
+        $stderr.puts "Retrying after #{retry_delay} seconds..."
+        sleep retry_delay
+        cumul_retry_delay += retry_delay
+        retry_delay *= 2
+        retry
+      end
+      raise
+    end
+
+    unless ENV['TD_CLIENT_DEBUG'].nil?
+      puts "DEBUG: REST GET response:"
+      puts "DEBUG:   header: " + response.header.to_s
+      puts "DEBUG:   status: " + response.code.to_s
+      puts "DEBUG:   body:   " + response.body.to_s
+    end
+
+    nil
+  ensure
+    infl.close if infl
+  end
 
   class NullInflate
     def inflate(chunk)

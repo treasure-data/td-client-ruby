@@ -178,7 +178,7 @@ describe API do
 
       let(:api) { API.new(nil, endpoint: endpoint) }
       let :packed do
-        s = StringIO.new
+        s = StringIO.new(String.new)
         Zlib::GzipWriter.wrap(s) do |f|
           f << ['hello', 'world'].to_json
         end
@@ -195,7 +195,7 @@ describe API do
       end
 
       subject (:get_api_call) {
-        api.job_result_format(12345, 'json', StringIO.new)
+        api.job_result_format(12345, 'json', StringIO.new(String.new))
       }
 
       context 'without ssl' do
