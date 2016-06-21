@@ -1,30 +1,30 @@
-= Treasure Data API library for Ruby
-{<img src="https://travis-ci.org/treasure-data/td-client-ruby.svg?branch=master" alt="Build Status" />}[https://travis-ci.org/treasure-data/td-client-ruby]
-{<img src="https://ci.appveyor.com/api/projects/status/github/treasure-data/td-client-ruby?branch=master&svg=true" alt="Build Status" />}[https://ci.appveyor.com/project/treasure-data/td-client-ruby/branch/master]
-{<img src="https://coveralls.io/repos/treasure-data/td-client-ruby/badge.svg?branch=master&service=github" alt="Coverage Status" />}[https://coveralls.io/github/treasure-data/td-client-ruby?branch=master]
+# Treasure Data API library for Ruby
+[<img src="https://travis-ci.org/treasure-data/td-client-ruby.svg?branch=master" alt="Build Status" />](https://travis-ci.org/treasure-data/td-client-ruby)
+[<img src="https://ci.appveyor.com/api/projects/status/github/treasure-data/td-client-ruby?branch=master&svg=true" alt="Build Status" />](https://ci.appveyor.com/project/treasure-data/td-client-ruby/branch/master)
+[<img src="https://coveralls.io/repos/treasure-data/td-client-ruby/badge.svg?branch=master&service=github" alt="Coverage Status" />](https://coveralls.io/github/treasure-data/td-client-ruby?branch=master)
 
-== Getting Started
+## Getting Started
 
     > gem install td-client
 
-=== Running Tests
+### Running Tests
 
     > gem install jeweler
     > gem install webmock
     > rake spec
 
-== Configuration
+## Configuration
 
 The Client API library constructor supports a number of options that can
 be provided as part of the optional 'opts' hash map to these methods:
 
-* +initialize+(apikey, opts={}) (constructor)
-* +Client.authenticate+(user, password, opts={}) (class method)
-* +Client.server_status+(opts={}) (class method)
+* `initialize`(apikey, opts={}) (constructor)
+* `Client.authenticate`(user, password, opts={}) (class method)
+* `Client.server_status`(opts={}) (class method)
 
-=== Endpoint
+### Endpoint
 
-Add the +:endpoint+ key to the opts to provide an alternative endpoint to make
+Add the `:endpoint` key to the opts to provide an alternative endpoint to make
 the API calls to. Examples are an alternate API endpoint or a static IP address
 provided by Treasure Data on a case-by-case basis.
 
@@ -39,16 +39,16 @@ E.g.
 
     opts.merge({:endpoint => "https://api-alternate.treasuredata.com"})
 
-The endpoint can alternatively be provided by setting the +TD_API_SERVER+
-environment variable. The +:endpoint+ option takes precedence over the
-+TD_API_SERVER+ environment variable setting.
+The endpoint can alternatively be provided by setting the `TD_API_SERVER`
+environment variable. The `:endpoint` option takes precedence over the
+`TD_API_SERVER` environment variable setting.
 
 For communication through a Proxy, please see the Proxy option below.
 
-=== Connection, Read, and Send Timeouts
+### Connection, Read, and Send Timeouts
 
 The connection, read, and send timeouts can be provided via the
-+:connect_timeout+, +:read_timeout+, +:send_timeout+ keys respectively.
+`:connect_timeout`, `:read_timeout`, `:send_timeout` keys respectively.
 The values for these keys is the number of seconds.
 
 E.g.
@@ -57,9 +57,9 @@ E.g.
                 :read_timeout    => 60,
                 :send_timeout    => 60})
 
-=== SSL
+### SSL
 
-The +:ssl+ key specifies whether SSL communication ought to be used when
+The `:ssl` key specifies whether SSL communication ought to be used when
 communicating with the default or custom endpoint.
 
 This option is ignored if the endpoint (default or custom) URL specifies the
@@ -74,10 +74,10 @@ E.g.
     # the ssl option is ignored in this case
     opts.merge({:endpoint => "https://api.treasuredata.com", :ssl => false})
 
-=== Proxy
+### Proxy
 
 If your network requires accessing our endpoint through a proxy (anonymous or
-private), the proxy settings can be specified through the +:http_proxy+ option.
+private), the proxy settings can be specified through the `:http_proxy` option.
 
 E.g.
 
@@ -89,18 +89,18 @@ E.g.
     opts.merge({:http_proxy => "https://username:password@myproxy.com:1234"})
     opts.merge({:http_proxy => "username:password@myproxy.com:1234"})
 
-The proxy settings can alternatively be provided by setting the +HTTP_PROXY+
-environment variable. The +:http_proxy+ option takes precedence over the
-+HTTP_PROXY+ environment variable setting.
+The proxy settings can alternatively be provided by setting the `HTTP_PROXY`
+environment variable. The `:http_proxy` option takes precedence over the
+`HTTP_PROXY` environment variable setting.
 
-=== Additional Header(s)
+### Additional Header(s)
 
 The Ruby client configures the communication with the Treasure Data REST API
 endpoints using the required HTTP Headers (including authorization, Date,
 User-Agent and Accept-Encoding, Content-Length, Content-Encoding where
 applicable) basing on what method call is made.
 
-The user can specify any additional HTTP Header using the +:headers+ option.
+The user can specify any additional HTTP Header using the `:headers` option.
 
 E.g.
 
@@ -108,12 +108,12 @@ E.g.
 
 To specify a custom User-Agent please see the option below.
 
-=== Additional User-Agent(s)
+### Additional User-Agent(s)
 
-Add the +:user_agent+ key to the opts hash to provide an additional user agent
+Add the `:user_agent` key to the opts hash to provide an additional user agent
 for all the interactions with the APIs.
 The provided user agent string will be added to this default client library user
-agent +TD-Client-Ruby: X.Y.Z+ where X.Y.Z is the version number of this Ruby
+agent `TD-Client-Ruby: X.Y.Z` where X.Y.Z is the version number of this Ruby
 Client library.
 
 E.g.
@@ -124,9 +124,9 @@ which sets the user agent to:
 
     "MyApp: A.B.C; TD-Client-Ruby: X.Y.Z"
 
-=== Retry POST Requests
+### Retry POST Requests
 
-Add the +:retry_post_requests+ key to the opts hash to require that every
+Add the `:retry_post_requests` key to the opts hash to require that every
 failed POST request is retried for up to 10 minutes with an exponentially
 doubling backoff window just as it happens for GET requests by default.
 
@@ -144,28 +144,27 @@ E.g.
 
 to enable retrying for POST requests.
 
-== Testing Hooks
+## Testing Hooks
 
 The client library implements several hooks to enable/disable/trigger special
 behaviors. These hooks are triggered using environment variables:
 
 * Enable debugging mode:
 
-    $ TD_CLIENT_DEBUG=1
+    `$ TD_CLIENT_DEBUG=1`
 
   Currently debugging mode consists of:
 
-  * show request and response of +HTTP+/+HTTPS+ +GET+ REST API calls;
-  * show request of +HTTP+/+HTTPS+ +POST+/+PUT+ REST API calls.
+  * show request and response of `HTTP`/`HTTPS` `GET` REST API calls;
+  * show request of `HTTP`/`HTTPS` `POST`/`PUT` REST API calls.
 
-== 1.8 compatibility
+## 1.8 compatibility
 
 Although we are trying to keep 1.8.7 compatibility as you can see it in
 .travis.yml we don't officially support 1.8.7. The most important defect
 on 1.8 is it does not support TLS only SSL endpoint.
 
-== Copyright
+## More Information
 
-Copyright:: Copyright (c) 2011 Treasure Data Inc.
-License::   Apache License, Version 2.0
-
+  * Copyright: (c) 2011 Treasure Data Inc.
+  * License: Apache License, Version 2.0
