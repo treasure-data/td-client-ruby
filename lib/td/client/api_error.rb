@@ -23,6 +23,11 @@ end
 
 # 409 API errors
 class AlreadyExistsError < APIError
+  attr_reader :conflicts_with
+  def initialize(error_message = nil, api_backtrace = nil, conflicts_with=nil)
+    super(error_message, api_backtrace)
+    @conflicts_with = conflicts_with
+  end
 end
 
 # 404 API errors
