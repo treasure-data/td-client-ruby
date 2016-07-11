@@ -1,5 +1,5 @@
 module TreasureData
   class Client
-    VERSION = '0.8.81'
+    VERSION = '0.8.82'
   end
 end

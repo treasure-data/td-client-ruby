@@ -1,3 +1,7 @@
+== 2016-07-11 version 0.8.82
+
+* Add conflicts_with to AlreadyExistError (#84)
+
 == 2016-06-03 version 0.8.81
 
 * Rewrite job_result_download logic #85
