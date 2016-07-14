@@ -108,10 +108,10 @@ describe 'Job Model' do
 
     context 'with timeout' do
       context 'the job running time is too long' do
-        it 'raise ::TimeoutError' do
+        it 'raise Timeout::Error' do
           expect {
             job.wait(0.1)
-          }.to raise_error(::TimeoutError)
+          }.to raise_error(Timeout::Error)
         end
       end
 
@@ -121,7 +121,7 @@ describe 'Job Model' do
             thread = Thread.start {
               job.wait(0.3, 0.1, &b)
             }
-            expect{ thread.value }.to raise_error(::TimeoutError)
+            expect{ thread.value }.to raise_error(Timeout::Error)
             expect(thread).to be_stop
           ensure
             thread.kill # just in case
