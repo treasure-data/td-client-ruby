@@ -416,7 +416,7 @@ class Job < Model
         d = t - t1
         t1 = t
         timeout -= d if d > 0
-        raise ::TimeoutError, "timeout=#{orig_timeout} wait_interval=#{wait_interval}" if timeout <= 0
+        raise Timeout::Error, "timeout=#{orig_timeout} wait_interval=#{wait_interval}" if timeout <= 0
       end
       sleep wait_interval
       yield self if block_given?
