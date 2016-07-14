@@ -16,3 +16,4 @@ environment:
     - ruby_version: "193"
     - ruby_version: "21"
     - ruby_version: "22"
+    - ruby_version: "23"
