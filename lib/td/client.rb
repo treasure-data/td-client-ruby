@@ -574,9 +574,9 @@ class Client
     @api.bulk_load_show(name)
   end
 
-  # name: String, job: BulkLoad -> BulkLoad
-  def bulk_load_update(name, job)
-    @api.bulk_load_update(name, job)
+  # name: String, settings: Hash -> BulkLoad
+  def bulk_load_update(name, settings)
+    @api.bulk_load_update(name, settings)
   end
 
   # name: String -> BulkLoad

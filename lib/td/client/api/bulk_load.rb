@@ -116,10 +116,10 @@ module BulkLoad
     JSON.load(res.body)
   end
 
-  # name: String, job: Hash -> Hash
-  def bulk_load_update(name, job)
+  # name: String, settings: Hash -> Hash
+  def bulk_load_update(name, settings)
     path = session_path(name)
-    res = api { put(path, job.to_json) }
+    res = api { put(path, settings.to_json) }
     unless res.ok?
       raise_error("BulkLoadSession: #{name} update failed", res)
     end
