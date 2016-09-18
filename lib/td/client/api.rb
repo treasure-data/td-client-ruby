@@ -218,25 +218,6 @@ class API
     normalize_database_name(name)
   end
 
-  # TODO support array types
-  # @param [String] name
-  def self.normalize_type_name(name)
-    case name
-    when /int/i, /integer/i
-      "int"
-    when /long/i, /bigint/i
-      "long"
-    when /string/i
-      "string"
-    when /float/i
-      "float"
-    when /double/i
-      "double"
-    else
-      raise "Type name must either of int, long, string float or double"
-    end
-  end
-
   # for fluent-plugin-td / td command to check table existence with import onlt user
   # @return [String]
   def self.create_empty_gz_data
