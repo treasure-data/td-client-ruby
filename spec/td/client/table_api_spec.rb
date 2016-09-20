@@ -82,10 +82,10 @@ describe 'Table API' do
   describe "'tables' Client API" do
     it 'should return an array of Table objects' do
       tables = [
-        ["table_1", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC"],
-        ["table_2", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC"],
-        ["table_3", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
-        ["table_4", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
+        ["table_1", "item", "[[\"value\",\"string\"]]", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC"],
+        ["table_2", "log",  "[[\"value\",\"long\"]]",   222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC"],
+        ["table_3", "item", "[[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
+        ["table_4", "log",  "[[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
       ]
       stub_api_request(:get, "/v3/table/list/#{e db_name}").
         to_return(:body => {'tables' => [
@@ -138,10 +138,10 @@ describe 'Table API' do
   describe "'table' Client API" do
     it 'should return the Table object corresponding to the name' do
       tables = [
-        ["table_1", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC"],
-        ["table_2", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC"],
-        ["table_3", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
-        ["table_4", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
+        ["table_1", "item", "[[\"value\",\"string\"]]", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC"],
+        ["table_2", "log",  "[[\"value\",\"long\"]]",   222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC"],
+        ["table_3", "item", "[[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
+        ["table_4", "log",  "[[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
       ]
       stub_api_request(:get, "/v3/table/list/#{e db_name}").
         to_return(:body => {'tables' => [

@@ -283,6 +283,11 @@ class Schema
     # @param [String] type
     # @param [String] sql_alias
     def initialize(name, type, sql_alias=nil)
+      if name == 'v' || name == 'time'
+        raise ParameterValidationError, "Column name '#{name}' is reserved."
+      end
+      API.validate_column_name(name)
+      API.validate_sql_alias_name(sql_alias) if sql_alias
       @name = name
       @type = type
       @sql_alias = sql_alias
@@ -295,19 +300,31 @@ class Schema
     attr_reader :sql_alias
   end
 
-  # @param [String] cols
+  # @param [String] columns
   # @return [Schema]
-  def self.parse(cols)
-    fields = cols.split(',').map {|col|
-      name, type, sql_alias, *_ = col.split(':')
-      Field.new(name, type, sql_alias)
+  def self.parse(columns)
+    schema = Schema.new
+    columns.each {|column|
+      unless /\A(?<name>.*)(?::(?<type>[^:]+))(?:@(?<sql_alias>[^:@]+))?\z/ =~ column
+        raise ParameterValidationError, "type must be specified"
+      end
+      schema.add_field(name, type, sql_alias)
     }
-    Schema.new(fields)
+    schema
   end
 
   # @param [Array] fields
   def initialize(fields=[])
     @fields = fields
+    @names = {}
+    @fields.each do |f|
+      raise ArgumentError, "Column name '#{f.name}' is duplicated." if @names.key?(f.name)
+      @names[f.name] = true
+      if f.sql_alias
+        raise ArgumentError, "SQL Column alias '#{f.sql_alias}' is duplicated." if @names.key?(f.sql_alias)
+        @names[f.sql_alias] = true
+      end
+    end
   end
 
   # @!attribute [r] fields
@@ -317,6 +334,14 @@ class Schema
   # @param [String] type
   # @return [Array]
   def add_field(name, type, sql_alias=nil)
+    if @names.key?(name)
+      raise ParameterValidationError, "Column name '#{name}' is duplicated."
+    end
+    @names[name] = true
+    if sql_alias && @names.key?(sql_alias)
+      raise ParameterValidationError, "SQL Column alias '#{sql_alias}' is duplicated."
+    end
+    @names[sql_alias] = true
     @fields << Field.new(name, type, sql_alias)
   end
 
