@@ -269,36 +269,62 @@ class Table < Model
   def update_database!
     @database = @client.database(@db_name)
   end
+
+  # @return [String]
+  def inspect
+    %[#<%s:%#0#{1.size*2}x @db_name="%s" @table_name="%s">] %
+    [self.class.name, self.__id__*2, @db_name, @table_name]
+  end
 end
 
 class Schema
   class Field
     # @param [String] name
     # @param [String] type
-    def initialize(name, type)
+    # @param [String] sql_alias
+    def initialize(name, type, sql_alias=nil)
+      if name == 'v' || name == 'time'
+        raise ParameterValidationError, "Column name '#{name}' is reserved."
+      end
+      API.validate_column_name(name)
+      API.validate_sql_alias_name(sql_alias) if sql_alias
       @name = name
       @type = type
+      @sql_alias = sql_alias
     end
 
     # @!attribute [r] name
     # @!attribute [r] type
     attr_reader :name
     attr_reader :type
+    attr_reader :sql_alias
   end
 
-  # @param [String] cols
+  # @param [String] columns
   # @return [Schema]
-  def self.parse(cols)
-    fields = cols.split(',').map {|col|
-      name, type, *_ = col.split(':')
-      Field.new(name, type)
+  def self.parse(columns)
+    schema = Schema.new
+    columns.each {|column|
+      unless /\A(?<name>.*)(?::(?<type>[^:]+))(?:@(?<sql_alias>[^:@]+))?\z/ =~ column
+        raise ParameterValidationError, "type must be specified"
+      end
+      schema.add_field(name, type, sql_alias)
     }
-    Schema.new(fields)
+    schema
   end
 
   # @param [Array] fields
   def initialize(fields=[])
     @fields = fields
+    @names = {}
+    @fields.each do |f|
+      raise ArgumentError, "Column name '#{f.name}' is duplicated." if @names.key?(f.name)
+      @names[f.name] = true
+      if f.sql_alias
+        raise ArgumentError, "SQL Column alias '#{f.sql_alias}' is duplicated." if @names.key?(f.sql_alias)
+        @names[f.sql_alias] = true
+      end
+    end
   end
 
   # @!attribute [r] fields
@@ -307,8 +333,16 @@ class Schema
   # @param [String] name
   # @param [String] type
   # @return [Array]
-  def add_field(name, type)
-    @fields << Field.new(name, type)
+  def add_field(name, type, sql_alias=nil)
+    if @names.key?(name)
+      raise ParameterValidationError, "Column name '#{name}' is duplicated."
+    end
+    @names[name] = true
+    if sql_alias && @names.key?(sql_alias)
+      raise ParameterValidationError, "SQL Column alias '#{sql_alias}' is duplicated."
+    end
+    @names[sql_alias] = true
+    @fields << Field.new(name, type, sql_alias)
   end
 
   # @param [Schema] schema
@@ -327,14 +361,14 @@ class Schema
 
   # @return [Array<Field>]
   def to_json(*args)
-    @fields.map {|f| [f.name, f.type] }.to_json(*args)
+    @fields.map {|f| f.sql_alias ? [f.name, f.type, f.sql_alias] : [f.name, f.type] }.to_json(*args)
   end
 
   # @param [Object] obj
   # @return [self]
   def from_json(obj)
     @fields = obj.map {|f|
-      Field.new(f[0], f[1])
+      Field.new(*f)
     }
     self
   end

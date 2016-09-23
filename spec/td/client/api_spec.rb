@@ -126,7 +126,7 @@ describe API do
 
     describe "'validate_column_name'" do
       it 'should raise a ParameterValidationError exception' do
-        ['/', '', 'D'].each { |ng|
+        ['', 'a'*129].each { |ng|
           expect {
             API.validate_column_name(ng)
           }.to raise_error(ParameterValidationError)
@@ -137,14 +137,40 @@ describe API do
         VALID_NAMES.each {|ok|
           expect(API.validate_column_name(ok)).to eq(ok)
         }
-        # columns can be as short as 2 characters
-        expect(API.validate_column_name('ab')).to eq('ab')
+        ['a', 'a'*128].each {|ok|
+          expect(API.validate_column_name(ok)).to eq(ok)
+        }
       end
     end
 
+    describe "'validate_sql_alias_name'" do
+      it 'should raise a ParameterValidationError exception' do
+        ['', 'a'*129].each { |ng|
+          expect{API.validate_sql_alias_name(ng)}.to raise_error(ParameterValidationError)
+        }
+        valid = ("a".."z").to_a.join<<("0".."9").to_a.join<<"_"
+        ("\x00".."\x7F").each { |ng|
+          next if valid.include?(ng)
+          expect{API.validate_sql_alias_name(ng)}.to raise_error(ParameterValidationError)
+        }
+      end
+
+      it 'should return valid data' do
+        VALID_NAMES.each {|ok|
+          expect(API.validate_sql_alias_name(ok)).to eq(ok)
+        }
+        ['a', '_a', 'a_', 'a'*128].each {|ok|
+          expect(API.validate_sql_alias_name(ok)).to eq(ok)
+        }
+      end
+    end
 
     describe "'generic validate_name'" do
       it 'should raise a ParameterValidationError exception' do
+        # wrong target
+        expect {
+          API.validate_name("", 3, 256, '')
+        }.to raise_error(ParameterValidationError)
         INVALID_NAMES.each_pair {|ng,ok|
           expect {
             API.validate_name("generic", 3, 256, ng)

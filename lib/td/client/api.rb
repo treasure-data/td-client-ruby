@@ -174,7 +174,26 @@ class API
 
   # @param [String] name
   def self.validate_column_name(name)
-    validate_name("column", 1, 255, name)
+    target = 'column'
+    min_len = 1
+    max_len = 128
+    name = name.to_s
+    if name.empty?
+      raise ParameterValidationError,
+            "Empty #{target} name is not allowed"
+    end
+    if name.length < min_len || name.length > max_len
+      raise ParameterValidationError,
+            "#{target.capitalize} name must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
+            (name.length == 1 ? "character" : "characters") + "."
+    end
+
+    name
+  end
+
+  # @param [String] name
+  def self.validate_sql_alias_name(name)
+    validate_name("sql_alias", 1, 128, name)
   end
 
   # @param [String] name
@@ -197,25 +216,6 @@ class API
   # @param [String] name
   def self.normalize_table_name(name)
     normalize_database_name(name)
-  end
-
-  # TODO support array types
-  # @param [String] name
-  def self.normalize_type_name(name)
-    case name
-    when /int/i, /integer/i
-      "int"
-    when /long/i, /bigint/i
-      "long"
-    when /string/i
-      "string"
-    when /float/i
-      "float"
-    when /double/i
-      "double"
-    else
-      raise "Type name must either of int, long, string float or double"
-    end
   end
 
   # for fluent-plugin-td / td command to check table existence with import onlt user

@@ -342,10 +342,10 @@ describe 'BulkImport API' do
       stub_api_request(:put, '/v3/bulk_loads/nahi_test_1').
         with(:body => updated_bulk_load_session.to_json).
         to_return(:body => updated_bulk_load_session.to_json)
-      api.bulk_load_update(
+      expect(api.bulk_load_update(
         'nahi_test_1',
         updated_bulk_load_session
-      ).should == updated_bulk_load_session
+      )).to eq updated_bulk_load_session
     end
 
     it 'can remove the cron schedule ' do
@@ -356,10 +356,10 @@ describe 'BulkImport API' do
       stub_api_request(:put, '/v3/bulk_loads/nahi_test_1').
         with(:body => updated_bulk_load_session.to_json).
         to_return(:body => expected_bulk_load_session.to_json)
-      api.bulk_load_update(
+      expect(api.bulk_load_update(
         'nahi_test_1',
         updated_bulk_load_session
-      ).should == expected_bulk_load_session
+      )).to eq expected_bulk_load_session
     end
   end
 
