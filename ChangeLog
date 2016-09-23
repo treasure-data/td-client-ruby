@@ -1,3 +1,9 @@
+== 2016-09-23 version 0.8.83
+
+* Support TD table's SQL Column Alias (#87)
+* support updating bulk_load session settings (#80)
+* Drop Ruby 1.9 support (#90)
+
 == 2016-07-11 version 0.8.82
 
 * Add conflicts_with to AlreadyExistError (#84)
