@@ -305,7 +305,7 @@ class Schema
   def self.parse(columns)
     schema = Schema.new
     columns.each {|column|
-      unless /\A(?<name>.*)(?::(?<type>[^:]+))(?:@(?<sql_alias>[^:@]+))?\z/ =~ column
+      unless /\A(?<name>.*)(?::(?<type>[^:@]+))(?:@(?<sql_alias>[^:@]+))?\z/ =~ column
         raise ParameterValidationError, "type must be specified"
       end
       schema.add_field(name, type, sql_alias)
