@@ -48,13 +48,13 @@ shared_context 'common helper' do
   end
 
   def stub_api_request(method, path, opts = nil)
-    scheme = 'http'
+    scheme = 'https'
     with_opts = {:headers => headers}
     if opts
-      scheme = 'https' if opts[:ssl]
+      scheme = 'http' if opts[:ssl] == false
       with_opts[:query] = opts[:query] if opts[:query]
     end
-    stub_request(method, "#{scheme}://api.treasure-data.com#{path}").with(with_opts)
+    stub_request(method, "#{scheme}://api.treasuredata.com#{path}").with(with_opts)
   end
 
   def e(s)

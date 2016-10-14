@@ -21,8 +21,9 @@ module Import
     opts = {}
     if @host == DEFAULT_ENDPOINT
       opts[:host] = DEFAULT_IMPORT_ENDPOINT
-    elsif @host == NEW_DEFAULT_ENDPOINT
-      opts[:host] = NEW_DEFAULT_IMPORT_ENDPOINT
+    elsif @host == TreasureData::API::OLD_ENDPOINT # backward compatibility
+      opts[:host] = 'api-import.treasure-data.com'
+      opts[:ssl] = false
     end
     code, body, res = put(path, stream, size, opts)
     if code[0] != ?2

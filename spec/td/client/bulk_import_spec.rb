@@ -24,6 +24,8 @@ describe 'BulkImport API' do
     s.string
   end
 
+  let(:endpoint_domain) { TreasureData::API::DEFAULT_IMPORT_ENDPOINT }
+
   describe 'create_bulk_import' do
     it 'should create a new bulk_import' do
       stub_api_request(:post, "/v3/bulk_import/create/#{e(bi_name)}/#{e(db_name)}/#{e(table_name)}").
@@ -106,7 +108,7 @@ describe 'BulkImport API' do
       File.open(t.path, 'w') do |f|
         f << '12345'
       end
-      stub_request(:put, 'http://api.treasure-data.com/v3/bulk_import/upload_part/name/part').
+      stub_request(:put, "https://#{TreasureData::API::DEFAULT_ENDPOINT}/v3/bulk_import/upload_part/name/part").
         with(:body => '12345')
       File.open(t.path) do |f|
         expect(api.bulk_import_upload_part('name', 'part', f, 5)).to eq(nil)
@@ -119,7 +121,7 @@ describe 'BulkImport API' do
         File.open(t.path, 'w') do |f|
           f << '12345'
         end
-        stub_request(:put, 'http://api.treasure-data.com/v3/bulk_import/upload_part/name/' + CGI.escape('日本語(Japanese)'.encode('UTF-8'))).
+        stub_request(:put, "https://#{TreasureData::API::DEFAULT_ENDPOINT}/v3/bulk_import/upload_part/name/" + CGI.escape('日本語(Japanese)'.encode('UTF-8'))).
           with(:body => '12345')
         File.open(t.path) do |f|
           expect(api.bulk_import_upload_part('name', '日本語(Japanese)'.encode('Windows-31J'), f, 5)).to eq(nil)

@@ -36,16 +36,19 @@ class API
   include API::Table
   include API::User
 
-  DEFAULT_ENDPOINT = 'api.treasure-data.com'
-  DEFAULT_IMPORT_ENDPOINT = 'api-import.treasure-data.com'
+  DEFAULT_ENDPOINT = 'api.treasuredata.com'
+  DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
 
-  NEW_DEFAULT_ENDPOINT = 'api.treasuredata.com'
-  NEW_DEFAULT_IMPORT_ENDPOINT = 'api-import.treasuredata.com'
+  # Deprecated. Use DEFAULT_ENDPOINT and DEFAULT_IMPORT_ENDPOINT instead
+  NEW_DEFAULT_ENDPOINT = DEFAULT_ENDPOINT
+  NEW_DEFAULT_IMPORT_ENDPOINT = DEFAULT_IMPORT_ENDPOINT
+  OLD_ENDPOINT = 'api.treasure-data.com'
 
   class IncompleteError < APIError; end
 
   # @param [String] apikey
   # @param [Hash] opts
+  # for backward compatibility
   def initialize(apikey, opts={})
     require 'json'
     require 'time'
@@ -92,12 +95,18 @@ class API
       # generic URI
       @host, @port = endpoint.split(':', 2)
       @port = @port.to_i
-      if opts[:ssl]
-        @port = 443 if @port == 0
-        @ssl = true
-      else
+      if opts[:ssl] === false || @host == TreasureData::API::OLD_ENDPOINT
+        # for backward compatibility, old endpoint specified without ssl option, use http
+        #
+        # opts[:ssl] would be nil if user doesn't specify ssl options,
+        # but connecting to https is the new default behavior (since 0.9)
+        # so check ssl option by `if opts[:ssl] === false` instead of `if opts[:ssl]`
+        # that means if user desire to use http, give `:ssl => false` for initializer such as API.new("APIKEY", :ssl => false)
         @port = 80 if @port == 0
         @ssl = false
+      else
+        @port = 443 if @port == 0
+        @ssl = true
       end
       @base_path = ''
     end
