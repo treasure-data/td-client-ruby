@@ -17,12 +17,10 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.required_ruby_version = '>= 2.1'
 
-  gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.8.0"]
+  gem.add_dependency "msgpack", ">= 0.6"
   gem.add_dependency "json", ">= 1.7.6"
-  gem.add_dependency "httpclient", "~> 2.7"
+  gem.add_dependency "httpclient", ">= 2.7"
   gem.add_development_dependency "rspec", "~> 3.0"
-  gem.add_development_dependency 'mime-types', "1.25" # mime-types => 2.0, does not support Ruby 1.8.
-  gem.add_development_dependency 'rest-client', "1.6.8" # rest-client => 1.6.8, does not support Ruby 1.8.
   gem.add_development_dependency 'coveralls'
   gem.add_development_dependency "webmock", "~> 1.16"
   gem.add_development_dependency 'simplecov', '>= 0.5.4'
