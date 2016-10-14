@@ -87,7 +87,7 @@ describe 'Import API' do
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
-        api_default.import('db', 'table', 'format', f, 5).should == 1.23
+        expect(api_default.import('db', 'table', 'format', f, 5)).to eq 1.23
       end
     end
 
@@ -100,7 +100,7 @@ describe 'Import API' do
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
-        api_default_http.import('db', 'table', 'format', f, 5).should == 1.23
+        expect(api_default_http.import('db', 'table', 'format', f, 5)).to eq 1.23
       end
     end
 
@@ -113,7 +113,7 @@ describe 'Import API' do
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
-        api_unknown_host.import('db', 'table', 'format', f, 5).should == 1.23
+        expect(api_unknown_host.import('db', 'table', 'format', f, 5)).to eq 1.23
       end
     end
 
@@ -126,7 +126,7 @@ describe 'Import API' do
         with(:body => '12345').
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
-        api_unknown_host_http.import('db', 'table', 'format', f, 5).should == 1.23
+        expect(api_unknown_host_http.import('db', 'table', 'format', f, 5)).to eq 1.23
       end
     end
 
