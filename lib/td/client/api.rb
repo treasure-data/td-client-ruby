@@ -296,7 +296,7 @@ private
           retry_delay *= 2
           redo # restart from beginning of do-while loop
         end
-      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError, IncompleteError => e
+      rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError, IncompleteError, HTTPClient::TimeoutError => e
         if block_given?
           raise e
         end
