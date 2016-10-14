@@ -437,25 +437,27 @@ class Job < Model
   attr_reader :priority, :retry_limit, :org_name, :db_name
   attr_reader :duration
 
-  def wait(timeout=nil, wait_interval=2)
-    # this should use monotonic clock but td-client-ruby supports Ruby 1.8.7 now.
-    # therefore add workaround to initializing clock on each delta
-    if timeout
-      orig_timeout = timeout
-      t1 = Time.now.to_f
-    end
-    until finished?
+  # @option timeout [Integer,nil] timeout in second
+  # @option wait_interval [Integer,nil] interval in second of polling the job status
+  # @param detail [Boolean] update job detail or not
+  # @param verbose [Boolean] out retry log to stderr or not
+  def wait(timeout=nil, wait_interval=2, detail: false, verbose: ENV['TD_CLIENT_DEBUG'])
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout if timeout
+    timeout_klass = Class.new(Exception)
+    begin
       if timeout
-        t = Time.now.to_f
-        d = t - t1
-        t1 = t
-        timeout -= d if d > 0
-        raise Timeout::Error, "timeout=#{orig_timeout} wait_interval=#{wait_interval}" if timeout <= 0
+        if deadline <= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+          raise timeout_klass, "timeout (#{timeout}) exceeded wait_interval=#{wait_interval}"
+        end
       end
       sleep wait_interval
       yield self if block_given?
-      update_progress!
-    end
+        detail ? update_status! : update_progress!
+    rescue timeout_klass
+      raise Timeout::Error, $!.message
+    rescue Timeout::Error, SystemCallError, EOFError, SocketError, HTTPClient::ConnectTimeoutError
+      $stderr.puts "ignore network error (#{$!}); retry..." if verbose
+    end until finished?
   end
 
   def kill!
