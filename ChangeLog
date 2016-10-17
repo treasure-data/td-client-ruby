@@ -1,3 +1,10 @@
+== 2016-10-17 version 0.8.84
+
+* fix schema validation #93
+* Job#wait rescues network error #94
+* Change default endpoint #39
+* Drop Ruby 2.0.0 support
+
 == 2016-09-23 version 0.8.83
 
 * Support TD table's SQL Column Alias (#87)
