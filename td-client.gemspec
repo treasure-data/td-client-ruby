@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.required_ruby_version = '>= 2.1'
 
-  gem.add_dependency "msgpack", ">= 0.6"
+  gem.add_dependency "msgpack", ">= 0.5.6", "< 2"
   gem.add_dependency "json", ">= 1.7.6"
   gem.add_dependency "httpclient", ">= 2.7"
   gem.add_development_dependency "rspec", "~> 3.0"
