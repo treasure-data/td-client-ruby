@@ -450,7 +450,9 @@ class Job < Model
   # @option wait_interval [Integer,nil] interval in second of polling the job status
   # @param detail [Boolean] update job detail or not
   # @param verbose [Boolean] out retry log to stderr or not
-  def wait(timeout=nil, wait_interval=2, detail: false, verbose: ENV['TD_CLIENT_DEBUG'])
+  def wait(timeout=nil, wait_interval=2, opthash={})
+    detail = opthash.fetch(:detail, false)
+    verbose = opthash.fetch(:verbose, ENV['TD_CLIENT_DEBUG'])
     deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout if timeout
     timeout_klass = Class.new(Exception)
     begin
