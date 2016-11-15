@@ -1,5 +1,14 @@
 require 'timeout'
 
+Process::CLOCK_MONOTONIC = Object.new unless Process.const_defined?(:CLOCK_MONOTONIC)
+def Process.clock_gettime(*arg)
+  if arg == [Process::CLOCK_MONOTONIC]
+    Time.now.to_i
+  else
+    raise NoMethodError, "this ruby doesn't have Process.clock_gettime and no sim"
+  end
+end unless Process.respond_to?(:clock_gettime)
+
 module TreasureData
 
 class Model
