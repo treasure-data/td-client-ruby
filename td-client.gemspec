@@ -26,7 +26,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov', '>= 0.5.4'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'yard'
-  if RUBY_ENGINE == 'jruby' && RUBY_ENGINE_VERSION.start_with?('1.7.')
+  if defined?(JRUBY_VERSION) && JRUBY_VERSION.start_with?('1.7.')
     gem.add_development_dependency 'tins', '< 1.7'
     gem.add_development_dependency 'public_suffix', '< 1.5'
     gem.add_development_dependency 'term-ansicolor', '< 1.4'
