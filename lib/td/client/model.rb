@@ -441,12 +441,14 @@ class Job < Model
   # @option wait_interval [Integer,nil] interval in second of polling the job status
   # @param detail [Boolean] update job detail or not
   # @param verbose [Boolean] out retry log to stderr or not
-  def wait(timeout=nil, wait_interval=2, detail: false, verbose: ENV['TD_CLIENT_DEBUG'])
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout if timeout
+  def wait(timeout=nil, wait_interval=2, opthash={})
+    detail = opthash.fetch(:detail, false)
+    verbose = opthash.fetch(:verbose, ENV['TD_CLIENT_DEBUG'])
+    deadline = monotonic_clock + timeout if timeout
     timeout_klass = Class.new(Exception)
     begin
       if timeout
-        if deadline <= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        if deadline <= monotonic_clock
           raise timeout_klass, "timeout (#{timeout}) exceeded wait_interval=#{wait_interval}"
         end
       end
@@ -621,6 +623,15 @@ class Job < Model
     @retry_limit = retry_limit
     @db_name = db_name
     self
+  end
+
+  private
+  def monotonic_clock
+    if defined?(Process.clock_gettime)
+      Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    else
+      Time.now.to_i
+    end
   end
 end
 

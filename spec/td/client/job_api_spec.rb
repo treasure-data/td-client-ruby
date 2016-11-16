@@ -669,7 +669,7 @@ describe 'Job API' do
       s.string
     end
     let :deflated do
-      Zlib.deflate(formatted)
+      Zlib::Deflate.deflate(formatted)
     end
     subject do
       str = ''
