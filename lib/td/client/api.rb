@@ -185,7 +185,7 @@ class API
   def self.validate_column_name(name)
     target = 'column'
     min_len = 1
-    max_len = 128
+    max_len = 255 # current limit is 128 but some user already has 255 length data
     name = name.to_s
     if name.empty?
       raise ParameterValidationError,
