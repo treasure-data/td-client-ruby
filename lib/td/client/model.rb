@@ -1,14 +1,5 @@
 require 'timeout'
 
-Process::CLOCK_MONOTONIC = Object.new unless Process.const_defined?(:CLOCK_MONOTONIC)
-def Process.clock_gettime(*arg)
-  if arg == [Process::CLOCK_MONOTONIC]
-    Time.now.to_i
-  else
-    raise NoMethodError, "this ruby doesn't have Process.clock_gettime and no sim"
-  end
-end unless Process.respond_to?(:clock_gettime)
-
 module TreasureData
 
 class Model
@@ -453,11 +444,11 @@ class Job < Model
   def wait(timeout=nil, wait_interval=2, opthash={})
     detail = opthash.fetch(:detail, false)
     verbose = opthash.fetch(:verbose, ENV['TD_CLIENT_DEBUG'])
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout if timeout
+    deadline = monotonic_clock + timeout if timeout
     timeout_klass = Class.new(Exception)
     begin
       if timeout
-        if deadline <= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        if deadline <= monotonic_clock
           raise timeout_klass, "timeout (#{timeout}) exceeded wait_interval=#{wait_interval}"
         end
       end
@@ -632,6 +623,15 @@ class Job < Model
     @retry_limit = retry_limit
     @db_name = db_name
     self
+  end
+
+  private
+  def monotonic_clock
+    if defined?(Process.clock_gettime)
+      Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    else
+      Time.now.to_i
+    end
   end
 end
 
