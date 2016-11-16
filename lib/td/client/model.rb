@@ -459,8 +459,8 @@ class Job < Model
         end
       end
       sleep wait_interval
+      detail ? update_status! : update_progress!
       yield self if block_given?
-        detail ? update_status! : update_progress!
     rescue timeout_klass
       raise Timeout::Error, $!.message
     rescue Timeout::Error, SystemCallError, EOFError, SocketError, HTTPClient::ConnectTimeoutError
