@@ -126,7 +126,7 @@ describe API do
 
     describe "'validate_column_name'" do
       it 'should raise a ParameterValidationError exception' do
-        ['', 'a'*129].each { |ng|
+        ['', 'a'*256].each { |ng|
           expect {
             API.validate_column_name(ng)
           }.to raise_error(ParameterValidationError)
@@ -137,7 +137,7 @@ describe API do
         VALID_NAMES.each {|ok|
           expect(API.validate_column_name(ok)).to eq(ok)
         }
-        ['a', 'a'*128].each {|ok|
+        ['a', 'a'*255].each {|ok|
           expect(API.validate_column_name(ok)).to eq(ok)
         }
       end
