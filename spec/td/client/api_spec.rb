@@ -126,7 +126,7 @@ describe API do
 
     describe "'validate_column_name'" do
       it 'should raise a ParameterValidationError exception' do
-        ['', 'a'*256].each { |ng|
+        [''].each { |ng|
           expect {
             API.validate_column_name(ng)
           }.to raise_error(ParameterValidationError)
@@ -145,7 +145,7 @@ describe API do
 
     describe "'validate_sql_alias_name'" do
       it 'should raise a ParameterValidationError exception' do
-        ['', 'a'*129].each { |ng|
+        [''].each { |ng|
           expect{API.validate_sql_alias_name(ng)}.to raise_error(ParameterValidationError)
         }
         valid = ("a".."z").to_a.join<<("0".."9").to_a.join<<"_"
@@ -159,7 +159,7 @@ describe API do
         VALID_NAMES.each {|ok|
           expect(API.validate_sql_alias_name(ok)).to eq(ok)
         }
-        ['a', '_a', 'a_', 'a'*128].each {|ok|
+        ['a', '_a', 'a_', 'a'*512].each {|ok|
           expect(API.validate_sql_alias_name(ok)).to eq(ok)
         }
       end
