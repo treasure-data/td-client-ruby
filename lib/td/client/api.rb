@@ -149,15 +149,27 @@ class API
     end
 
     name = name.to_s
-    if name.empty?
-      raise ParameterValidationError,
+    if max_len
+      if name.length < min_len || name.length > max_len
+        raise ParameterValidationError,
+          "#{target.capitalize} name must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
+          (name.length == 1 ? "character" : "characters") + "."
+      end
+    else
+      if min_len == 1
+        if name.empty?
+          raise ParameterValidationError,
             "Empty #{target} name is not allowed"
-    end
-    if name.length < min_len || (max_len && name.length > max_len)
-      raise ParameterValidationError,
-            "#{target.capitalize} name must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
+        end
+      else
+        if name.length < min_len
+          raise ParameterValidationError,
+            "#{target.capitalize} name must be longer than #{min_len} characters. Got #{name.length} " +
             (name.length == 1 ? "character" : "characters") + "."
+        end
+      end
     end
+
     unless name =~ /^([a-z0-9_]+)$/
       raise ParameterValidationError,
             "#{target.capitalize} name must only consist of lower-case alpha-numeric characters and '_'."
