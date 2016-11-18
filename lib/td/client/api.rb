@@ -184,18 +184,11 @@ class API
   # @param [String] name
   def self.validate_column_name(name)
     target = 'column'
-    min_len = 1
     name = name.to_s
     if name.empty?
       raise ParameterValidationError,
             "Empty #{target} name is not allowed"
     end
-    if name.length < min_len
-      raise ParameterValidationError,
-            "#{target.capitalize} name must be between #{min_len} and #{max_len} characters long. Got #{name.length} " +
-            (name.length == 1 ? "character" : "characters") + "."
-    end
-
     name
   end
 
