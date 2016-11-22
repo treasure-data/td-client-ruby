@@ -238,7 +238,11 @@ module Job
     params['result'] = result_url if result_url
     params['priority'] = priority if priority
     params['retry_limit'] = retry_limit if retry_limit
-    code, body, res = post("/v3/job/issue/#{type}/#{e db}", params)
+    if target_job_id = params['target_job_id']
+      code, body, res = post("/v3/job/result_export/#{target_job_id}", params)
+    else
+      code, body, res = post("/v3/job/issue/#{type}/#{e db}", params)
+    end
     if code != "200"
       raise_error("Query failed", res)
     end
