@@ -435,9 +435,10 @@ class Job < Model
   # @!attribute [r] org_name
   # @!attribute [r] db_name
   # @!attribute [r] duration
+  # @!attribute [r] num_records
   attr_reader :job_id, :type, :result_url
   attr_reader :priority, :retry_limit, :org_name, :db_name
-  attr_reader :duration
+  attr_reader :duration, :num_records
 
   # @option timeout [Integer,nil] timeout in second
   # @option wait_interval [Integer,nil] interval in second of polling the job status
