@@ -36,9 +36,10 @@ module Job
       priority = m['priority']
       retry_limit = m['retry_limit']
       duration = m['duration']
+      num_records = m['num_records']
       result << [job_id, type, status, query, start_at, end_at, cpu_time,
                  result_size, result_url, priority, retry_limit, nil, database,
-                 duration]
+                 duration, num_records]
     }
     return result
   end
@@ -63,6 +64,7 @@ module Job
     end_at = js['end_at']
     cpu_time = js['cpu_time']
     result_size = js['result_size'] # compressed result size in msgpack.gz format
+    num_records = js['num_records']
     result = js['result'] # result target URL
     hive_result_schema = (js['hive_result_schema'] || '')
     if hive_result_schema.empty?
@@ -97,7 +99,7 @@ module Job
     priority = js['priority']
     retry_limit = js['retry_limit']
     return [type, query, status, url, debug, start_at, end_at, cpu_time,
-            result_size, result, hive_result_schema, priority, retry_limit, nil, database]
+            result_size, result, hive_result_schema, priority, retry_limit, nil, database, num_records]
   end
 
   # @param [String] job_id

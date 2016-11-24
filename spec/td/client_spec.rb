@@ -39,6 +39,7 @@ describe 'Command' do
         expect(job.org_name).to     eq raw_jobs[i]['organization']
         expect(job.db_name).to      eq raw_jobs[i]['database']
         expect(job.duration).to     eq raw_jobs[i]['duration']
+        expect(job.num_records).to  eq raw_jobs[i]['num_records']
       end
     end
   end

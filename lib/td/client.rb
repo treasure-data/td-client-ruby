@@ -182,10 +182,10 @@ class Client
     results = @api.list_jobs(from, to, status, conditions)
     results.map {|job_id, type, status, query, start_at, end_at, cpu_time,
                  result_size, result_url, priority, retry_limit, org, db,
-                 duration|
+                 duration, num_records|
       Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at, cpu_time,
               result_size, nil, result_url, nil, priority, retry_limit, org, db,
-              duration)
+              duration, num_records)
     }
   end
 
@@ -194,9 +194,9 @@ class Client
   def job(job_id)
     job_id = job_id.to_s
     type, query, status, url, debug, start_at, end_at, cpu_time,
-      result_size, result_url, hive_result_schema, priority, retry_limit, org, db = @api.show_job(job_id)
+      result_size, result_url, hive_result_schema, priority, retry_limit, org, db, num_records = @api.show_job(job_id)
     Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, cpu_time,
-            result_size, nil, result_url, hive_result_schema, priority, retry_limit, org, db)
+            result_size, nil, result_url, hive_result_schema, priority, retry_limit, org, db, num_records)
   end
 
   # @param [String] job_id
