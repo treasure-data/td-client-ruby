@@ -254,6 +254,14 @@ class Client
     Job.new(self, job_id, :export, nil)
   end
 
+  # @param [String] target_job_id
+  # @param [Hash] opts
+  # @return [Job]
+  def export(target_job_id, opts={})
+    job_id = @api.result_export(target_job_id, opts)
+    Job.new(self, job_id, :result_export, nil)
+  end
+
   # @param [String] db_name
   # @param [String] table_name
   # @param [Fixnum] to
