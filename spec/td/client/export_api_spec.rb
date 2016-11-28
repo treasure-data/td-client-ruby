@@ -37,5 +37,15 @@ describe 'Export API' do
 
     # TODO: Add other parameters spec
   end
+
+  describe 'result_export' do
+    it 'should export result successfully' do
+      params = {'result' => 'mysql://user:pass@host.com/database/table'}
+      stub_api_request(:post, "/v3/job/result_export/100").with(:body => params).
+        to_return(:body => {'job_id' => '101'}.to_json)
+
+      expect(api.result_export(100, params)).to eq('101')
+    end
+  end
 end
 

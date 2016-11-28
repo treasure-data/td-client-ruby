@@ -257,7 +257,7 @@ class Client
   # @param [String] target_job_id
   # @param [Hash] opts
   # @return [Job]
-  def export(target_job_id, opts={})
+  def result_export(target_job_id, opts={})
     job_id = @api.result_export(target_job_id, opts)
     Job.new(self, job_id, :result_export, nil)
   end
