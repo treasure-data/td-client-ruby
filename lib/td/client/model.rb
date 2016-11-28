@@ -402,9 +402,10 @@ class Job < Model
   # @param [String] org_name
   # @param [String] db_name
   # @param [Fixnum] duration
+  # @param [Fixnum] num_records
   def initialize(client, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, cpu_time=nil,
                  result_size=nil, result=nil, result_url=nil, hive_result_schema=nil, priority=nil, retry_limit=nil,
-                 org_name=nil, db_name=nil, duration=nil)
+                 org_name=nil, db_name=nil, duration=nil, num_records=nil)
     super(client)
     @job_id = job_id
     @type = type
@@ -423,6 +424,7 @@ class Job < Model
     @retry_limit = retry_limit
     @db_name = db_name
     @duration = duration
+    @num_records = num_records
   end
 
   # @!attribute [r] job_id
@@ -433,9 +435,10 @@ class Job < Model
   # @!attribute [r] org_name
   # @!attribute [r] db_name
   # @!attribute [r] duration
+  # @!attribute [r] num_records
   attr_reader :job_id, :type, :result_url
   attr_reader :priority, :retry_limit, :org_name, :db_name
-  attr_reader :duration
+  attr_reader :duration, :num_records
 
   # @option timeout [Integer,nil] timeout in second
   # @option wait_interval [Integer,nil] interval in second of polling the job status
@@ -614,7 +617,7 @@ class Job < Model
   def update_status!
     type, query, status, url, debug, start_at, end_at, cpu_time,
       result_size, result_url, hive_result_schema, priority, retry_limit,
-      org_name, db_name = @client.api.show_job(@job_id)
+      org_name, db_name , num_records = @client.api.show_job(@job_id)
     @query = query
     @status = status
     @url = url
@@ -628,6 +631,7 @@ class Job < Model
     @priority = priority
     @retry_limit = retry_limit
     @db_name = db_name
+    @num_records = num_records
     self
   end
 

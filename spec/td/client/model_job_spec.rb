@@ -26,7 +26,7 @@ describe 'Job Model' do
         'job_id', 'type', 'query', 'status', 'url', 'debug',
         'start_at', 'end_at', 'cpu_time', 'result_size', 'result', 'result_url',
         'hive_result_schema', 'priority', 'retry_limit', 'org_name', 'db_name',
-        'duration'
+        'duration', 'num_records'
       ].map {|name| job_attributes[name]}
     end
 
