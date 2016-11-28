@@ -22,5 +22,17 @@ module Export
     return js['job_id'].to_s
   end
 
+  # => jobId:String
+  # @param [String] target_job_id
+  # @param [Hash] opts
+  # @return [String] job_id
+  def result_export(target_job_id, opts={})
+    code, body, res = post("/v3/job/result_export/#{target_job_id}", opts)
+    if code != "200"
+      raise_error("Result Export failed", res)
+    end
+    js = checked_json(body, %w[job_id])
+    return js['job_id'].to_s
+  end
 end
 end
