@@ -1,3 +1,9 @@
+== 2016-11-29 version 0.8.85
+
+* Support JRuby 1.7 again #98
+* Add num records with job api #106
+* Add independent result export #105
+
 == 2016-10-17 version 0.8.84
 
 * fix schema validation #93
