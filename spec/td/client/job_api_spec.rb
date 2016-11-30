@@ -75,7 +75,7 @@ describe 'Job API' do
         stub_api_request(:get, "/v3/job/show/#{e(i)}").to_return(:body => job.to_json)
 
         type, query, status, url, debug, start_at, end_at, cpu_time,
-          result_size, result_url, hive_result_schema, priority, retry_limit, org, db, num_records = api.show_job(i)
+          result_size, result_url, hive_result_schema, priority, retry_limit, org, db, duration, num_records = api.show_job(i)
         expect(type).to eq(job['type'])
         expect(query).to eq(job['query'])
         expect(status).to eq(job['status'])
@@ -91,6 +91,7 @@ describe 'Job API' do
         expect(priority).to eq(job['priority'])
         expect(org).to eq(job['organization'])
         expect(db).to eq(job['database'])
+        expect(duration).to eq(job['duration'])
         expect(num_records).to eq(job['num_records'])
       end
     }
