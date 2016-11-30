@@ -617,7 +617,7 @@ class Job < Model
   def update_status!
     type, query, status, url, debug, start_at, end_at, cpu_time,
       result_size, result_url, hive_result_schema, priority, retry_limit,
-      org_name, db_name , num_records = @client.api.show_job(@job_id)
+      org_name, db_name , duration, num_records = @client.api.show_job(@job_id)
     @query = query
     @status = status
     @url = url
@@ -631,6 +631,7 @@ class Job < Model
     @priority = priority
     @retry_limit = retry_limit
     @db_name = db_name
+    @duration = duration
     @num_records = num_records
     self
   end

@@ -65,6 +65,7 @@ module Job
     cpu_time = js['cpu_time']
     result_size = js['result_size'] # compressed result size in msgpack.gz format
     num_records = js['num_records']
+    duration = js['duration']
     result = js['result'] # result target URL
     hive_result_schema = (js['hive_result_schema'] || '')
     if hive_result_schema.empty?
@@ -99,7 +100,7 @@ module Job
     priority = js['priority']
     retry_limit = js['retry_limit']
     return [type, query, status, url, debug, start_at, end_at, cpu_time,
-            result_size, result, hive_result_schema, priority, retry_limit, nil, database, num_records]
+            result_size, result, hive_result_schema, priority, retry_limit, nil, database, duration, num_records]
   end
 
   # @param [String] job_id

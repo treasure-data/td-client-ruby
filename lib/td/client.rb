@@ -194,9 +194,9 @@ class Client
   def job(job_id)
     job_id = job_id.to_s
     type, query, status, url, debug, start_at, end_at, cpu_time,
-      result_size, result_url, hive_result_schema, priority, retry_limit, org, db, num_records = @api.show_job(job_id)
+      result_size, result_url, hive_result_schema, priority, retry_limit, org, db, duration, num_records = @api.show_job(job_id)
     Job.new(self, job_id, type, query, status, url, debug, start_at, end_at, cpu_time,
-            result_size, nil, result_url, hive_result_schema, priority, retry_limit, org, db, num_records)
+            result_size, nil, result_url, hive_result_schema, priority, retry_limit, org, db, duration, num_records)
   end
 
   # @param [String] job_id
