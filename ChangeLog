@@ -1,3 +1,8 @@
+== 2017-01-20 version 1.0.0
+
+* Fix the bug to show the number of records as duration #107
+* Support Ruby 2.4.0 or later #108
+
 == 2016-11-29 version 0.8.85
 
 * Support JRuby 1.7 again #98
