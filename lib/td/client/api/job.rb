@@ -328,6 +328,7 @@ module Job
         chunk = infl.inflate(chunk) if infl
         yield chunk, current_total_chunk_size
       end
+      raise EOFError, "httpclient doesn't call block maybe because of redirect loop #99" unless response
 
       # completed?
       validate_content_length_with_range(response, current_total_chunk_size)
