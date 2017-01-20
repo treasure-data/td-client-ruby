@@ -121,12 +121,15 @@ class API
   # @!attribute [r] apikey
   attr_reader :apikey
 
+  MSGPACK_INT64_MAX = 2 ** 64 - 1
+  MSGPACK_INT64_MIN = -1 * (2 ** 63) # it's just same with -2**63, but for readability
+
   # @param [Hash] record
   # @param [IO] out
   def self.normalized_msgpack(record, out = nil)
     record.keys.each { |k|
       v = record[k]
-      if v.kind_of?(Bignum)
+      if v.kind_of?(Integer) && (v > MSGPACK_INT64_MAX || v < MSGPACK_INT64_MIN)
         record[k] = v.to_s
       end
     }

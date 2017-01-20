@@ -28,14 +28,20 @@ describe API do
       h = {'key' => 1111111111111111111111111111111111}
       unpacked = MessagePack.unpack(API.normalized_msgpack(h))
       expect(unpacked['key']).to eq(h['key'].to_s)
+
+      h = {'key' => -1111111111111111111111111111111111}
+      unpacked = MessagePack.unpack(API.normalized_msgpack(h))
+      expect(unpacked['key']).to eq(h['key'].to_s)
     end
 
     it 'normalized_msgpack with out argument should convert Bignum into String' do
-      h = {'key' => 1111111111111111111111111111111111}
+      h = {'key' => 1111111111111111111111111111111111, 'key2' => -1111111111111111111111111111111111, 'key3' => 0}
       out = ''
       API.normalized_msgpack(h, out)
       unpacked = MessagePack.unpack(out)
       expect(unpacked['key']).to eq(h['key'].to_s)
+      expect(unpacked['key2']).to eq(h['key2'].to_s)
+      expect(unpacked['key3']).to eq(h['key3']) # don't touch non-too-big integer
     end
 
     it 'normalize_database_name should return normalized data' do
