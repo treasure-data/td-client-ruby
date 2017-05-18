@@ -272,6 +272,9 @@ module Job
     end
   end
 
+  class HTTPServerException < StandardError
+  end
+
   def job_result_download(job_id, format='msgpack', autodecode=true)
     client, header = new_client
     client.send_timeout = @send_timeout
@@ -305,12 +308,8 @@ module Job
             end
           when 206 # resuming
           else
-            if res.status/100 == 5 && cumul_retry_delay < @max_cumul_retry_delay
-              $stderr.puts "Error #{res.status}: #{get_error(res)}. Retrying after #{retry_delay} seconds..."
-              sleep retry_delay
-              cumul_retry_delay += retry_delay
-              retry_delay *= 2
-              redo
+            if res.status/100 == 5
+              raise HTTPServerException
             end
             raise_error("Get job result failed", res)
           end
@@ -331,7 +330,8 @@ module Job
 
       # completed?
       validate_content_length_with_range(response, current_total_chunk_size)
-    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError, OpenSSL::SSL::SSLError, SocketError => e
+    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
+      OpenSSL::SSL::SSLError, SocketError, HTTPServerException => e
       if response # at least a chunk is downloaded
         if etag = response.header['ETag'][0]
           header['If-Range'] = etag
