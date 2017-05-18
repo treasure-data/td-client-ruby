@@ -286,7 +286,7 @@ describe 'Job API' do
       expect(api.job_result(12345)).to eq ['hello', 'world']
     end
 
-    it '200->500->206 can resume' do
+    it '200->206 can resume' do
       sz = packed.bytesize / 3
       stub_api_request(:get, '/v3/job/result/12345').
         with(:query => {'format' => 'msgpack'}).
@@ -296,23 +296,6 @@ describe 'Job API' do
             'Etag' => '"abcdefghijklmn"',
           },
           :body => packed[0, sz]
-        )
-      stub_api_request(:get, '/v3/job/result/12345').
-        with(
-          :headers => {
-            'If-Range' => '"abcdefghijklmn"',
-            'Range' => "bytes=#{sz}-",
-          },
-          :query => {'format' => 'msgpack'}
-        ).
-        to_return(
-          :status => 500,
-          :headers => {
-            'Content-Length' => packed.bytesize - sz,
-            'Content-Range' => "bytes #{sz}-#{packed.bytesize-1}/#{packed.bytesize}",
-            'Etag' => '"abcdefghijklmn"',
-          },
-          :body => packed
         )
       stub_api_request(:get, '/v3/job/result/12345').
         with(
@@ -753,6 +736,57 @@ describe 'Job API' do
             },
             :body => packed[sz, packed.bytesize - sz]
         )
+        expect(api).to receive(:sleep).once
+        allow($stderr).to receive(:print)
+        allow($stderr).to receive(:puts)
+      end
+      context 'Content-Encoding: gzip' do
+        let (:content_encoding){ 'gzip' }
+        let (:packed){ gziped }
+        context 'msgpack' do
+          let (:format){ 'msgpack' }
+          it { is_expected.to eq formatted }
+        end
+        context 'json' do
+          let (:format){ 'json' }
+          it { is_expected.to eq formatted }
+        end
+      end
+      context 'Content-Encoding: deflate' do
+        let (:content_encoding){ 'deflate' }
+        let (:packed){ deflated }
+        context 'msgpack' do
+          let (:format){ 'msgpack' }
+          it { is_expected.to eq formatted }
+        end
+        context 'json' do
+          let (:format){ 'json' }
+          it { is_expected.to eq formatted }
+        end
+      end
+    end
+
+    context '500 -> 200' do
+      before do
+        sz = packed.bytesize / 3
+        count = 0
+        stub_api_request(:get, '/v3/job/result/12345').
+          with(:query => {'format' => format}).
+        to_return do
+          count += 1
+          if count == 1
+            {:status => 500}
+          else
+            {
+              :headers => {
+                'Content-Encoding' => content_encoding,
+                'Content-Length' => packed.bytesize,
+                'Etag' => '"abcdefghijklmn"',
+              },
+              :body => packed,
+            }
+          end
+        end
         expect(api).to receive(:sleep).once
         allow($stderr).to receive(:print)
         allow($stderr).to receive(:puts)
