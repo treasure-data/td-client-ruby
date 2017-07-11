@@ -331,7 +331,8 @@ module Job
       # completed?
       validate_content_length_with_range(response, current_total_chunk_size)
     rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
-      OpenSSL::SSL::SSLError, SocketError, HTTPServerException => e
+      SystemCallError, OpenSSL::SSL::SSLError, SocketError, HTTPClient::TimeoutError,
+      HTTPServerException => e
       if response # at least a chunk is downloaded
         if etag = response.header['ETag'][0]
           header['If-Range'] = etag

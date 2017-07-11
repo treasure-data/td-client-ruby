@@ -466,7 +466,8 @@ class Job < Model
       yield self if block_given?
     rescue timeout_klass
       raise Timeout::Error, $!.message
-    rescue Timeout::Error, SystemCallError, EOFError, SocketError, HTTPClient::ConnectTimeoutError
+    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
+      SystemCallError, OpenSSL::SSL::SSLError, SocketError, HTTPClient::TimeoutError
       $stderr.puts "ignore network error (#{$!}); retry..." if verbose
     end until finished?
   end
