@@ -320,7 +320,7 @@ class Schema
     @fields.each do |f|
       raise ArgumentError, "Column name '#{f.name}' is duplicated." if @names.key?(f.name)
       @names[f.name] = true
-      if f.sql_alias
+      if f.sql_alias && f.name != f.sql_alias
         raise ArgumentError, "SQL Column alias '#{f.sql_alias}' is duplicated." if @names.key?(f.sql_alias)
         @names[f.sql_alias] = true
       end
@@ -338,7 +338,7 @@ class Schema
       raise ParameterValidationError, "Column name '#{name}' is duplicated."
     end
     @names[name] = true
-    if sql_alias && @names.key?(sql_alias)
+    if sql_alias && sql_alias != name && @names.key?(sql_alias)
       raise ParameterValidationError, "SQL Column alias '#{sql_alias}' is duplicated."
     end
     @names[sql_alias] = true
