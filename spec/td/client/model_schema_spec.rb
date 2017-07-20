@@ -30,6 +30,15 @@ describe 'TreasureData::Schema::Field' do
         expect(f.sql_alias).to eq 'alice'
       end
     end
+    context 'with sql_alias which equals to its name' do
+      it 'works' do
+        name = "abc"
+        f = Schema::Field.new(name, 'int', name)
+        expect(f.name).to eq name
+        expect(f.type).to eq 'int'
+        expect(f.sql_alias).to eq name
+      end
+    end
     context 'with invalid sql_alias' do
       it 'raises' do
         expect{ Schema::Field.new('t:t', 'int', 't:t') }.to raise_error(ParameterValidationError)
@@ -57,10 +66,22 @@ describe 'TreasureData::Schema' do
   end
 
   describe '.new' do
-    it do
+    it 'works with single field' do
       f = Schema::Field.new('a', 'int')
       sc = Schema.new([f])
       expect(sc.fields[0]).to eq f
+    end
+    it 'works with multiple fields' do
+      f0 = Schema::Field.new('a', 'int')
+      f1 = Schema::Field.new('b', 'int', 'b')
+      sc = Schema.new([f0, f1])
+      expect(sc.fields[0]).to eq f0
+      expect(sc.fields[1]).to eq f1
+    end
+    it 'raises' do
+      f0 = Schema::Field.new('a', 'int')
+      f1 = Schema::Field.new('b', 'int', 'a')
+      expect{ Schema.new([f0, f1]) }.to raise_error(ArgumentError)
     end
   end
 
@@ -77,6 +98,12 @@ describe 'TreasureData::Schema' do
       f = Schema::Field.new('a', 'int')
       sc = Schema.new([f])
       sc.add_field('b', 'double', 'bb')
+      expect(sc.fields[1].name).to eq 'b'
+    end
+    it do
+      f = Schema::Field.new('a', 'int')
+      sc = Schema.new([f])
+      sc.add_field('b', 'double', 'b')
       expect(sc.fields[1].name).to eq 'b'
     end
     it 'raises ParameterValidationError if name is duplicated' do
