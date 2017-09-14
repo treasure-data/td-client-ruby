@@ -272,6 +272,22 @@ module Job
     end
   end
 
+  def validate_response_status(res, current_total_chunk_size=0)
+    case res.status
+    when 200
+      if current_total_chunk_size != 0
+        # try to resume but the server returns 200
+        raise_error("Get job result failed", res)
+      end
+    when 206 # resuming
+    else
+      if res.status/100 == 5
+        raise HTTPServerException
+      end
+      raise_error("Get job result failed", res)
+    end
+  end
+
   class HTTPServerException < StandardError
   end
 
@@ -297,43 +313,28 @@ module Job
     current_total_chunk_size = 0
     infl = nil
     begin # LOOP of Network/Server errors
-      response = nil
-      client.get(url, params, header) do |res, chunk|
-        unless response
-          case res.status
-          when 200
-            if current_total_chunk_size != 0
-              # try to resume but the server returns 200
-              raise_error("Get job result failed", res)
-            end
-          when 206 # resuming
-          else
-            if res.status/100 == 5
-              raise HTTPServerException
-            end
-            raise_error("Get job result failed", res)
-          end
-          if infl.nil? && autodecode
-            case res.header['Content-Encoding'][0].to_s.downcase
-            when 'gzip'
-              infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
-            when 'deflate'
-              infl = Zlib::Inflate.new
-            end
+      response = client.get(url, params, header) do |res, chunk|
+        validate_response_status(res, current_total_chunk_size)
+        if infl.nil? && autodecode
+          case res.header['Content-Encoding'][0].to_s.downcase
+          when 'gzip'
+            infl = Zlib::Inflate.new(Zlib::MAX_WBITS + 16)
+          when 'deflate'
+            infl = Zlib::Inflate.new
           end
         end
-        response = res
         current_total_chunk_size += chunk.bytesize
         chunk = infl.inflate(chunk) if infl
         yield chunk, current_total_chunk_size
       end
+      validate_response_status(response)
 
       # completed?
       validate_content_length_with_range(response, current_total_chunk_size)
     rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
       SystemCallError, OpenSSL::SSL::SSLError, SocketError, HTTPClient::TimeoutError,
       HTTPServerException => e
-      if response # at least a chunk is downloaded
+      if current_total_chunk_size > 0
         if etag = response.header['ETag'][0]
           header['If-Range'] = etag
           header['Range'] = "bytes=#{current_total_chunk_size}-"

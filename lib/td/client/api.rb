@@ -289,6 +289,7 @@ private
         if block
           current_total_chunk_size = 0
           response = client.get(target, params, header) {|res, chunk|
+            break if res.status != 200
             current_total_chunk_size += chunk.bytesize
             block.call(res, chunk, current_total_chunk_size)
           }
@@ -300,17 +301,17 @@ private
         else
           response = client.get(target, params, header)
 
-          validate_content_length!(response, response.body.bytesize) if @ssl
-        end
+          status = response.code
+          # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
+          if !block_given? && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
+            $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
+            sleep retry_delay
+            cumul_retry_delay += retry_delay
+            retry_delay *= 2
+            redo # restart from beginning of do-while loop
+          end
 
-        status = response.code
-        # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
-        if !block_given? && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
-          $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
-          sleep retry_delay
-          cumul_retry_delay += retry_delay
-          retry_delay *= 2
-          redo # restart from beginning of do-while loop
+          validate_content_length!(response, response.body.to_s.bytesize) if @ssl
         end
       rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
         SystemCallError, OpenSSL::SSL::SSLError, SocketError, HTTPClient::TimeoutError,
