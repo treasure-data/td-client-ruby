@@ -303,7 +303,7 @@ private
 
           status = response.code
           # retry if the HTTP error code is 500 or higher and we did not run out of retrying attempts
-          if !block_given? && status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
+          if status >= 500 && cumul_retry_delay < @max_cumul_retry_delay
             $stderr.puts "Error #{status}: #{get_error(response)}. Retrying after #{retry_delay} seconds..."
             sleep retry_delay
             cumul_retry_delay += retry_delay
