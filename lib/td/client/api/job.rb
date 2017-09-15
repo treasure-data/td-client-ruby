@@ -327,7 +327,10 @@ module Job
         chunk = infl.inflate(chunk) if infl
         yield chunk, current_total_chunk_size
       end
-      validate_response_status(response)
+
+      # for the case response body is empty
+      # Note that webmock returns response.body as "" instead of nil
+      validate_response_status(response, 0) if response.body.to_s.empty?
 
       # completed?
       validate_content_length_with_range(response, current_total_chunk_size)
