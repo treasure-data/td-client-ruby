@@ -1,3 +1,7 @@
+== 2017-09-15 version 1.0.3
+
+* Handle the case HTTPClient doesn't yield block or body is nil #112
+
 == 2017-07-20 version 1.0.2
 
 * Allow name and sql_alias are equal #111
