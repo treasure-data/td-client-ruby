@@ -320,6 +320,27 @@ describe 'Job API' do
       expect(api.job_result(12345)).to eq ['hello', 'world']
     end
 
+    it '200 (blank) -> 200 works fine' do
+      i = 0
+      stub_api_request(:get, '/v3/job/result/12345').
+        with(:query => {'format' => 'msgpack'}).
+        to_return do
+        i += 1
+        puts "count : #{i}"
+        {
+          :headers => {
+            'Content-Length' => packed.bytesize,
+            'Etag' => '"abcdefghijklmn"',
+          },
+          :body => (i == 1 ? nil : packed)
+        }
+      end
+      expect(api).to receive(:sleep).once
+      expect($stderr).to receive(:print)
+      expect($stderr).to receive(:puts)
+      expect(api.job_result(12345)).to eq ['hello', 'world']
+    end
+
   end
 
   describe 'job_result_format' do
