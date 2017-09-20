@@ -313,8 +313,12 @@ module Job
     current_total_chunk_size = 0
     infl = nil
     begin # LOOP of Network/Server errors
+      first_chunk_p = true
       response = client.get(url, params, header) do |res, chunk|
-        validate_response_status(res, current_total_chunk_size)
+        # Validate only on first chunk
+        validate_response_status(res, current_total_chunk_size) if first_chunk_p
+        first_chunk_p = false
+
         if infl.nil? && autodecode
           case res.header['Content-Encoding'][0].to_s.downcase
           when 'gzip'

@@ -341,6 +341,21 @@ describe 'Job API' do
       expect(api.job_result(12345)).to eq ['hello', 'world']
     end
 
+    it 'has multiple chunks' do
+      client = double('client')
+      allow(api).to receive(:new_client).and_return([client, {}])
+      allow(client).to receive(:send_timeout=)
+      allow(client).to receive(:receive_timeout=)
+      res = HTTP::Message.new_response(nil, HTTP::Message::Headers.new)
+      sz = 3
+      chunk1 = packed[0, sz]
+      chunk2 = packed[sz, packed.bytesize-sz]
+      expect(client).to receive(:get).
+        and_yield(res, chunk1).
+        and_yield(res, chunk2).
+        and_return(res)
+      expect(api.job_result(12345)).to eq ['hello', 'world']
+    end
   end
 
   describe 'job_result_format' do
