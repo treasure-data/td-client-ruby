@@ -1,3 +1,7 @@
+== 2017-09-21 version 1.0.4
+
+* Fix the bug in #112 #113
+
 == 2017-09-15 version 1.0.3
 
 * Handle the case HTTPClient doesn't yield block or body is nil #112
