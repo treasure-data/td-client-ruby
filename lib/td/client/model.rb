@@ -153,7 +153,7 @@ class Table < Model
   # @param [String] last_import
   # @param [String] last_log_timestamp
   # @param [Fixnum, String] expire_days
-  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil, last_import=nil, last_log_timestamp=nil, expire_days=nil)
+  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil, last_import=nil, last_log_timestamp=nil, expire_days=nil, include_v=false)
     super(client)
     @database = nil
     @db_name = db_name
@@ -167,6 +167,7 @@ class Table < Model
     @last_import = last_import
     @last_log_timestamp = last_log_timestamp
     @expire_days = expire_days
+    @include_v = include_v
   end
 
   # @!attribute [r] type
@@ -175,7 +176,7 @@ class Table < Model
   # @!attribute [r] schema
   # @!attribute [r] count
   # @!attribute [r] estimated_storage_size
-  attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size
+  attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size, :include_v
 
   alias database_name db_name
   alias name table_name
