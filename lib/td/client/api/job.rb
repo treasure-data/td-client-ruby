@@ -6,7 +6,7 @@ module Job
   ##
 
   # @param [Fixnum] from
-  # @param [Fixnum] to
+  # @param [Fixnum] to (to is inclusive)
   # @param [String] status
   # @param [Hash] conditions
   # @return [Array]
