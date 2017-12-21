@@ -66,7 +66,7 @@ module Schedule
 
   # @param [String] name
   # @param [Fixnum] from
-  # @param [Fixnum] to
+  # @param [Fixnum] to (to is exclusive)
   # @return [Array]
   def history(name, from=0, to=nil)
     params = {}
