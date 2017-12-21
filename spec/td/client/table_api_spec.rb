@@ -30,6 +30,12 @@ describe 'Table API' do
       expect(api.create_log_table(db_name, table_name)).to be true
     end
 
+    it 'should create a new table with params' do
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
+        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log', 'include_v' => 'false'}.to_json)
+      expect(api.create_log_table(db_name, table_name, include_v: false)).to be true
+    end
+
     it 'should return 400 error with invalid name' do
       invalid_name = 'a'
       err_msg = "Name must be 3 to 256 characters, got #{invalid_name.length} characters. name = '#{invalid_name}'"

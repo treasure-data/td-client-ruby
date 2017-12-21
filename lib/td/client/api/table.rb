@@ -33,9 +33,10 @@ module Table
 
   # @param [String] db
   # @param [String] table
+  # @param [Hash] params
   # @return [true]
-  def create_log_table(db, table)
-    create_table(db, table, :log)
+  def create_log_table(db, table, params={})
+    create_table(db, table, :log, params)
   end
 
   # @param [String] db

@@ -88,9 +88,14 @@ class Client
     raise NotFoundError, "Database '#{db_name}' does not exist"
   end
 
+  # @param [String] db
+  # @param [String] table
+  # @option params [Fixnum] :expire_days days to expire table
+  # @option params [Boolean] :include_v (true) include v column on Hive
+  # @option params [Boolean] :detect_schema (true) detect schema on import
   # @return [true]
-  def create_log_table(db_name, table_name)
-    @api.create_log_table(db_name, table_name)
+  def create_log_table(db_name, table_name, params={})
+    @api.create_log_table(db_name, table_name, params={})
   end
 
   # Swap table names
