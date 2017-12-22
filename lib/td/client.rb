@@ -95,7 +95,7 @@ class Client
   # @option params [Boolean] :detect_schema (true) detect schema on import
   # @return [true]
   def create_log_table(db_name, table_name, params={})
-    @api.create_log_table(db_name, table_name, params={})
+    @api.create_log_table(db_name, table_name, params)
   end
 
   # Swap table names
