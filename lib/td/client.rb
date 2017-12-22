@@ -88,9 +88,14 @@ class Client
     raise NotFoundError, "Database '#{db_name}' does not exist"
   end
 
+  # @param [String] db
+  # @param [String] table
+  # @option params [Fixnum] :expire_days days to expire table
+  # @option params [Boolean] :include_v (true) include v column on Hive
+  # @option params [Boolean] :detect_schema (true) detect schema on import
   # @return [true]
-  def create_log_table(db_name, table_name)
-    @api.create_log_table(db_name, table_name)
+  def create_log_table(db_name, table_name, params={})
+    @api.create_log_table(db_name, table_name, params)
   end
 
   # Swap table names
@@ -109,6 +114,16 @@ class Client
   # @return [true]
   def update_schema(db_name, table_name, schema)
     @api.update_schema(db_name, table_name, schema.to_json)
+  end
+
+  # @param [String] db
+  # @param [String] table
+  # @option params [Fixnum] :expire_days days to expire table
+  # @option params [Boolean] :include_v (true) include v column on Hive
+  # @option params [Boolean] :detect_schema (true) detect schema on import
+  # @return [true]
+  def update_table(db_name, table_name, params={})
+    @api.update_table(db_name, table_name, params)
   end
 
   # @param [String] db_name
@@ -130,10 +145,10 @@ class Client
   # @return [Array] Tables
   def tables(db_name)
     m = @api.list_tables(db_name)
-    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days)|
+    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v)|
       schema = Schema.new.from_json(schema)
       Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at,
-        estimated_storage_size, last_import, last_log_timestamp, expire_days)
+        estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v)
     }
   end
 

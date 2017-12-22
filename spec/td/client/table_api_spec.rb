@@ -30,6 +30,13 @@ describe 'Table API' do
       expect(api.create_log_table(db_name, table_name)).to be true
     end
 
+    it 'should create a new table with params' do
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
+        with(:body => {'include_v' => 'false'}).
+        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log', 'include_v' => 'false'}.to_json)
+      expect(api.create_log_table(db_name, table_name, include_v: false)).to be true
+    end
+
     it 'should return 400 error with invalid name' do
       invalid_name = 'a'
       err_msg = "Name must be 3 to 256 characters, got #{invalid_name.length} characters. name = '#{invalid_name}'"
@@ -48,6 +55,52 @@ describe 'Table API' do
 
       expect {
         api.create_log_table(db_name, table_name)
+      }.to raise_error(TreasureData::AlreadyExistsError, /#{err_msg}/)
+    end
+  end
+
+  describe "'create_log_table' client API" do
+    it 'should return 404 error if the database does not exist' do
+      err_msg = "Create log table failed: Couldn't find UserDatabase with name = #{db_name}"
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
+        to_return(:status => 404, :body => {'message' => err_msg}.to_json)
+
+      expect {
+        client.create_log_table(db_name, table_name)
+      }.to raise_error(TreasureData::NotFoundError, /#{err_msg}/)
+    end
+
+    it 'should create a new table if the database exists' do
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
+        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log'}.to_json)
+      expect(client.create_log_table(db_name, table_name)).to be true
+    end
+
+    it 'should create a new table with params' do
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
+        with(:body => {'include_v' => 'false'}).
+        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log', 'include_v' => 'false'}.to_json)
+      expect(client.create_log_table(db_name, table_name, include_v: false)).to be true
+    end
+
+    it 'should return 400 error with invalid name' do
+      invalid_name = 'a'
+      err_msg = "Name must be 3 to 256 characters, got #{invalid_name.length} characters. name = '#{invalid_name}'"
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e invalid_name}/log").
+        to_return(:status => 400, :body => {'message' => err_msg}.to_json)
+
+      expect {
+        client.create_log_table(db_name, invalid_name)
+      }.to raise_error(TreasureData::APIError, /#{err_msg}/)
+    end
+
+    it 'should return 409 error with duplicated name' do
+      err_msg = "Table #{table_name} already exists"
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e table_name}/log").
+        to_return(:status => 409, :body => {'message' => err_msg}.to_json)
+
+      expect {
+        client.create_log_table(db_name, table_name)
       }.to raise_error(TreasureData::AlreadyExistsError, /#{err_msg}/)
     end
   end
@@ -176,6 +229,31 @@ describe 'Table API' do
         with(:body => {'expire_days' => '5'}).
         to_return(:body => {'type' => 'type'}.to_json)
       expect(api.update_expire('db', 'table', 5)).to eq(true)
+    end
+  end
+
+  describe 'handle include_v' do
+    it 'should set/unset include_v flag' do
+      stub_api_request(:get, '/v3/table/list/db').
+        to_return(:body => {'tables' => [
+          {'name' => 'table', 'type' => 'log', 'include_v' => true},
+        ]}.to_json)
+
+      table = client.table('db', 'table')
+      expect(table.include_v).to eq true
+
+      stub_api_request(:get, '/v3/table/list/db').
+        to_return(:body => {'tables' => [
+          {'name' => 'table', 'type' => 'log', 'include_v' => false},
+        ]}.to_json)
+
+      stub_api_request(:post, '/v3/table/update/db/table').
+        with(:body => {'include_v' => "false"}).
+        to_return(:body => {"database"=>"db","table"=>"table","type"=>"log"}.to_json)
+      api.update_table('db', 'table', include_v: "false")
+
+      table = client.table('db', 'table')
+      expect(table.include_v).to eq false
     end
   end
 
