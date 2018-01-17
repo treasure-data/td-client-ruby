@@ -35,6 +35,56 @@ describe 'Job Model' do
     end
   end
 
+  describe '#auto_update_status' do
+    let(:client) { Client.authenticate('user', 'password') }
+    let(:job_id) { 12345678 }
+    let(:job)    { Job.new(client, job_id, nil, nil) }
+    let(:format) { 'json' }
+    let(:io)     { StringIO.new }
+    before { allow(job).to receive(:finished?) { false } }
+
+    it 'can set' do
+      expect(job.auto_update_status?).to eq true
+      job.auto_update_status = false
+      expect(job.auto_update_status?).to eq false
+      job.auto_update_status = true
+      expect(job.auto_update_status?).to eq true
+    end
+
+    it 'calls API if auto_update_status=true' do
+      job.auto_update_status = true
+      result_job = {
+        'job_id' => job_id,
+        'status' => 'queued',
+        'created_at' => Time.now,
+      }
+      stub_request(:get, "https://api.treasuredata.com/v3/job/show/#{job_id}").
+        to_return(:body => result_job.to_json)
+      expect(job.query).to be_nil
+      expect(job.status).to eq "queued"
+      expect(job.url).to be_nil
+      expect(job.debug).to be_nil
+      expect(job.start_at).to be_nil
+      expect(job.end_at).to be_nil
+      expect(job.cpu_time).to be_nil
+      expect(job.hive_result_schema).to be_nil
+      expect(job.result_size).to be_nil
+    end
+
+    it "doesn't call API if auto_update_status=false" do
+      job.auto_update_status = false
+      expect(job.query).to be_nil
+      expect(job.status).to be_nil
+      expect(job.url).to be_nil
+      expect(job.debug).to be_nil
+      expect(job.start_at).to be_nil
+      expect(job.end_at).to be_nil
+      expect(job.cpu_time).to be_nil
+      expect(job.hive_result_schema).to be_nil
+      expect(job.result_size).to be_nil
+    end
+  end
+
   describe '#result_raw' do
     let(:client) { Client.authenticate('user', 'password') }
     let(:job_id) { 12345678 }
