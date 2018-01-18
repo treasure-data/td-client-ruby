@@ -426,6 +426,7 @@ class Job < Model
     @db_name = db_name
     @duration = duration
     @num_records = num_records
+    @auto_update_status = true
   end
 
   # @!attribute [r] job_id
@@ -440,6 +441,16 @@ class Job < Model
   attr_reader :job_id, :type, :result_url
   attr_reader :priority, :retry_limit, :org_name, :db_name
   attr_reader :duration, :num_records
+
+  # whether it update status if the job is not finished yet or not
+  def auto_update_status?
+    @auto_update_status
+  end
+
+  # set whether it update status if the job is not finished yet or not
+  def auto_update_status=(bool)
+    @auto_update_status = bool ? true : false
+  end
 
   # @option timeout [Integer,nil] timeout in second
   # @option wait_interval [Integer,nil] interval in second of polling the job status
@@ -479,55 +490,55 @@ class Job < Model
 
   # @return [String]
   def query
-    update_status! unless @query || finished?
+    update_status! unless @query || !@auto_update_status || finished?
     @query
   end
 
   # @return [String]
   def status
-    update_status! unless @status || finished?
+    update_status! unless @status || !@auto_update_status || finished?
     @status
   end
 
   # @return [String]
   def url
-    update_status! unless @url || finished?
+    update_status! unless @url || !@auto_update_status || finished?
     @url
   end
 
   # @return [Boolean]
   def debug
-    update_status! unless @debug || finished?
+    update_status! unless @debug || !@auto_update_status || finished?
     @debug
   end
 
   # @return [Time, nil]
   def start_at
-    update_status! unless @start_at || finished?
+    update_status! unless @start_at || !@auto_update_status || finished?
     @start_at && !@start_at.empty? ? Time.parse(@start_at) : nil
   end
 
   # @return [Time, nil]
   def end_at
-    update_status! unless @end_at || finished?
+    update_status! unless @end_at || !@auto_update_status || finished?
     @end_at && !@end_at.empty? ? Time.parse(@end_at) : nil
   end
 
   # @return [String]
   def cpu_time
-    update_status! unless @cpu_time || finished?
+    update_status! unless @cpu_time || !@auto_update_status || finished?
     @cpu_time
   end
 
   # @return [Array]
   def hive_result_schema
-    update_status! unless @hive_result_schema.instance_of? Array || finished?
+    update_status! unless @hive_result_schema.instance_of?(Array) || !@auto_update_status || finished?
     @hive_result_schema
   end
 
   # @return [String]
   def result_size
-    update_status! unless @result_size || finished?
+    update_status! unless @result_size || !@auto_update_status || finished?
     @result_size
   end
 
