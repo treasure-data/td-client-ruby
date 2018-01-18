@@ -1,3 +1,8 @@
+== 2018-01-18 version 1.0.5
+
+* Add TreasureData::Job#auto_update_status=false to prevent API call #115
+* Support include_v flag #114
+
 == 2017-09-21 version 1.0.4
 
 * Fix the bug in #112 #113
