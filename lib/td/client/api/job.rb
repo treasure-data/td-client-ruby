@@ -67,6 +67,8 @@ module Job
     num_records = js['num_records']
     duration = js['duration']
     result = js['result'] # result target URL
+    linked_result_export_job_id = js['linked_result_export_job_id']
+    result_export_target_job_id = js['result_export_target_job_id']
     hive_result_schema = (js['hive_result_schema'] || '')
     if hive_result_schema.empty?
       hive_result_schema = nil
@@ -100,7 +102,8 @@ module Job
     priority = js['priority']
     retry_limit = js['retry_limit']
     return [type, query, status, url, debug, start_at, end_at, cpu_time,
-            result_size, result, hive_result_schema, priority, retry_limit, nil, database, duration, num_records]
+            result_size, result, hive_result_schema, priority, retry_limit, nil, database, duration, num_records,
+            linked_result_export_job_id, result_export_target_job_id]
   end
 
   # @param [String] job_id

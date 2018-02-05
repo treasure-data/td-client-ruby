@@ -31,7 +31,7 @@ describe 'Job API' do
         jobs = api.list_jobs
         jobs[i..i].map {|job_id, type, status, query, start_at, end_at, cpu_time,
                       result_size, result_url, priority, retry_limit, org, db,
-                      duration, num_records|
+                      duration, num_records, linked_result_export_job_id, result_export_target_job_id|
           expect(job_id).to eq(job['job_id'])
           expect(type).to eq(job['type'])
           expect(status).to eq(job['status'])
@@ -47,6 +47,8 @@ describe 'Job API' do
           expect(db).to eq(job['database'])
           expect(duration).to eq(job['duration'])
           expect(num_records).to eq(job['num_records'])
+          expect(linked_result_export_job_id).to eq(job['linked_result_export_job_id'])
+          expect(result_export_target_job_id).to eq(job['result_export_target_job_id'])
         }
       end
     }
