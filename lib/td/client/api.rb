@@ -76,6 +76,7 @@ class API
     @retry_post_requests = opts[:retry_post_requests] || false
     @retry_delay = opts[:retry_delay] || 5
     @max_cumul_retry_delay = opts[:max_cumul_retry_delay] || 600
+    @auto_create_table = opts[:auto_create_table] || false
 
     case uri.scheme
     when 'http', 'https'

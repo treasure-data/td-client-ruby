@@ -13,6 +13,10 @@ module Import
   # @param [String] unique_id
   # @return [Float] elapsed time
   def import(db, table, format, stream, size, unique_id=nil)
+    if @auto_create_table && !list_tables(db).key?(table)
+      create_log_table(db,table)
+    end
+
     if unique_id
       path = "/v3/table/import_with_id/#{e db}/#{e table}/#{unique_id}/#{format}"
     else

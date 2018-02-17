@@ -144,6 +144,15 @@ E.g.
 
 to enable retrying for POST requests.
 
+### Auto Create Table
+
+Add the `:auto_create_table` key to the opts hash to provide auto create
+the table when import.
+
+E.g.
+
+    opts.merge({:auto_create_table => true})
+
 ## Testing Hooks
 
 The client library implements several hooks to enable/disable/trigger special

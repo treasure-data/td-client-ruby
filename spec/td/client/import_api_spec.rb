@@ -31,6 +31,10 @@ describe 'Import API' do
     API.new(nil, :endpoint => endpoint_unknown, :ssl => false)
   end
 
+  let :api_auto_create_table do
+    API.new(nil, :auto_create_table => true)
+  end
+
   let(:endpoint) { 'api.treasuredata.com' }
   let(:endpoint_old) { TreasureData::API::OLD_ENDPOINT }
   let(:endpoint_unknown) { "example.com" }
@@ -127,6 +131,26 @@ describe 'Import API' do
         to_return(:body => '{"elapsed_time":"1.23"}')
       File.open(t.path) do |f|
         expect(api_unknown_host_http.import('db', 'table', 'format', f, 5)).to eq 1.23
+      end
+    end
+
+    it 'runs for auto_create_table' do
+      stub_api_request(:get, "/v3/table/list/#{e db_name}").
+        to_return(:body => {'tables' => [
+          {'name' => "table_1", 'type' => "log", 'schema' => "[[\"value\",\"long\"]]", 'count' => 111, 'created_at' => "2018-02-17 00:00:00 UTC", 'updated_at' => "2018-02-18 00:00:00 UTC"}
+        ]}.to_json)
+      stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
+        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log'}.to_json)
+
+      t = Tempfile.new('import_api_spec')
+      File.open(t.path, 'w') do |f|
+        f << '12345'
+      end
+      stub_request(:put, "https://#{endpoint_import}/v3/table/import/#{e db_name}/#{e(table_name)}/format").
+        with(:body => '12345').
+        to_return(:body => '{"elapsed_time":"1.23"}')
+      File.open(t.path) do |f|
+        expect(api_auto_create_table.import(db_name, table_name, 'format', f, 5)).to eq(1.23)
       end
     end
 
