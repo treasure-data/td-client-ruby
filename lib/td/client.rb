@@ -519,39 +519,6 @@ class Client
     @api.change_my_password(old_password, password)
   end
 
-  # @return [Array<AccessControl>]
-  def access_controls
-    list = @api.list_access_controls
-    list.map {|subject,action,scope,grant_option|
-      AccessControl.new(self, subject, action, scope, grant_option)
-    }
-  end
-
-  # @param [String] subject
-  # @param [String] action
-  # @param [String] scope
-  # @param [Array] grant_option
-  # @return [true]
-  def grant_access_control(subject, action, scope, grant_option)
-    @api.grant_access_control(subject, action, scope, grant_option)
-  end
-
-  # @param [String] subject
-  # @param [String] action
-  # @param [String] scope
-  # @return [true]
-  def revoke_access_control(subject, action, scope)
-    @api.revoke_access_control(subject, action, scope)
-  end
-
-  # @param [String] user
-  # @param [String] action
-  # @param [String] scope
-  # @return [Array]
-  def test_access_control(user, action, scope)
-    @api.test_access_control(user, action, scope)
-  end
-
   # => BulkLoad::Job
   def bulk_load_guess(job)
     @api.bulk_load_guess(job)

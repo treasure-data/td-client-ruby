@@ -1,6 +1,5 @@
 require 'td/client/api_error'
 require 'td/client/version'
-require 'td/client/api/access_control'
 require 'td/client/api/account'
 require 'td/client/api/bulk_import'
 require 'td/client/api/bulk_load'
@@ -21,7 +20,6 @@ require 'td/core_ext/openssl/ssl/sslcontext/set_params'
 module TreasureData
 
 class API
-  include API::AccessControl
   include API::Account
   include API::BulkImport
   include API::BulkLoad
