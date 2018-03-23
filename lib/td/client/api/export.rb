@@ -28,7 +28,7 @@ module Export
   # @return [String] job_id
   def result_export(target_job_id, opts={})
     code, body, res = post("/v3/job/result_export/#{target_job_id}", opts)
-    if code != "200"
+    if code[0] != ?2
       raise_error("Result Export failed", res)
     end
     js = checked_json(body, %w[job_id])
