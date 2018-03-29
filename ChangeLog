@@ -1,3 +1,7 @@
+== 2018-03-29 version 1.0.6
+
+* Support Treasure Data's new result export #117 #120
+
 == 2018-01-18 version 1.0.5
 
 * Add TreasureData::Job#auto_update_status=false to prevent API call #115
