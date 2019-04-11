@@ -140,5 +140,14 @@ module Table
     end
   end
 
+  def change_database(db, table, dest_db)
+    params = { 'dest_database_name' => dest_db }
+    code, body, res = post("/v3/table/change_database/#{e db}/#{e table}", params)
+    if code != "200"
+      raise_error("Change database failed", res)
+    end
+    return true
+  end
+
 end
 end
