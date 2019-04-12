@@ -301,4 +301,43 @@ describe 'Table API' do
       expect(r.read).to eq(%Q(parameter "to" and "from" no longer work\n))
     end
   end
+
+  describe 'change_database' do
+    it 'should change the database belonging to' do
+      stub_api_request(:post, "/v3/table/change_database/src_db/table").
+        with(:body => {'dest_database_name' => 'dst_db'}).
+        to_return(:body => {'database' => 'dst_db', 'table' => 'table', 'type' => 'log'}.to_json)
+      expect(api.change_database('src_db', 'table', 'dst_db')).to be true
+    end
+
+    it 'should return 403 error if dest database is inaccessible' do
+      err_msg = 'Access denied for the destination'
+      stub_api_request(:post, "/v3/table/change_database/src_db/table").
+        with(:body => {'dest_database_name' => 'inaccessible_db'}).
+        to_return(:status => 403, :body => {'message' => err_msg}.to_json)
+      expect {
+        api.change_database('src_db', 'table', 'inaccessible_db')
+      }.to raise_error(TreasureData::ForbiddenError, /#{err_msg}/)
+    end
+
+    it 'should return 403 error if there is a same name table in the dest database' do
+      err_msg = 'Table table already exists in the destination'
+      stub_api_request(:post, "/v3/table/change_database/src_db/table").
+        with(:body => {'dest_database_name' => 'dst_db'}).
+        to_return(:status => 403, :body => {'message' => err_msg}.to_json)
+      expect {
+        api.change_database('src_db', 'table', 'dst_db')
+      }.to raise_error(TreasureData::ForbiddenError, /#{err_msg}/)
+    end
+
+    it 'should return 404 error if the dest database does not exist' do
+      err_msg = 'Destination database is not found'
+      stub_api_request(:post, "/v3/table/change_database/src_db/table").
+        with(:body => {'dest_database_name' => 'notexist_db'}).
+        to_return(:status => 404, :body => {'message' => err_msg}.to_json)
+      expect {
+        api.change_database('src_db', 'table', 'notexist_db')
+      }.to raise_error(TreasureData::NotFoundError, /#{err_msg}/)
+    end
+  end
 end
