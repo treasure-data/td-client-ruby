@@ -174,6 +174,14 @@ class Client
   end
 
   # @param [String] db_name
+  # @param [String] table_name
+  # @param [String] new_db_name
+  # @return [true]
+  def change_database(db_name, table_name, new_db_name)
+    @api.change_database(db_name, table_name, new_db_name)
+  end
+
+  # @param [String] db_name
   # @param [String] q
   # @param [String] result_url
   # @param [Fixnum] priority
