@@ -1,3 +1,9 @@
+== 2019-06-04 version 1.0.7
+
+* Add TreasureData::Client#change_database #123
+
+* Ruby 1.8.7 compatibility was removed #121
+
 == 2018-03-29 version 1.0.6
 
 * Support Treasure Data's new result export #117 #120
