@@ -563,7 +563,7 @@ private
     # should not exceed 10 minutes / 600 seconds
     begin # this block is to allow retry (redo) in the begin part of the begin-rescue block
       begin
-        response = @api.instance_eval &block
+        response = @api.instance_eval(&block)
 
         # if the HTTP error code is 500 or higher and the user requested retrying
         # on post request, attempt a retry
@@ -670,7 +670,7 @@ private
     # * '.' must be escaped as %2E because it may be cunfused with extension.
     def e(s)
       s = s.to_s.encode(Encoding::UTF_8).force_encoding(Encoding::ASCII_8BIT)
-      s.gsub!(/[^\-_!~*'()~0-9A-Z_a-z]/){|x|'%%%02X' % x.ord}
+      s.gsub!(/[^\-_!~*'()~0-9A-Za-z]/){|x|'%%%02X' % x.ord}
       s
     end
   else
@@ -680,7 +680,7 @@ private
     #   used as both URI and query.
     # * '.' must be escaped as %2E because it may be cunfused with extension.
     def e(s)
-      s.to_s.gsub(/[^\-_!~*'()~0-9A-Z_a-z]/){|x|'%%%02X' % x.ord}
+      s.to_s.gsub(/[^\-_!~*'()~0-9A-Za-z]/){|x|'%%%02X' % x.ord}
     end
   end
 
