@@ -44,7 +44,7 @@ module User
   # @return [true]
   def add_user(name, org, email, password)
     params = {'organization'=>org, :email=>email, :password=>password}
-    code, body, res = post("/v3/user/add/#{e name}", params)
+    code, _body, res = post("/v3/user/add/#{e name}", params)
     if code != "200"
       raise_error("Adding user failed", res)
     end
@@ -54,7 +54,7 @@ module User
   # @param [String] user
   # @return [true]
   def remove_user(user)
-    code, body, res = post("/v3/user/remove/#{e user}")
+    code, _body, res = post("/v3/user/remove/#{e user}")
     if code != "200"
       raise_error("Removing user failed", res)
     end
@@ -66,7 +66,7 @@ module User
   # @return [true]
   def change_email(user, email)
     params = {'email' => email}
-    code, body, res = post("/v3/user/email/change/#{e user}", params)
+    code, _body, res = post("/v3/user/email/change/#{e user}", params)
     if code != "200"
       raise_error("Changing email failed", res)
     end
@@ -87,7 +87,7 @@ module User
   # @param [String] user
   # @return [true]
   def add_apikey(user)
-    code, body, res = post("/v3/user/apikey/add/#{e user}")
+    code, _body, res = post("/v3/user/apikey/add/#{e user}")
     if code != "200"
       raise_error("Adding API key failed", res)
     end
@@ -99,7 +99,7 @@ module User
   # @return [true]
   def remove_apikey(user, apikey)
     params = {'apikey' => apikey}
-    code, body, res = post("/v3/user/apikey/remove/#{e user}", params)
+    code, _body, res = post("/v3/user/apikey/remove/#{e user}", params)
     if code != "200"
       raise_error("Removing API key failed", res)
     end
@@ -111,7 +111,7 @@ module User
   # @return [true]
   def change_password(user, password)
     params = {'password' => password}
-    code, body, res = post("/v3/user/password/change/#{e user}", params)
+    code, _body, res = post("/v3/user/password/change/#{e user}", params)
     if code != "200"
       raise_error("Changing password failed", res)
     end
@@ -123,7 +123,7 @@ module User
   # @return [true]
   def change_my_password(old_password, password)
     params = {'old_password' => old_password, 'password' => password}
-    code, body, res = post("/v3/user/password/change", params)
+    code, _body, res = post("/v3/user/password/change", params)
     if code != "200"
       raise_error("Changing password failed", res)
     end

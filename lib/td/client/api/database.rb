@@ -27,7 +27,7 @@ module Database
   # @param [String] db
   # @return [true]
   def delete_database(db)
-    code, body, res = post("/v3/database/delete/#{e db}")
+    code, _body, res = post("/v3/database/delete/#{e db}")
     if code != "200"
       raise_error("Delete database failed", res)
     end
@@ -39,7 +39,7 @@ module Database
   # @return [true]
   def create_database(db, opts={})
     params = opts.dup
-    code, body, res = post("/v3/database/create/#{e db}", params)
+    code, _body, res = post("/v3/database/create/#{e db}", params)
     if code != "200"
       raise_error("Create database failed", res)
     end

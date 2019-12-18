@@ -57,7 +57,7 @@ module Schedule
   # @param [Hash] params
   # @return [nil]
   def update_schedule(name, params)
-    code, body, res = post("/v3/schedule/update/#{e name}", params)
+    code, _body, res = post("/v3/schedule/update/#{e name}", params)
     if code != "200"
       raise_error("Update schedule failed", res)
     end

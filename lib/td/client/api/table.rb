@@ -46,7 +46,7 @@ module Table
   # @return [true]
   def create_table(db, table, type, params={})
     schema = schema.to_s
-    code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}", params)
+    code, _body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}", params)
     if code != "200"
       raise_error("Create #{type} table failed", res)
     end
@@ -59,7 +59,7 @@ module Table
   # @param [String] table2
   # @return [true]
   def swap_table(db, table1, table2)
-    code, body, res = post("/v3/table/swap/#{e db}/#{e table1}/#{e table2}")
+    code, _body, res = post("/v3/table/swap/#{e db}/#{e table1}/#{e table2}")
     if code != "200"
       raise_error("Swap tables failed", res)
     end
@@ -71,7 +71,7 @@ module Table
   # @param [String] schema_json
   # @return [true]
   def update_schema(db, table, schema_json)
-    code, body, res = post("/v3/table/update-schema/#{e db}/#{e table}", {'schema'=>schema_json})
+    code, _body, res = post("/v3/table/update-schema/#{e db}/#{e table}", {'schema'=>schema_json})
     if code != "200"
       raise_error("Create schema table failed", res)
     end
@@ -93,7 +93,7 @@ module Table
   # @option params [Boolean] :detect_schema (true) detect schema on import
   # @return [true]
   def update_table(db, table, params={})
-    code, body, res = post("/v3/table/update/#{e db}/#{e table}", params)
+    code, _body, res = post("/v3/table/update/#{e db}/#{e table}", params)
     if code != "200"
       raise_error("Update table failed", res)
     end
@@ -142,7 +142,7 @@ module Table
 
   def change_database(db, table, dest_db)
     params = { 'dest_database_name' => dest_db }
-    code, body, res = post("/v3/table/change_database/#{e db}/#{e table}", params)
+    code, _body, res = post("/v3/table/change_database/#{e db}/#{e table}", params)
     if code != "200"
       raise_error("Change database failed", res)
     end

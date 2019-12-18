@@ -25,7 +25,7 @@ module Result
   # @return [true]
   def create_result(name, url, opts={})
     params = {'url'=>url}.merge(opts)
-    code, body, res = post("/v3/result/create/#{e name}", params)
+    code, _body, res = post("/v3/result/create/#{e name}", params)
     if code != "200"
       raise_error("Create result table failed", res)
     end
@@ -35,7 +35,7 @@ module Result
   # @param [String] name
   # @return [true]
   def delete_result(name)
-    code, body, res = post("/v3/result/delete/#{e name}")
+    code, _body, res = post("/v3/result/delete/#{e name}")
     if code != "200"
       raise_error("Delete result table failed", res)
     end

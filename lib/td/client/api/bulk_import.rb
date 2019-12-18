@@ -12,7 +12,7 @@ module BulkImport
   # @return [nil]
   def create_bulk_import(name, db, table, opts={})
     params = opts.dup
-    code, body, res = post("/v3/bulk_import/create/#{e name}/#{e db}/#{e table}", params)
+    code, _body, res = post("/v3/bulk_import/create/#{e name}/#{e db}/#{e table}", params)
     if code != "200"
       raise_error("Create bulk import failed", res)
     end
@@ -24,7 +24,7 @@ module BulkImport
   # @return [nil]
   def delete_bulk_import(name, opts={})
     params = opts.dup
-    code, body, res = post("/v3/bulk_import/delete/#{e name}", params)
+    code, _body, res = post("/v3/bulk_import/delete/#{e name}", params)
     if code != "200"
       raise_error("Delete bulk import failed", res)
     end
@@ -74,7 +74,7 @@ module BulkImport
   # @param [Hash] opts
   # @return [nil]
   def bulk_import_upload_part(name, part_name, stream, size, opts={})
-    code, body, res = put("/v3/bulk_import/upload_part/#{e name}/#{e part_name}", stream, size)
+    code, _body, res = put("/v3/bulk_import/upload_part/#{e name}/#{e part_name}", stream, size)
     if code[0] != ?2
       raise_error("Upload a part failed", res)
     end
@@ -87,7 +87,7 @@ module BulkImport
   # @return [nil]
   def bulk_import_delete_part(name, part_name, opts={})
     params = opts.dup
-    code, body, res = post("/v3/bulk_import/delete_part/#{e name}/#{e part_name}", params)
+    code, _body, res = post("/v3/bulk_import/delete_part/#{e name}/#{e part_name}", params)
     if code[0] != ?2
       raise_error("Delete a part failed", res)
     end
@@ -99,7 +99,7 @@ module BulkImport
   # @return [nil]
   def freeze_bulk_import(name, opts={})
     params = opts.dup
-    code, body, res = post("/v3/bulk_import/freeze/#{e name}", params)
+    code, _body, res = post("/v3/bulk_import/freeze/#{e name}", params)
     if code != "200"
       raise_error("Freeze bulk import failed", res)
     end
@@ -111,7 +111,7 @@ module BulkImport
   # @return [nil]
   def unfreeze_bulk_import(name, opts={})
     params = opts.dup
-    code, body, res = post("/v3/bulk_import/unfreeze/#{e name}", params)
+    code, _body, res = post("/v3/bulk_import/unfreeze/#{e name}", params)
     if code != "200"
       raise_error("Unfreeze bulk import failed", res)
     end
@@ -136,7 +136,7 @@ module BulkImport
   # @return [nil]
   def commit_bulk_import(name, opts={})
     params = opts.dup
-    code, body, res = post("/v3/bulk_import/commit/#{e name}", params)
+    code, _body, res = post("/v3/bulk_import/commit/#{e name}", params)
     if code != "200"
       raise_error("Commit bulk import failed", res)
     end
