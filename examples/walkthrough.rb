@@ -4,6 +4,7 @@ require "msgpack"
 require "tempfile"
 require "stringio"
 require "zlib"
+require "json"
 require "td-client"
 
 include TreasureData
@@ -105,8 +106,9 @@ class Example
     put_title "Import data"
 
     sample_data = {
-      "col1": "value1",
-      "col2": "value2"
+      "time" => "1",
+      "col1" => "value1",
+      "col2" => "value2"
     }
 
     out = Tempfile.new("td-import")
@@ -121,14 +123,76 @@ class Example
       size = out.pos
       out.pos = 0
 
-      $stdout.puts "size #{size}"
-      $stdout.puts "data #{sample_data.to_msgpack}"
       time = @client.import(db, table, "msgpack.gz", out, size)
       puts "Importing data is done in #{time}"
     rescue StandardError => e
       puts e.message
     ensure
       out.close
+      writer.close
+    end
+  end
+
+  def delete_bulk_import(name)
+    begin
+      @client.delete_bulk_import(name)
+    rescue StandardError => e
+      puts e.message
+    end
+
+  end
+
+  def create_bulk_import(name, db, table)
+    begin
+      @client.create_bulk_import(name, db, table)
+    rescue StandardError => e
+      puts e.message
+    end
+  end
+
+  def perform_bulk_import(name)
+    put_title "Bulk import upload part"
+
+    str_io = StringIO.new
+    writer = Zlib::GzipWriter.new(str_io)
+    writer.sync = true
+
+    packer = MessagePack::Packer.new(writer)
+
+    begin
+      (1..100).each { |i|
+        obj = {
+          "time" => "#{i}",
+          "col1" => "value#{i}",
+          "col2" => "value_2_#{i}"
+        }
+        packer.write obj
+      }
+      packer.flush
+      writer.flush(Zlib::FINISH)
+
+      @client.bulk_import_upload_part(name, "part_1", str_io, str_io.size)
+      job = @client.perform_bulk_import(name)
+      puts "Job ID: #{job.job_id}"
+
+      # wait for job to be finished
+      cmdout_lines = 0
+      stderr_lines = 0
+      job.wait(nil, detail: true, verbose: true) do
+        cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1] || []
+         stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1] || []
+         (cmdout + stderr).each {|line|
+           $stdout.puts "  "+line
+         }
+         cmdout_lines += cmdout.size
+         stderr_lines += stderr.size
+      end
+
+      result = @client.bulk_import(name)
+      puts "Status: #{result.status}"
+    rescue StandardError => e
+      puts e.message
+    ensure
       writer.close
     end
   end
@@ -140,13 +204,14 @@ class Example
 
     #list_databases
     
+    bulk_name = "td_client_ruby_bulk_import"
     db_name = "client_ruby_test"
     table = "log1"
 
     create_database(db_name)
 
     create_log_table(db_name, table)
-    
+
     ## Update table schema with specific fields
     #field1 = TreasureData::Schema::Field.new("col1", "string")
     #field2 = TreasureData::Schema::Field.new("col2", "string")
@@ -160,9 +225,12 @@ class Example
       col2: "string"
     })
     update_schema(db_name, table, schema)
-    import_data(db_name, table)
+    #import_data(db_name, table)
+    create_bulk_import(bulk_name, db_name, table)
+    perform_bulk_import(bulk_name)
 
-    #delete_database(db_name)
+#    delete_database(db_name)
+#    delete_bulk_import(bulk_name)
   end
 end
 
