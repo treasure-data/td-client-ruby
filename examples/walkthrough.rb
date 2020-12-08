@@ -4,7 +4,6 @@ require "msgpack"
 require "tempfile"
 require "stringio"
 require "zlib"
-require "json"
 require "td-client"
 
 include TreasureData
@@ -23,6 +22,21 @@ class Example
   def put_separator
     puts "*" * 50
     puts ""
+  end
+
+  def wait_job(job)
+    # wait for job to be finished
+    cmdout_lines = 0
+    stderr_lines = 0
+    job.wait(nil, detail: true, verbose: true) do
+      cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1] || []
+       stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1] || []
+       (cmdout + stderr).each {|line|
+         $stdout.puts "  "+line
+       }
+       cmdout_lines += cmdout.size
+       stderr_lines += stderr.size
+    end
   end
   # API
   def server_status
@@ -173,23 +187,12 @@ class Example
 
       @client.bulk_import_upload_part(name, "part_1", str_io, str_io.size)
       job = @client.perform_bulk_import(name)
-      puts "Job ID: #{job.job_id}"
+      puts "Performing bulk import, job ID: #{job.job_id}"
 
-      # wait for job to be finished
-      cmdout_lines = 0
-      stderr_lines = 0
-      job.wait(nil, detail: true, verbose: true) do
-        cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1] || []
-         stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1] || []
-         (cmdout + stderr).each {|line|
-           $stdout.puts "  "+line
-         }
-         cmdout_lines += cmdout.size
-         stderr_lines += stderr.size
-      end
+      wait_job(job)
 
       result = @client.bulk_import(name)
-      puts "Status: #{result.status}"
+      puts "Bulk Status: #{result.status}"
     rescue StandardError => e
       puts e.message
     ensure
@@ -197,20 +200,26 @@ class Example
     end
   end
 
+  def query_example(db_name, q)
+    put_title "Querying data"
+    job = @client.query(db_name, q)
+    wait_job(job)
+  end
+
   def run
+    bulk_name = "td_client_ruby_bulk_import"
+    db_name = "client_ruby_test"
+    table = "log1"
+
     #server_status
 
     #account_info
 
     #list_databases
     
-    bulk_name = "td_client_ruby_bulk_import"
-    db_name = "client_ruby_test"
-    table = "log1"
+    #create_database(db_name)
 
-    create_database(db_name)
-
-    create_log_table(db_name, table)
+    #create_log_table(db_name, table)
 
     ## Update table schema with specific fields
     #field1 = TreasureData::Schema::Field.new("col1", "string")
@@ -219,15 +228,18 @@ class Example
     #update_schema(db_name, table, schema)
 
     ## Or from json
-    schema = TreasureData::Schema.new
-    schema.from_json({
-      col1: "string",
-      col2: "string"
-    })
-    update_schema(db_name, table, schema)
+    #schema = TreasureData::Schema.new
+    #schema.from_json({
+      #col1: "string",
+      #col2: "string"
+    #})
+    #update_schema(db_name, table, schema)
+
     #import_data(db_name, table)
-    create_bulk_import(bulk_name, db_name, table)
-    perform_bulk_import(bulk_name)
+
+    #query_example(db_name, "select * from log1")
+    #create_bulk_import(bulk_name, db_name, table)
+    #perform_bulk_import(bulk_name)
 
 #    delete_database(db_name)
 #    delete_bulk_import(bulk_name)
