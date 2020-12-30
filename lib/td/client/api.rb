@@ -636,15 +636,27 @@ private
       klass
     else
       case status_code
-      when "404"
-        NotFoundError
-      when "409"
-        message = "#{message}: conflicts_with job:#{error["details"]["conflicts_with"]}" if error["details"] && error["details"]["conflicts_with"]
-        AlreadyExistsError
+      when "400"
+        BadRequestError
       when "401"
         AuthError
       when "403"
         ForbiddenError
+      when "404"
+        NotFoundError
+      when "405"
+        MethodNotAllowedError
+      when "409"
+        message = "#{message}: conflicts_with job:#{error["details"]["conflicts_with"]}" if error["details"] && error["details"]["conflicts_with"]
+        AlreadyExistsError
+      when "415"
+        UnsupportedMediaTypeError
+      when "422"
+        UnprocessableEntityError
+      when "429"
+        TooManyRequestsError
+      when /\A4\d\d\z/
+        ClientError
       else
         message = "#{status_code}: #{message}"
         APIError
