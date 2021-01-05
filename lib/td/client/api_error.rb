@@ -13,16 +13,32 @@ class APIError < StandardError
   end
 end
 
-# 401 API errors
-class AuthError < APIError
+# 4xx Client Errors
+class ClientError < APIError
 end
 
-# 403 API errors, used for database permissions
-class ForbiddenError < APIError
+# 400 Bad Request
+class BadRequestError < ClientError
 end
 
-# 409 API errors
-class AlreadyExistsError < APIError
+# 401 Unauthorized
+class AuthError < ClientError
+end
+
+# 403 Forbidden, used for database permissions
+class ForbiddenError < ClientError
+end
+
+# 404 Not Found
+class NotFoundError < ClientError
+end
+
+# 405 Method Not Allowed
+class MethodNotAllowedError < ClientError
+end
+
+# 409 Conflict
+class AlreadyExistsError < ClientError
   attr_reader :conflicts_with
   def initialize(error_message = nil, api_backtrace = nil, conflicts_with=nil)
     super(error_message, api_backtrace)
@@ -30,8 +46,16 @@ class AlreadyExistsError < APIError
   end
 end
 
-# 404 API errors
-class NotFoundError < APIError
+# 415 Unsupported Media Type
+class UnsupportedMediaTypeError < ClientError
+end
+
+# 422 Unprocessable Entity
+class UnprocessableEntityError < ClientError
+end
+
+# 429 Too Many Requests
+class TooManyRequestsError < ClientError
 end
 
 end
