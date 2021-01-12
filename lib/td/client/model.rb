@@ -467,15 +467,23 @@ class Job < Model
     wait_interval = args[1] || 2
     deadline = monotonic_clock + timeout if timeout
     timeout_klass = Class.new(Exception)
+    puts ">>> TIMEOUT: #{timeout}"
+    puts ">>> WAIT_INTERVAL: #{wait_interval}"
     begin
       if timeout
         if deadline <= monotonic_clock
           raise timeout_klass, "timeout (#{timeout}) exceeded wait_interval=#{wait_interval}"
         end
       end
+      puts ">>> START SLEEP"
       sleep wait_interval
+      puts ">>> END SLEEP"
       detail ? update_status! : update_progress!
-      yield self if block_given?
+      puts ">>> CHECK YIELDING"
+      if block_given?
+        puts ">>> YIELD"
+        yield self
+      end
     rescue timeout_klass
       raise Timeout::Error, $!.message
     rescue Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
