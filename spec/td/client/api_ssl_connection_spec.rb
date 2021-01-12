@@ -75,7 +75,7 @@ describe 'API SSL connection' do
       puts ">>> SSL_CONTEXT: #{@server.ssl_context.class}"
       @server.ssl_context.ssl_version = ssl_version
     rescue ArgumentError => e
-      pending 'Skip tests'
+      skip 'Server with SSLv3 is not supported in this Ruby version'
       # puts ">>> ArgumentError >>>", e.backtrace
       # raise
     end
