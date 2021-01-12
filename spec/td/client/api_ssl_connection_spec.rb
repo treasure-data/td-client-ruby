@@ -71,7 +71,12 @@ describe 'API SSL connection' do
       '/hello',
       WEBrick::HTTPServlet::ProcHandler.new(method(:do_hello).to_proc)
     )
-    @server.ssl_context.ssl_version = ssl_version
+    begin
+      @server.ssl_context.ssl_version = ssl_version
+    rescue ArgumentError => e
+      puts ">>>", e.backtrace
+      raise
+    end
     @server_thread = start_server_thread(@server)
     return @server
   end
