@@ -39,6 +39,7 @@ describe 'API SSL connection' do
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
     api.ssl_ca_file = File.join(DIR, 'ca-all.cert')
     puts ">>> httpclient version: #{Gem.loaded_specs["httpclient"].version}"
+    puts ">>> is SSLContext defined?: #{OpenSSL::SSL.const_defined?("SSLContext")}"
     expect {
       api.delete_database('no_such_database')
     }.to raise_error OpenSSL::SSL::SSLError
