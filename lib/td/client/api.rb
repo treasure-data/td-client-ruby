@@ -524,10 +524,12 @@ private
       client.ssl_config.add_trust_ca(ssl_ca_file)
       client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_PEER
       # Disable SSLv3 connection in favor of POODLE Attack protection
+      puts ">>> flag: #{client.ssl_config.options & OpenSSL::SSL::OP_NO_SSLv3}"
       puts ">>> new_client's ssl_config.options: #{client.ssl_config.options}"
       puts ">>> OpenSSL::SSL::OP_NO_SSLv3 = #{OpenSSL::SSL::OP_NO_SSLv3}"
       client.ssl_config.options |= OpenSSL::SSL::OP_NO_SSLv3
       puts "<<< new_client's ssl_config.options: #{client.ssl_config.options}"
+      puts "<<< flag: #{client.ssl_config.options & OpenSSL::SSL::OP_NO_SSLv3}"
     end
 
     header = {}
