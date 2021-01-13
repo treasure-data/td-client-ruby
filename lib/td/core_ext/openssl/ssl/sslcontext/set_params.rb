@@ -10,6 +10,7 @@ module OpenSSL
       #
       alias original_set_params set_params
       def set_params(params={})
+        puts ">>> SSLContext.set_params"
         original_set_params(params)
         self.options |= OP_NO_SSLv3 if Thread.current[:SET_SSL_OP_NO_SSLv3]
       end

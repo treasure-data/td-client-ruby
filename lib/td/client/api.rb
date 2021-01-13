@@ -501,6 +501,7 @@ private
 
   # @yield Disable SSLv3 in given block
   def guard_no_sslv3
+    puts ">>> guard_no_sslv3"
     key = :SET_SSL_OP_NO_SSLv3
     backup = Thread.current[key]
     begin
