@@ -38,6 +38,7 @@ describe 'API SSL connection' do
     @server = setup_server(:SSLv3)
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
     api.ssl_ca_file = File.join(DIR, 'ca-all.cert')
+    puts ">>> httpclient version: #{Gem.loaded_specs["httpclient"].version}"
     expect {
       api.delete_database('no_such_database')
     }.to raise_error OpenSSL::SSL::SSLError
