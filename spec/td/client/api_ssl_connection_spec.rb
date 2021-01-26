@@ -41,7 +41,12 @@ describe 'API SSL connection' do
     puts ">>> httpclient version: #{Gem.loaded_specs["httpclient"].version}"
     puts ">>> is SSLContext defined?: #{OpenSSL::SSL.const_defined?("SSLContext")}"
     expect {
-      api.delete_database('no_such_database')
+      begin
+        api.delete_database('no_such_database')
+      rescue OpenSSL::SSL::SSLError => e
+        puts ">>> Raised #{e}"
+        raise
+      end
     }.to raise_error OpenSSL::SSL::SSLError
   end
 
