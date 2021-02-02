@@ -58,7 +58,7 @@ describe 'API SSL connection' do
     @server = WEBrick::HTTPServer.new(
       :BindAddress => "localhost",
       :Logger => logger,
-      :Port => 0,
+      :Port => 1234,
       :AccessLog => [],
       :DocumentRoot => '.',
       :SSLEnable => true,
