@@ -59,7 +59,7 @@ jobs:
 
   ruby_25:
     docker:
-      - image: circleci/ruby:2.5.8-buster
+      - image: circleci/ruby:2.5.8-stretch
     executor: ruby/default
     steps:
       - run-tests-flow
