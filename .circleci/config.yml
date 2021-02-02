@@ -45,14 +45,14 @@ jobs:
 
   ruby_23:
     docker:
-      - image: circleci/ruby:2.3.8
+      - image: circleci/ruby:2.3.8-stretch
     executor: ruby/default
     steps:
       - run-tests-flow
 
   ruby_24:
     docker:
-      - image: circleci/ruby:2.4.9
+      - image: circleci/ruby:2.4.9-stretch
     executor: ruby/default
     steps:
       - run-tests-flow
