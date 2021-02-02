@@ -12,7 +12,7 @@ jobs:
       - run:
           name: Which bundler?
           command: bundle -v
-      - ruby/bundle-install
+      - ruby/install-deps
       - run:
           name: Run tests
           command: bundle exec rake spec
