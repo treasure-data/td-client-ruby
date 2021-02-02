@@ -140,15 +140,16 @@ describe 'Job Model' do
       end
 
       it 'calls a given block in every wait_interval second' do
-        now = 1_400_000_000
-        allow(self).to receive(:sleep){|arg| now += arg }
-        allow(Process).to receive(:clock_gettime){ now }
+        # Let's try disable stubbing #sleep for now
+        # now = 1_400_000_000
+        # allow(self).to receive(:sleep){|arg| now += arg }
+        # allow(Process).to receive(:clock_gettime){ now }
         expect { |b|
           begin
             thread = Thread.start {
-              job.wait(nil, 2, &b)
+              job.wait(nil, 0.1, &b)
             }
-            sleep 6
+            sleep 0.3
             change_job_status(Job::STATUS_SUCCESS)
             thread.join(1)
             expect(thread).to be_stop
