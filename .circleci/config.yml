@@ -1,18 +1,74 @@
 version: 2.1
+
+
 orbs:
   ruby: circleci/ruby@0.1.2 
 
-jobs:
-  build:
-    docker:
-      - image: circleci/ruby:2.6.3-stretch-node
-    executor: ruby/default
+
+commands:
+  bundle-install:
+    description: "Install dependencies"
     steps:
-      - checkout
       - run:
           name: Which bundler?
           command: bundle -v
       - ruby/bundle-install
+  run-tests:
+    description: "Install dependencies"
+    steps:
       - run:
           name: Run tests
           command: bundle exec rake spec
+
+
+jobs:
+
+  ruby_21:
+    docker:
+      - image: circleci/ruby:2.1.10-stretch-node
+    executor: ruby/default
+    steps:
+      - bundle-install
+      - run-tests
+
+  ruby_22:
+    docker:
+      - image: circleci/ruby:2.2.10
+    executor: ruby/default
+    steps:
+      - bundle-install
+      - run-tests
+
+  ruby_23:
+    docker:
+      - image: circleci/ruby:2.3.8
+    executor: ruby/default
+    steps:
+      - bundle-install
+      - run-tests
+
+  ruby_24:
+    docker:
+      - image: circleci/ruby:2.4.5
+    executor: ruby/default
+    steps:
+      - bundle-install
+      - run-tests
+
+  ruby_25:
+    docker:
+      - image: circleci/ruby:2.5.3
+    executor: ruby/default
+    steps:
+      - bundle-install
+      - run-tests
+
+
+workflows:
+  tests:
+    jobs:
+      - ruby_21
+      - ruby_22
+      - ruby_23
+      - ruby_24
+      - ruby_25
