@@ -12,7 +12,7 @@ commands:
       - run:
           name: Which bundler?
           command: bundle -v
-      - ruby/install-deps
+      - bundle install
   run-tests:
     description: "Run tests"
     steps:
