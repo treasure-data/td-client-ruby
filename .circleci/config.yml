@@ -46,17 +46,19 @@ jobs:
       - run-tests-flow
 
   ruby_23:
-    docker:
-      - image: circleci/ruby:2.3.8-stretch
-    executor: ruby/default
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
+      - ruby/install:
+          version: '2.3'
       - run-tests-flow
 
   ruby_24:
-    docker:
-      - image: circleci/ruby:2.4.9-stretch
-    executor: ruby/default
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
+      - ruby/install:
+          version: '2.4'
       - run-tests-flow
 
   ruby_25:
