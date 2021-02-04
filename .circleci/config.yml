@@ -69,6 +69,26 @@ jobs:
     steps:
       - run-tests-flow
 
+  ruby_26:
+    docker:
+      - image: circleci/ruby:2.6.6-stretch
+    executor: ruby/default
+    steps:
+      - run-tests-flow
+
+  ruby_27:
+    docker:
+      - image: circleci/ruby:2.7.2-stretch
+    executor: ruby/default
+    steps:
+      - run-tests-flow
+
+  ruby_30:
+    docker:
+      - image: circleci/ruby:3.0.0-stretch
+    executor: ruby/default
+    steps:
+      - run-tests-flow
 
 workflows:
   tests:
@@ -78,3 +98,6 @@ workflows:
       - ruby_23
       - ruby_24
       - ruby_25
+      - ruby_26
+      - ruby_27
+      - ruby_30
