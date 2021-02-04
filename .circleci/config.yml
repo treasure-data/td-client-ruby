@@ -89,6 +89,12 @@ jobs:
     executor: ruby/default
     steps:
       - run-tests-flow
+  
+  jruby_latest:
+    docker:
+      - image: circleci/jruby:latest
+    steps: 
+      - run-tests-flow
 
 workflows:
   tests:
@@ -101,3 +107,4 @@ workflows:
       - ruby_26
       - ruby_27
       - ruby_30
+      - jruby_latest
