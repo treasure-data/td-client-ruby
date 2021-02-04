@@ -57,6 +57,8 @@ jobs:
     machine:
       image: ubuntu-1604:202004-01
     steps:
+      - ruby/install:
+          version: '2.4'
       - run:
           description: Workaround for missing SSLv3 method
           command: rvm pkg install openssl && rvm install 2.4 --with-openssl-dir=$rvm_path/usr && rvm use 2.4
