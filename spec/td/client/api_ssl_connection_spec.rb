@@ -52,13 +52,13 @@ describe 'API SSL connection' do
     }.to raise_error TreasureData::NotFoundError
   end
 
-  def setup_server(ssl_version)
+  def setup_server(ssl_version, port = 1000 + rand(1000))
     logger = Logger.new(STDERR)
     logger.level = Logger::Severity::FATAL  # avoid logging SSLError (ERROR level)
     @server = WEBrick::HTTPServer.new(
       :BindAddress => "localhost",
       :Logger => logger,
-      :Port => 3456,
+      :Port => port,
       :AccessLog => [],
       :DocumentRoot => '.',
       :SSLEnable => true,
