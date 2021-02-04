@@ -2,7 +2,7 @@ version: 2.1
 
 
 orbs:
-  ruby: circleci/ruby@0.1.2 
+  ruby: circleci/ruby@1.1.2 
 
 
 commands:
@@ -12,7 +12,7 @@ commands:
       - run:
           name: Which bundler?
           command: bundle -v
-      - ruby/bundle-install
+      - ruby/install-deps
   run-tests:
     description: "Run tests"
     steps:
