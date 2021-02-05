@@ -89,10 +89,7 @@ jobs:
       image: ubuntu-1604:202004-01
     steps:
       - ruby/install:
-          version: '2.7'
-      - run:
-          name: Workaround
-          command: rvm pkg install openssl && rvm install 3.0 --with-openssl-dir=$rvm_path/usr && rvm use 3.0 && echo . $(rvm 3.0 do rvm env --path) >> $BASH_ENV
+          version: '3.0'
       - run-tests-flow
   
   jruby_latest:
