@@ -77,17 +77,19 @@ jobs:
       - run-tests-flow
 
   ruby_27:
-    docker:
-      - image: circleci/ruby:2.7
-    executor: ruby/default
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
+      - ruby/install:
+          version: '2.7'
       - run-tests-flow
 
   ruby_30:
-    docker:
-      - image: circleci/ruby:3.0
-    executor: ruby/default
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
+      - ruby/install:
+          version: '3.0'
       - run-tests-flow
   
   jruby_latest:
