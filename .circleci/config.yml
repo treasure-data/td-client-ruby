@@ -70,10 +70,6 @@ jobs:
 workflows:
   tests:
     jobs:
-      - ruby_21
-      - ruby_22
-      - ruby_23
-      - ruby_24
       - ruby_25
       - ruby_26
       - ruby_27
