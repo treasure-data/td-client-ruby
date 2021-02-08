@@ -31,37 +31,6 @@ commands:
 
 jobs:
 
-  ruby_21:
-    docker:
-      - image: circleci/ruby:2.1.10
-    executor: ruby/default
-    steps:
-      - run-tests-flow
-
-  ruby_22:
-    docker:
-      - image: circleci/ruby:2.2.10
-    executor: ruby/default
-    steps:
-      - run-tests-flow
-
-  ruby_23:
-    machine:
-      image: ubuntu-1604:202004-01
-    steps:
-      - ruby/install:
-          version: '2.3'
-      - run-tests-flow
-
-  ruby_24:
-    machine:
-      image: ubuntu-1604:202004-01
-    steps:
-      - run:
-          name: Workaround for missing SSLv3 method
-          command: rvm pkg install openssl && rvm install 2.4 --with-openssl-dir=$rvm_path/usr && rvm use 2.4 && echo . $(rvm 2.4 do rvm env --path) >> $BASH_ENV
-      - run-tests-flow
-
   ruby_25:
     docker:
       - image: circleci/ruby:2.5.8-stretch
