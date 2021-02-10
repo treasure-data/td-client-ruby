@@ -46,9 +46,9 @@ describe 'Import API' do
       end
       stub_request(:put, "https://#{endpoint_import}/v3/table/import_with_id/db/table/unique_id/format").
         with(:body => '12345').
-        to_return(:body => '{"elapsed_time":"1.23"}')
+        to_return(:status => 200)
       File.open(t.path) do |f|
-        expect(api.import('db', 'table', 'format', f, 5, 'unique_id')).to eq(1.23)
+        expect(api.import('db', 'table', 'format', f, 5, 'unique_id')).to eq(true)
       end
     end
 
@@ -59,9 +59,9 @@ describe 'Import API' do
       end
       stub_request(:put, "https://#{endpoint_import}/v3/table/import/db/table/format").
         with(:body => '12345').
-        to_return(:body => '{"elapsed_time":"1.23"}')
+        to_return(:status => 200)
       File.open(t.path) do |f|
-        expect(api.import('db', 'table', 'format', f, 5)).to eq(1.23)
+        expect(api.import('db', 'table', 'format', f, 5)).to eq(true)
       end
     end
 
@@ -72,9 +72,9 @@ describe 'Import API' do
       end
       stub_request(:put, "http://#{endpoint_import_old}/v3/table/import/db/table/format").
         with(:body => '12345').
-        to_return(:body => '{"elapsed_time":"1.23"}')
+        to_return(:status => 200)
       File.open(t.path) do |f|
-        expect(api_old.import('db', 'table', 'format', f, 5)).to eq(1.23)
+        expect(api_old.import('db', 'table', 'format', f, 5)).to eq(true)
       end
     end
 
@@ -85,9 +85,9 @@ describe 'Import API' do
       end
       stub_request(:put, "https://#{endpoint_import}/v3/table/import/db/table/format").
         with(:body => '12345').
-        to_return(:body => '{"elapsed_time":"1.23"}')
+        to_return(:status => 200)
       File.open(t.path) do |f|
-        expect(api_default.import('db', 'table', 'format', f, 5)).to eq 1.23
+        expect(api_default.import('db', 'table', 'format', f, 5)).to eq true
       end
     end
 
@@ -98,9 +98,9 @@ describe 'Import API' do
       end
       stub_request(:put, "http://#{endpoint_import}/v3/table/import/db/table/format").
         with(:body => '12345').
-        to_return(:body => '{"elapsed_time":"1.23"}')
+        to_return(:status => 200)
       File.open(t.path) do |f|
-        expect(api_default_http.import('db', 'table', 'format', f, 5)).to eq 1.23
+        expect(api_default_http.import('db', 'table', 'format', f, 5)).to eq true
       end
     end
 
@@ -111,9 +111,9 @@ describe 'Import API' do
       end
       stub_request(:put, "https://#{endpoint_unknown}/v3/table/import/db/table/format").
         with(:body => '12345').
-        to_return(:body => '{"elapsed_time":"1.23"}')
+        to_return(:status => 200)
       File.open(t.path) do |f|
-        expect(api_unknown_host.import('db', 'table', 'format', f, 5)).to eq 1.23
+        expect(api_unknown_host.import('db', 'table', 'format', f, 5)).to eq true
       end
     end
 
@@ -124,9 +124,9 @@ describe 'Import API' do
       end
       stub_request(:put, "http://#{endpoint_unknown}/v3/table/import/db/table/format").
         with(:body => '12345').
-        to_return(:body => '{"elapsed_time":"1.23"}')
+        to_return(:status => 200)
       File.open(t.path) do |f|
-        expect(api_unknown_host_http.import('db', 'table', 'format', f, 5)).to eq 1.23
+        expect(api_unknown_host_http.import('db', 'table', 'format', f, 5)).to eq true
       end
     end
 
