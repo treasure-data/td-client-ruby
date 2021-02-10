@@ -29,9 +29,7 @@ module Import
     if code[0] != ?2
       raise_error("Import failed", res)
     end
-    js = checked_json(body, %w[])
-    time = js['elapsed_time'].to_f
-    return time
+    return true
   end
 
 end
