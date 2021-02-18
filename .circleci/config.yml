@@ -3,6 +3,7 @@ version: 2.1
 
 orbs:
   ruby: circleci/ruby@1.1.2 
+  win: circleci/windows@2.2.0
 
 
 commands:
@@ -60,6 +61,17 @@ jobs:
       - ruby/install:
           version: '3.0'
       - run-tests-flow
+
+  win_ruby:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - run:
+          name: "Install bundler"
+          shell: powershell.exe
+          command: gem install bundler
+      - run-tests-flow
   
   jruby_latest:
     docker:
@@ -75,3 +87,4 @@ workflows:
       - ruby_27
       - ruby_30
       - jruby_latest
+      - win_ruby
