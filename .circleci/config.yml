@@ -3,7 +3,7 @@ version: 2.1
 
 orbs:
   ruby: circleci/ruby@1.1.2 
-  win: circleci/windows@2.2.0
+  win: circleci/windows@2.4.0
 
 
 commands:
