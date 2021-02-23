@@ -39,7 +39,11 @@ describe 'API SSL connection' do
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
     api.ssl_ca_file = File.join(DIR, 'ca-all.cert')
     expect {
-      api.delete_database('no_such_database')
+      begin
+        api.delete_database('no_such_database')
+      rescue Errno::ECONNRESET
+        raise OpenSSL::SSL::SSLError # When openssl does not support SSLv3, httpclient server will not start. For context: https://github.com/nahi/httpclient/pull/424#issuecomment-731714786
+      end
     }.to raise_error OpenSSL::SSL::SSLError
   end
 
@@ -52,13 +56,13 @@ describe 'API SSL connection' do
     }.to raise_error TreasureData::NotFoundError
   end
 
-  def setup_server(ssl_version)
+  def setup_server(ssl_version, port = 1000 + rand(1000))
     logger = Logger.new(STDERR)
     logger.level = Logger::Severity::FATAL  # avoid logging SSLError (ERROR level)
     @server = WEBrick::HTTPServer.new(
       :BindAddress => "localhost",
       :Logger => logger,
-      :Port => 0,
+      :Port => port,
       :AccessLog => [],
       :DocumentRoot => '.',
       :SSLEnable => true,
