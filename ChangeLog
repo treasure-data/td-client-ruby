@@ -1,3 +1,10 @@
+== 2021-03-03 version 1.0.8
+
+* Ignore elapsed_time #129
+
+* Handle client erros #127
+
+
 == 2019-06-04 version 1.0.7
 
 * Add TreasureData::Client#change_database #123
