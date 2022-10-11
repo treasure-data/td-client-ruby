@@ -56,19 +56,15 @@ jobs:
       - run-tests-flow
 
   ruby_27:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:2.7
     steps:
-      - ruby/install:
-          version: '2.7'
       - run-tests-flow
 
   ruby_30:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:3.0
     steps:
-      - ruby/install:
-          version: '3.0'
       - run-tests-flow
 
   win_ruby:
