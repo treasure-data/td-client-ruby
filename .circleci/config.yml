@@ -21,7 +21,7 @@ commands:
     steps:
       - run:
           name: Which bundler?
-          command: bundle -v
+          command: ruby -v && bundle -v
       - run:
           name: Bundle install
           command: bundle install
@@ -41,20 +41,6 @@ commands:
 
 jobs:
 
-  ruby_25:
-    docker:
-      - image: circleci/ruby:2.5.8-stretch
-    executor: ruby/default
-    steps:
-      - run-tests-flow
-
-  ruby_26:
-    docker:
-      - image: circleci/ruby:2.6.6-stretch
-    executor: ruby/default
-    steps:
-      - run-tests-flow
-
   ruby_27:
     docker:
       - image: cimg/ruby:2.7
@@ -64,6 +50,12 @@ jobs:
   ruby_30:
     docker:
       - image: cimg/ruby:3.0
+    steps:
+      - run-tests-flow
+
+  ruby_31:
+    docker:
+      - image: cimg/ruby:3.1
     steps:
       - run-tests-flow
 
@@ -88,9 +80,8 @@ jobs:
 workflows:
   tests:
     jobs:
-      - ruby_25
-      - ruby_26
       - ruby_27
       - ruby_30
+      - ruby_31
       - jruby_latest
       - win_ruby

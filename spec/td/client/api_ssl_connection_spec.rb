@@ -37,7 +37,7 @@ describe 'API SSL connection' do
   it 'should fail to connect SSLv3 only server' do
     @server = setup_server(:SSLv3)
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
-    api.ssl_ca_file = File.join(DIR, 'ca-all.cert')
+    api.ssl_ca_file = File.join(DIR, 'testRootCA.crt')
     expect {
       begin
         api.delete_database('no_such_database')
@@ -47,10 +47,10 @@ describe 'API SSL connection' do
     }.to raise_error OpenSSL::SSL::SSLError
   end
 
-  it 'should success to connect TLSv1 only server' do
-    @server = setup_server(:TLSv1)
+  it 'should success to connect TLSv1_2 only server' do
+    @server = setup_server(:TLSv1_2)
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
-    api.ssl_ca_file = File.join(DIR, 'ca-all.cert')
+    api.ssl_ca_file = File.join(DIR, 'testRootCA.crt')
     expect {
       api.delete_database('no_such_database')
     }.to raise_error TreasureData::NotFoundError
@@ -66,9 +66,9 @@ describe 'API SSL connection' do
       :AccessLog => [],
       :DocumentRoot => '.',
       :SSLEnable => true,
-      :SSLCACertificateFile => File.join(DIR, 'ca.cert'),
-      :SSLCertificate => cert('server.cert'),
-      :SSLPrivateKey => key('server.key')
+      :SSLCACertificateFile => File.join(DIR, 'testRootCA.crt'),
+      :SSLCertificate => cert('testServer.crt'),
+      :SSLPrivateKey => key('testServer.key')
     )
     @serverport = @server.config[:Port]
     @server.mount(
