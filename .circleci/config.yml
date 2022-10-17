@@ -12,7 +12,7 @@ commands:
     steps:
       - run:
           name: "Install MSYS2"
-          command: choco install msys2
+          command: choco install msys2 -y
       - run:
           name: "Install Ruby devkit"
           command: ridk install 2 3
