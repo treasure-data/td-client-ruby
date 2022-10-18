@@ -21,7 +21,7 @@ commands:
     steps:
       - run:
           name: Which bundler?
-          command: ruby -v && bundle -v
+          command: ruby -v; bundle -v
       - run:
           name: Bundle install
           command: bundle install
