@@ -3,7 +3,7 @@ version: 2.1
 
 orbs:
   ruby: circleci/ruby@1.1.2 
-  win: circleci/windows@2.4.0
+  win: circleci/windows@5.0.0
 
 
 commands:
@@ -12,7 +12,7 @@ commands:
     steps:
       - run:
           name: "Install MSYS2"
-          command: choco install msys2
+          command: choco install msys2 -y
       - run:
           name: "Install Ruby devkit"
           command: ridk install 2 3
@@ -21,7 +21,7 @@ commands:
     steps:
       - run:
           name: Which bundler?
-          command: bundle -v
+          command: ruby -v; bundle -v
       - run:
           name: Bundle install
           command: bundle install
@@ -41,34 +41,22 @@ commands:
 
 jobs:
 
-  ruby_25:
-    docker:
-      - image: circleci/ruby:2.5.8-stretch
-    executor: ruby/default
-    steps:
-      - run-tests-flow
-
-  ruby_26:
-    docker:
-      - image: circleci/ruby:2.6.6-stretch
-    executor: ruby/default
-    steps:
-      - run-tests-flow
-
   ruby_27:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:2.7
     steps:
-      - ruby/install:
-          version: '2.7'
       - run-tests-flow
 
   ruby_30:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:3.0
     steps:
-      - ruby/install:
-          version: '3.0'
+      - run-tests-flow
+
+  ruby_31:
+    docker:
+      - image: cimg/ruby:3.1
+    steps:
       - run-tests-flow
 
   win_ruby:
@@ -92,9 +80,8 @@ jobs:
 workflows:
   tests:
     jobs:
-      - ruby_25
-      - ruby_26
       - ruby_27
       - ruby_30
+      - ruby_31
       - jruby_latest
       - win_ruby
