@@ -60,14 +60,6 @@ class Client
     return Account.new(self, account_id, plan, storage, guaranteed_cores, maximum_cores, created_at)
   end
 
-  # @param [Fixnum] from
-  # @param [Fixnum] to
-  # @return [Array] from, to, interval, history
-  def core_utilization(from, to)
-    from, to, interval, history = @api.account_core_utilization(from, to)
-    return from, to, interval, history
-  end
-
   # @return [Array] databases
   def databases
     m = @api.list_databases
