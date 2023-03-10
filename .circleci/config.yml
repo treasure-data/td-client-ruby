@@ -2,7 +2,7 @@ version: 2.1
 
 
 orbs:
-  ruby: circleci/ruby@1.1.2 
+  ruby: circleci/ruby@2.0.0
   win: circleci/windows@5.0.0
 
 
@@ -59,6 +59,12 @@ jobs:
     steps:
       - run-tests-flow
 
+  ruby_32:
+    docker:
+      - image: cimg/ruby:3.2
+    steps:
+      - run-tests-flow
+
   win_ruby:
     executor:
       name: win/default
@@ -83,5 +89,6 @@ workflows:
       - ruby_27
       - ruby_30
       - ruby_31
+      - ruby_32
       - jruby_latest
       - win_ruby
