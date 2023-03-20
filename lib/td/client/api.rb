@@ -74,6 +74,8 @@ class API
     @retry_post_requests = opts[:retry_post_requests] || false
     @retry_delay = opts[:retry_delay] || 5
     @max_cumul_retry_delay = opts[:max_cumul_retry_delay] || 600
+    @cert_path = opts[:cert_path]
+    @skip_cert_verify = opts[:skip_cert_verify] || false
 
     case uri.scheme
     when 'http', 'https'
@@ -524,6 +526,16 @@ private
       client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_PEER
       # Disable SSLv3 connection in favor of POODLE Attack protection
       client.ssl_config.options |= OpenSSL::SSL::OP_NO_SSLv3
+    end
+
+    # allow users to use their own custom ca
+    if @cert_path
+      client.ssl_config.add_trust_ca(@cert_path)
+    end
+
+    # overwrite ssl verify_mode to disable cerficate verification
+    if @skip_cert_verify
+      client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
     end
 
     header = {}
