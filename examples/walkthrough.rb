@@ -246,7 +246,7 @@ class Example
   end
 end
 
-options = {:cert_path => ENV["MY_CUSTOM_CERT"]}
+options = {:verify => ENV["MY_CUSTOM_CERT"]}
 api_key = ENV["TD_API_KEY"] ||= ""
 ex = Example.new(api_key, opt=options)
 ex.server_status
