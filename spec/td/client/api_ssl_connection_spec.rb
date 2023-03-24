@@ -55,7 +55,7 @@ describe 'API SSL connection' do
     }.to raise_error TreasureData::NotFoundError
   end
 
-  it 'success to access to the server with self sighed certificate' do
+  it 'should succeed to access to the server with self signed certificate' do
     @server = setup_server(:TLSv1_2)
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false, :verify => File.join(DIR, 'testRootCA.crt'))
     expect {
