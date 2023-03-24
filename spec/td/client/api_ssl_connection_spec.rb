@@ -51,7 +51,7 @@ describe 'API SSL connection' do
     @server = setup_server(:TLSv1_2)
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false, :verify => false)
     expect {
-        api.delete_database('no_such_database') # When openssl does not support SSLv3, httpclient server will not start. For context: https://github.com/nahi/httpclient/pull/424#issuecomment-731714786
+        api.delete_database('no_such_database')
     }.to raise_error TreasureData::NotFoundError
   end
 
@@ -59,7 +59,7 @@ describe 'API SSL connection' do
     @server = setup_server(:TLSv1_2)
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false, :verify => File.join(DIR, 'testRootCA.crt'))
     expect {
-        api.delete_database('no_such_database') # When openssl does not support SSLv3, httpclient server will not start. For context: https://github.com/nahi/httpclient/pull/424#issuecomment-731714786
+        api.delete_database('no_such_database') 
     }.to raise_error TreasureData::NotFoundError
   end
 
