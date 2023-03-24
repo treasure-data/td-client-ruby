@@ -47,7 +47,7 @@ describe 'API SSL connection' do
     }.to raise_error OpenSSL::SSL::SSLError
   end
 
-  it 'success to access to the server with verify false option' do
+  it 'should succeed to access to the server with verify false option' do
     @server = setup_server(:TLSv1_2)
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false, :verify => false)
     expect {
