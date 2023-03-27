@@ -1,4 +1,5 @@
 # Treasure Data API library for Ruby
+
 [<img src="https://travis-ci.org/treasure-data/td-client-ruby.svg?branch=master" alt="Build Status" />](https://travis-ci.org/treasure-data/td-client-ruby)
 [<img src="https://ci.appveyor.com/api/projects/status/github/treasure-data/td-client-ruby?branch=master&svg=true" alt="Build Status" />](https://ci.appveyor.com/project/treasure-data/td-client-ruby/branch/master)
 [<img src="https://coveralls.io/repos/treasure-data/td-client-ruby/badge.svg?branch=master&service=github" alt="Coverage Status" />](https://coveralls.io/github/treasure-data/td-client-ruby?branch=master)
@@ -18,9 +19,9 @@
 The Client API library constructor supports a number of options that can
 be provided as part of the optional 'opts' hash map to these methods:
 
-* `initialize`(apikey, opts={}) (constructor)
-* `Client.authenticate`(user, password, opts={}) (class method)
-* `Client.server_status`(opts={}) (class method)
+- `initialize`(apikey, opts={}) (constructor)
+- `Client.authenticate`(user, password, opts={}) (class method)
+- `Client.server_status`(opts={}) (class method)
 
 ### Endpoint
 
@@ -73,6 +74,12 @@ E.g.
 
     # the ssl option is ignored in this case
     opts.merge({:endpoint => "https://api.treasuredata.com", :ssl => false})
+
+    # You can disable verification
+    opts.merge({:endpoint => "https://api.treasuredata.com", :verify => false})
+
+    # You can use your own certificate
+    opts.merge({:endpoint => "https://api.treasuredata.com", :verify => "/path/to/cert"})
 
 ### Proxy
 
@@ -149,16 +156,16 @@ to enable retrying for POST requests.
 The client library implements several hooks to enable/disable/trigger special
 behaviors. These hooks are triggered using environment variables:
 
-* Enable debugging mode:
+- Enable debugging mode:
 
-    `$ TD_CLIENT_DEBUG=1`
+  `$ TD_CLIENT_DEBUG=1`
 
   Currently debugging mode consists of:
 
-  * show request and response of `HTTP`/`HTTPS` `GET` REST API calls;
-  * show request of `HTTP`/`HTTPS` `POST`/`PUT` REST API calls.
+  - show request and response of `HTTP`/`HTTPS` `GET` REST API calls;
+  - show request of `HTTP`/`HTTPS` `POST`/`PUT` REST API calls.
 
 ## More Information
 
-  * Copyright: (c) 2011 Treasure Data Inc.
-  * License: Apache License, Version 2.0
+- Copyright: (c) 2011 Treasure Data Inc.
+- License: Apache License, Version 2.0

@@ -47,6 +47,22 @@ describe 'API SSL connection' do
     }.to raise_error OpenSSL::SSL::SSLError
   end
 
+  it 'should succeed to access to the server with verify false option' do
+    @server = setup_server(:TLSv1_2)
+    api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false, :verify => false)
+    expect {
+        api.delete_database('no_such_database')
+    }.to raise_error TreasureData::NotFoundError
+  end
+
+  it 'should succeed to access to the server with self signed certificate' do
+    @server = setup_server(:TLSv1_2)
+    api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false, :verify => File.join(DIR, 'testRootCA.crt'))
+    expect {
+        api.delete_database('no_such_database') 
+    }.to raise_error TreasureData::NotFoundError
+  end
+
   it 'should success to connect TLSv1_2 only server' do
     @server = setup_server(:TLSv1_2)
     api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
