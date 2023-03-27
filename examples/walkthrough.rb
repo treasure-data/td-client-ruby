@@ -1,4 +1,4 @@
-$LOAD_PATH << File.dirname(__FILE__)+"../lib"
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 
 require "msgpack"
 require "tempfile"
@@ -9,8 +9,8 @@ require "td-client"
 include TreasureData
 
 class Example
-  def initialize(api_key)
-    @client = Client.new(api_key)
+  def initialize(api_key, opts={})
+    @client = Client.new(api_key, opts)
   end
 
   # Utils
@@ -246,7 +246,7 @@ class Example
   end
 end
 
+options = {:verify => ENV["MY_CUSTOM_CERT"]}
 api_key = ENV["TD_API_KEY"] ||= ""
-ex = Example.new(api_key)
-ex.run
-
+ex = Example.new(api_key, opt=options)
+ex.server_status
