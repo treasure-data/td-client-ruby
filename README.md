@@ -167,5 +167,5 @@ behaviors. These hooks are triggered using environment variables:
 
 ## More Information
 
-- Copyright: (c) 2011 Treasure Data Inc.
+- Copyright: (c) 2011-2023 Treasure Data Inc.
 - License: Apache License, Version 2.0

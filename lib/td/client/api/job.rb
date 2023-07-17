@@ -126,7 +126,7 @@ module Job
     job_result_download(job_id) do |chunk|
       unpacker.feed_each(chunk) do |row|
         result << row
-      end
+      end unless chunk.empty?
     end
     return result
   end
@@ -163,7 +163,7 @@ module Job
     upkr = MessagePack::Unpacker.new
     # default to decompressing the response since format is fixed to 'msgpack'
     job_result_download(job_id) do |chunk|
-      upkr.feed_each(chunk, &block)
+      upkr.feed_each(chunk, &block) unless chunk.empty?
     end
     nil
   end
@@ -177,9 +177,9 @@ module Job
     upkr = MessagePack::Unpacker.new
     # default to decompressing the response since format is fixed to 'msgpack'
     job_result_download(job_id) do |chunk, total|
-      upkr.feed_each(chunk) {|unpacked|
+      upkr.feed_each(chunk) do |unpacked|
         yield unpacked, total if block_given?
-      }
+      end unless chunk.empty?
     end
     nil
   end
