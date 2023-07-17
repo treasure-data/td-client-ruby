@@ -1,3 +1,11 @@
+== 2023-07-11 version 2.0.0
+
+* v3 core utilization API removal
+
+* add custom cert and cert verification options: cert_path and skip_cert_verify
+
+* Support Ruby v3.2
+
 == 2021-03-03 version 1.0.8
 
 * Ignore elapsed_time #129
