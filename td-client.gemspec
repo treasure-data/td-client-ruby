@@ -21,9 +21,9 @@ Gem::Specification.new do |gem|
   gem.add_dependency "msgpack", ">= 0.5.6", "< 2"
   gem.add_dependency "httpclient", ">= 2.7"
   gem.add_development_dependency "rspec", "~> 3.0"
-  gem.add_development_dependency 'coveralls'
-  gem.add_development_dependency "webmock", "~> 1.16"
-  gem.add_development_dependency 'simplecov', '>= 0.5.4'
+  gem.add_development_dependency 'coveralls_reborn'
+  gem.add_development_dependency "webmock", "~> 3.18.1"
+  gem.add_development_dependency 'simplecov', '>= 0.21.2'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'webrick'

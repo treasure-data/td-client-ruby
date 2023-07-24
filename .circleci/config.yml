@@ -5,7 +5,6 @@ orbs:
   ruby: circleci/ruby@2.0.0
   win: circleci/windows@5.0.0
 
-
 commands:
   install_windows_requirements:
     description: "Install windows requirements"
@@ -37,7 +36,6 @@ commands:
       - checkout
       - bundle-install
       - run-tests
-
 
 jobs:
 
