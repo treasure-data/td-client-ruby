@@ -10,7 +10,6 @@ Gem::Specification.new do |gem|
   gem.email         = "support@treasure-data.com"
   gem.homepage      = "http://treasuredata.com/"
   gem.version       = TreasureData::Client::VERSION
-  gem.has_rdoc      = false
   gem.test_files    = Dir["spec/**/*_spec.rb"]
   gem.files         = Dir["lib/**/*", "ext/**/*", "data/**/*", "spec/**/*.rb"]
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }

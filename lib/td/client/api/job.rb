@@ -86,7 +86,7 @@ module Job
             #   Any change in the format for the hive_result_schema output may cause a syntax error, in which case
             #   this lame attempt at fixing the problem will fail and we will be raising the original JSON exception
             hive_result_schema = eval(hive_result_schema)
-          rescue SyntaxError => ignored_e
+          rescue SyntaxError # Syntax error is ignored
             raise e
           end
           hive_result_schema.each_with_index {|col_schema, idx|
