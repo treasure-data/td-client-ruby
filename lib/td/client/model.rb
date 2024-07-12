@@ -69,7 +69,10 @@ class Database < Model
   # @param [String] updated_at
   # @param [String] org_name
   # @param [String] permission
-  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil, permission=nil)
+  # @param [Fixnum] id
+  # @param [Fixnum] user_id
+  # @param [String] description
+  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil, permission=nil, id=nil, user_id=nil, description=nil)
     super(client)
     @db_name = db_name
     @tables = tables
@@ -77,16 +80,23 @@ class Database < Model
     @created_at = created_at
     @updated_at = updated_at
     @permission = permission.to_sym
+    @id = id
+    @user_id = user_id
+    @description = description
   end
 
   # @!attribute [r] org_name
   # @!attribute [r] permission
   # @!attribute [r] count
-  attr_reader :org_name, :permission, :count
+  attr_reader :org_name, :permission, :count, :id, :user_id
 
   # @return [String] db_name
   def name
     @db_name
+  end
+
+  def description
+    @description
   end
 
   # @return [Array<Table>]
