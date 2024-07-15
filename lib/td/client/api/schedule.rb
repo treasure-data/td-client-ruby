@@ -48,7 +48,10 @@ module Schedule
       next_time = m['next_time']
       priority = m['priority']
       retry_limit = m['retry_limit']
-      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, nil] # same as database
+      id = m['id']
+      executing_user_id = m['executing_user_id']
+      description = m['description']
+      result << [name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, nil, id, executing_user_id, description] # same as database
     }
     return result
   end
