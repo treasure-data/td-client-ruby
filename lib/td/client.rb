@@ -451,8 +451,8 @@ class Client
   # @return [Array<Result>]
   def results
     results = @api.list_result
-    rs = results.map {|name,url,organizations|
-      Result.new(self, name, url, organizations)
+    rs = results.map {|name,url,organizations, id, user_id|
+      Result.new(self, name, url, organizations, id, user_id)
     }
     return rs
   end
