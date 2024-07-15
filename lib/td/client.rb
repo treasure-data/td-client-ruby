@@ -137,10 +137,9 @@ class Client
   # @return [Array] Tables
   def tables(db_name)
     m = @api.list_tables(db_name)
-    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v)|
+    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v, user_id, description)|
       schema = Schema.new.from_json(schema)
-      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at,
-        estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v)
+      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v, user_id, description)
     }
   end
 
