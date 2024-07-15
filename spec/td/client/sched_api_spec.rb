@@ -9,6 +9,150 @@ describe 'Schedule API' do
     API.new(nil)
   end
 
+  let :client do
+    Client.new(apikey)
+  end
+
+  describe "'list_schedules' API" do
+    it 'should list the schedules' do
+      schedules = [
+        {
+            "name": "1 id 2 list",
+            "cron": nil,
+            "query": "SELECT '17775792' as id, 1 as list_3296, 1 as list_13602 ",
+            "database": "linh_sf_pardot",
+            "result": "{\"type\":\"salesforce_pardot\",\"login_url\":\"https://login.salesforce.com\",\"pardot_domain\":\"https://pi.pardot.com\",\"business_unit\":\"0Uv4W0000008OOISA2\",\"data_object\":\"prospects\",\"prospect_operation\":\"sync\",\"prospect_list_operation\":\"add\",\"list_membership_operation\":\"upsert\",\"skip_invalid_records\":true}",
+            "timezone": "UTC",
+            "delay": 0,
+            "next_time": nil,
+            "priority": 0,
+            "retry_limit": 0,
+            "organization": nil, # for the test, this prop is not in the response
+            "id": 91618,
+            "description": nil,
+            "executing_user_id": 602
+        },
+        {
+            "name": "111_gs_one_drive_personal clone111",
+            "cron": nil,
+            "query": "select * from 111222",
+            "database": nil,
+            "result": "",
+            "timezone": "UTC",
+            "delay": 0,
+            "next_time": nil,
+            "priority": 2,
+            "retry_limit": 0,
+            "organization": nil, # for the test, this prop is not in the response
+            "id": 20106,
+            "description": nil,
+            "executing_user_id": 78
+        },
+        {
+            "name": "111_gs_one_drive_personal clone111 clone",
+            "cron": nil,
+            "query": "select * from append_01knlfnlsdnfv;",
+            "database": nil,
+            "result": "",
+            "timezone": "UTC",
+            "delay": 0,
+            "priority": 2,
+            "retry_limit": 0,
+            "next_time": nil,
+            "organization": nil, # for the test, this prop is not in the response
+            "id": 39377,
+            "description": nil,
+            "executing_user_id": 548,
+        }
+      ]
+
+      result_schedules = schedules.map do |sched| 
+        sched.values
+      end
+
+      stub_api_request(:get, "/v3/schedule/list").
+        to_return(:body => {'schedules' => schedules}.to_json)
+
+      schedule_list = api.list_schedules
+      result_schedules.each_with_index do |sched, idx|
+        expect(schedule_list[idx]).to match_array(sched)
+      end 
+    end
+  end
+
+  describe "'schedules' Client API" do
+    it 'should return an array of Schedule objects' do
+      schedules = [
+        {
+            "name": "1 id 2 list",
+            "cron": nil,
+            "query": "SELECT '17775792' as id, 1 as list_3296, 1 as list_13602 ",
+            "database": "linh_sf_pardot",
+            "result": "{\"type\":\"salesforce_pardot\",\"login_url\":\"https://login.salesforce.com\",\"pardot_domain\":\"https://pi.pardot.com\",\"business_unit\":\"0Uv4W0000008OOISA2\",\"data_object\":\"prospects\",\"prospect_operation\":\"sync\",\"prospect_list_operation\":\"add\",\"list_membership_operation\":\"upsert\",\"skip_invalid_records\":true}",
+            "timezone": "UTC",
+            "delay": 0,
+            "next_time": nil,
+            "priority": 0,
+            "retry_limit": 0,
+            "organization": nil, # for the test, this prop is not in the response
+            "id": 91618,
+            "description": nil,
+            "executing_user_id": 602
+        },
+        {
+            "name": "111_gs_one_drive_personal clone111",
+            "cron": nil,
+            "query": "select * from 111222",
+            "database": nil,
+            "result": "",
+            "timezone": "UTC",
+            "delay": 0,
+            "next_time": nil,
+            "priority": 2,
+            "retry_limit": 0,
+            "organization": nil, # for the test, this prop is not in the response
+            "id": 20106,
+            "description": nil,
+            "executing_user_id": 78
+        },
+        {
+            "name": "111_gs_one_drive_personal clone111 clone",
+            "cron": nil,
+            "query": "select * from append_01knlfnlsdnfv;",
+            "database": nil,
+            "result": "",
+            "timezone": "UTC",
+            "delay": 0,
+            "priority": 2,
+            "retry_limit": 0,
+            "next_time": nil,
+            "organization": nil, # for the test, this prop is not in the response
+            "id": 39377,
+            "description": nil,
+            "executing_user_id": 548,
+        }
+      ]
+
+      result_schedules = schedules.map do |sched| 
+        sched.values
+      end
+
+      stub_api_request(:get, "/v3/schedule/list").
+        to_return(:body => {'schedules' => schedules}.to_json)
+
+      schedule_list = client.schedules
+      schedule_list.each_with_index do |s, idx|
+        expect(s.name).to eq(schedules[idx][:name])
+        expect(s.cron).to eq(schedules[idx][:cron])
+        expect(s.query).to eq(schedules[idx][:query])
+        expect(s.database).to eq(schedules[idx][:database])
+        expect(s.id).to eq(schedules[idx][:id])
+        expect(s.executing_user_id).to eq(schedules[idx][:executing_user_id])
+        expect(s.description).to eq(schedules[idx][:description])
+      end
+    end
+  end
+
   describe 'create_schedule' do
     let :opts do
       {'cron' => cron, 'query' => query, 'database' => db_name}
