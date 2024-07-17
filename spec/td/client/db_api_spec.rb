@@ -46,17 +46,57 @@ describe 'Database API' do
   describe "'list_databases' API" do
     it 'should list the databases with count, created_at, updated_at, organization, and permission' do
       databases = [
-        ["db_1", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC", nil, "administrator"],
-        ["db_2", 222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC", nil, "full_access"],
-        ["db_3", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC", nil, "import_only"],
-        ["db_4", 444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC", nil, "query_only"]
+        ["db_1", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC", nil, "administrator", 1, 1, 'desc1'],
+        ["db_2", 222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC", nil, "full_access", 2, 1, 'desc2'],
+        ["db_3", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC", nil, "import_only", 3, 1, 'desc3'],
+        ["db_4", 444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC", nil, "query_only", 4, 1, 'desc4']
       ]
       stub_api_request(:get, "/v3/database/list").
         to_return(:body => {'databases' => [
-          {'name' => databases[0][0], 'count' => databases[0][1], 'created_at' => databases[0][2], 'updated_at' => databases[0][3], 'organization' => databases[0][4], 'permission' => databases[0][5]},
-          {'name' => databases[1][0], 'count' => databases[1][1], 'created_at' => databases[1][2], 'updated_at' => databases[1][3], 'organization' => databases[1][4], 'permission' => databases[1][5]},
-          {'name' => databases[2][0], 'count' => databases[2][1], 'created_at' => databases[2][2], 'updated_at' => databases[2][3], 'organization' => databases[2][4], 'permission' => databases[2][5]},
-          {'name' => databases[3][0], 'count' => databases[3][1], 'created_at' => databases[3][2], 'updated_at' => databases[3][3], 'organization' => databases[3][4], 'permission' => databases[3][5]}
+          {
+            'name' => databases[0][0], 
+            'count' => databases[0][1], 
+            'created_at' => databases[0][2], 
+            'updated_at' => databases[0][3], 
+            'organization' => databases[0][4], 
+            'permission' => databases[0][5],
+            'id' => databases[0][6],
+            'user_id' => databases[0][7],
+            'description' => databases[0][8]
+          },
+          {
+            'name' => databases[1][0], 
+            'count' => databases[1][1], 
+            'created_at' => databases[1][2], 
+            'updated_at' => databases[1][3], 
+            'organization' => databases[1][4], 
+            'permission' => databases[1][5],
+            'id' => databases[1][6],
+            'user_id' => databases[1][7],
+            'description' => databases[1][8]
+          },
+          {
+            'name' => databases[2][0], 
+            'count' => databases[2][1], 
+            'created_at' => databases[2][2], 
+            'updated_at' => databases[2][3], 
+            'organization' => databases[2][4], 
+            'permission' => databases[2][5],
+            'id' => databases[2][6],
+            'user_id' => databases[2][7],
+            'description' => databases[2][8]
+          },
+          {
+            'name' => databases[3][0], 
+            'count' => databases[3][1], 
+            'created_at' => databases[3][2], 
+            'updated_at' => databases[3][3], 
+            'organization' => databases[3][4], 
+            'permission' => databases[3][5],
+            'id' => databases[3][6],
+            'user_id' => databases[3][7],
+            'description' => databases[3][8]
+          }
         ]}.to_json)
 
       db_list = api.list_databases
@@ -69,17 +109,57 @@ describe 'Database API' do
   describe "'databases' Client API" do
     it 'should return an array of Databases objects containing name, count, created_at, updated_at, organization, and permission' do
       databases = [
-        ["db_1", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC", nil, "administrator"],
-        ["db_2", 222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC", nil, "full_access"],
-        ["db_3", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC", nil, "import_only"],
-        ["db_4", 444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC", nil, "query_only"]
+        ["db_1", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC", nil, "administrator", 1, 1, 'desc1'],
+        ["db_2", 222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC", nil, "full_access", 2, 1, 'desc2'],
+        ["db_3", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC", nil, "import_only", 3, 1, 'desc3'],
+        ["db_4", 444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC", nil, "query_only", 4, 1, 'desc4']
       ]
       stub_api_request(:get, "/v3/database/list").
         to_return(:body => {'databases' => [
-          {'name' => databases[0][0], 'count' => databases[0][1], 'created_at' => databases[0][2], 'updated_at' => databases[0][3], 'organization' => databases[0][4], 'permission' => databases[0][5]},
-          {'name' => databases[1][0], 'count' => databases[1][1], 'created_at' => databases[1][2], 'updated_at' => databases[1][3], 'organization' => databases[1][4], 'permission' => databases[1][5]},
-          {'name' => databases[2][0], 'count' => databases[2][1], 'created_at' => databases[2][2], 'updated_at' => databases[2][3], 'organization' => databases[2][4], 'permission' => databases[2][5]},
-          {'name' => databases[3][0], 'count' => databases[3][1], 'created_at' => databases[3][2], 'updated_at' => databases[3][3], 'organization' => databases[3][4], 'permission' => databases[3][5]}
+          {
+            'name' => databases[0][0], 
+            'count' => databases[0][1], 
+            'created_at' => databases[0][2], 
+            'updated_at' => databases[0][3], 
+            'organization' => databases[0][4], 
+            'permission' => databases[0][5],
+            'id' => databases[0][6],
+            'user_id' => databases[0][7],
+            'description' => databases[0][8]
+          },
+          {
+            'name' => databases[1][0], 
+            'count' => databases[1][1], 
+            'created_at' => databases[1][2], 
+            'updated_at' => databases[1][3], 
+            'organization' => databases[1][4], 
+            'permission' => databases[1][5],
+            'id' => databases[1][6],
+            'user_id' => databases[1][7],
+            'description' => databases[1][8]
+          },
+          {
+            'name' => databases[2][0], 
+            'count' => databases[2][1], 
+            'created_at' => databases[2][2], 
+            'updated_at' => databases[2][3], 
+            'organization' => databases[2][4], 
+            'permission' => databases[2][5],
+            'id' => databases[2][6],
+            'user_id' => databases[2][7],
+            'description' => databases[2][8]
+          },
+          {
+            'name' => databases[3][0], 
+            'count' => databases[3][1], 
+            'created_at' => databases[3][2], 
+            'updated_at' => databases[3][3], 
+            'organization' => databases[3][4], 
+            'permission' => databases[3][5],
+            'id' => databases[3][6],
+            'user_id' => databases[3][7],
+            'description' => databases[3][8]
+          }
         ]}.to_json)
 
       db_list = client.databases.sort_by { |e| e.name }
@@ -90,6 +170,9 @@ describe 'Database API' do
         expect(db_list[i].updated_at).to    eq(Time.parse(databases[i][3]))
         expect(db_list[i].org_name).to      eq(databases[i][4])
         expect(db_list[i].permission).to    eq(databases[i][5].to_sym)
+        expect(db_list[i].id).to            eq(databases[i][6])
+        expect(db_list[i].user_id).to       eq(databases[i][7])
+        expect(db_list[i].description).to   eq(databases[i][8])
       }
     end
   end
@@ -97,17 +180,57 @@ describe 'Database API' do
   describe "'database' Client API" do
     it "should return the Databases object corresponding to the name and containing count, created_at, updated_at, organization, and permission" do
       databases = [
-        ["db_1", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC", nil, "administrator"],
-        ["db_2", 222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC", nil, "full_access"],
-        ["db_3", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC", nil, "import_only"],
-        ["db_4", 444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC", nil, "query_only"]
+        ["db_1", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC", nil, "administrator", 1, 1, 'desc1'],
+        ["db_2", 222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC", nil, "full_access", 2, 1, 'desc2'],
+        ["db_3", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC", nil, "import_only", 3, 1, 'desc3'],
+        ["db_4", 444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC", nil, "query_only", 4, 1, 'desc4']
       ]
       stub_api_request(:get, "/v3/database/list").
         to_return(:body => {'databases' => [
-          {'name' => databases[0][0], 'count' => databases[0][1], 'created_at' => databases[0][2], 'updated_at' => databases[0][3], 'organization' => databases[0][4], 'permission' => databases[0][5]},
-          {'name' => databases[1][0], 'count' => databases[1][1], 'created_at' => databases[1][2], 'updated_at' => databases[1][3], 'organization' => databases[1][4], 'permission' => databases[1][5]},
-          {'name' => databases[2][0], 'count' => databases[2][1], 'created_at' => databases[2][2], 'updated_at' => databases[2][3], 'organization' => databases[2][4], 'permission' => databases[2][5]},
-          {'name' => databases[3][0], 'count' => databases[3][1], 'created_at' => databases[3][2], 'updated_at' => databases[3][3], 'organization' => databases[3][4], 'permission' => databases[3][5]}
+          {
+            'name' => databases[0][0], 
+            'count' => databases[0][1], 
+            'created_at' => databases[0][2], 
+            'updated_at' => databases[0][3], 
+            'organization' => databases[0][4], 
+            'permission' => databases[0][5],
+            'id' => databases[0][6],
+            'user_id' => databases[0][7],
+            'description' => databases[0][8]
+          },
+          {
+            'name' => databases[1][0], 
+            'count' => databases[1][1], 
+            'created_at' => databases[1][2], 
+            'updated_at' => databases[1][3], 
+            'organization' => databases[1][4], 
+            'permission' => databases[1][5],
+            'id' => databases[1][6],
+            'user_id' => databases[1][7],
+            'description' => databases[1][8]
+          },
+          {
+            'name' => databases[2][0], 
+            'count' => databases[2][1], 
+            'created_at' => databases[2][2], 
+            'updated_at' => databases[2][3], 
+            'organization' => databases[2][4], 
+            'permission' => databases[2][5],
+            'id' => databases[2][6],
+            'user_id' => databases[2][7],
+            'description' => databases[2][8]
+          },
+          {
+            'name' => databases[3][0], 
+            'count' => databases[3][1], 
+            'created_at' => databases[3][2], 
+            'updated_at' => databases[3][3], 
+            'organization' => databases[3][4], 
+            'permission' => databases[3][5],
+            'id' => databases[3][6],
+            'user_id' => databases[3][7],
+            'description' => databases[3][8]
+          }
         ]}.to_json)
 
       i = 1
@@ -118,6 +241,9 @@ describe 'Database API' do
       expect(db.updated_at).to  eq(Time.parse(databases[i][3]))
       expect(db.org_name).to    eq(databases[i][4])
       expect(db.permission).to  eq(databases[i][5].to_sym)
+      expect(db.id).to            eq(databases[i][6])
+      expect(db.user_id).to       eq(databases[i][7])
+      expect(db.description).to   eq(databases[i][8])
     end
   end
 end
