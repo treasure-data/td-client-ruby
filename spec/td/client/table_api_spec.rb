@@ -108,17 +108,53 @@ describe 'Table API' do
   describe "'list_tables' API" do
     it 'should list the tables in a Hash whose values include type, count, created_at, updated_at, schema, ...' do
       tables = [
-        ["table_1", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC"],
-        ["table_2", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC"],
-        ["table_3", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
-        ["table_4", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
+        ["table_1", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC", 1, 'desc1'],
+        ["table_2", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC", 1, 'desc2'],
+        ["table_3", "item", "[[\"time\",\"long\"],[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC", 1, 'desc3'],
+        ["table_4", "log",  "[[\"time\",\"long\"],[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC", 1, 'desc4']
       ]
       stub_api_request(:get, "/v3/table/list/#{e db_name}").
         to_return(:body => {'tables' => [
-          {'name' => tables[0][0], 'type' => tables[0][1], 'schema' => tables[0][2], 'count' => tables[0][3], 'created_at' => tables[0][4], 'updated_at' => tables[0][5]},
-          {'name' => tables[1][0], 'type' => tables[1][1], 'schema' => tables[1][2], 'count' => tables[1][3], 'created_at' => tables[1][4], 'updated_at' => tables[1][5]},
-          {'name' => tables[2][0], 'type' => tables[2][1], 'schema' => tables[2][2], 'count' => tables[2][3], 'created_at' => tables[2][4], 'updated_at' => tables[2][5]},
-          {'name' => tables[3][0], 'type' => tables[3][1], 'schema' => tables[3][2], 'count' => tables[3][3], 'created_at' => tables[3][4], 'updated_at' => tables[3][5]}
+          {
+            'name' => tables[0][0], 
+            'type' => tables[0][1], 
+            'schema' => tables[0][2], 
+            'count' => tables[0][3], 
+            'created_at' => tables[0][4], 
+            'updated_at' => tables[0][5], 
+            'user_id' => tables[0][6], 
+            'description' => tables[0][7]
+          },
+          {
+            'name' => tables[1][0], 
+            'type' => tables[1][1], 
+            'schema' => tables[1][2], 
+            'count' => tables[1][3], 
+            'created_at' => tables[1][4], 
+            'updated_at' => tables[1][5], 
+            'user_id' => tables[1][6], 
+            'description' => tables[1][7]
+          },
+          {
+            'name' => tables[2][0], 
+            'type' => tables[2][1], 
+            'schema' => tables[2][2], 
+            'count' => tables[2][3], 
+            'created_at' => tables[2][4], 
+            'updated_at' => tables[2][5], 
+            'user_id' => tables[2][6], 
+            'description' => tables[2][7]
+          },
+          {
+            'name' => tables[3][0], 
+            'type' => tables[3][1], 
+            'schema' => tables[3][2], 
+            'count' => tables[3][3], 
+            'created_at' => tables[3][4], 
+            'updated_at' => tables[3][5], 
+            'user_id' => tables[3][6], 
+            'description' => tables[3][7]
+          }
         ]}.to_json)
 
       table_list = api.list_tables(db_name)
@@ -128,6 +164,8 @@ describe 'Table API' do
         expect(table_list[table[0]][2]).to eq(table[3])
         expect(table_list[table[0]][3]).to eq(table[4])
         expect(table_list[table[0]][4]).to eq(table[5])
+        expect(table_list[table[0]][10]).to eq(table[6])
+        expect(table_list[table[0]][11]).to eq(table[7])
       }
     end
   end
@@ -135,19 +173,54 @@ describe 'Table API' do
   describe "'tables' Client API" do
     it 'should return an array of Table objects' do
       tables = [
-        ["table_1", "item", "[[\"value\",\"string\"]]", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC"],
-        ["table_2", "log",  "[[\"value\",\"long\"]]",   222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC"],
-        ["table_3", "item", "[[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC"],
-        ["table_4", "log",  "[[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC"]
+        ["table_1", "item", "[[\"value\",\"string\"]]", 111, "2013-01-21 01:51:41 UTC", "2014-01-21 01:51:41 UTC", 1, 'desc1'],
+        ["table_2", "log",  "[[\"value\",\"long\"]]",   222, "2013-02-22 02:52:42 UTC", "2014-02-22 02:52:42 UTC", 1, 'desc2'],
+        ["table_3", "item", "[[\"value\",\"string\"]]", 333, "2013-03-23 03:53:43 UTC", "2014-03-23 03:53:43 UTC", 1, 'desc3'],
+        ["table_4", "log",  "[[\"value\",\"long\"]]",   444, "2013-04-24 04:54:44 UTC", "2014-04-24 04:54:44 UTC", 1, 'desc4']
       ]
       stub_api_request(:get, "/v3/table/list/#{e db_name}").
         to_return(:body => {'tables' => [
-          {'name' => tables[0][0], 'type' => tables[0][1], 'schema' => tables[0][2], 'count' => tables[0][3], 'created_at' => tables[0][4], 'updated_at' => tables[0][5]},
-          {'name' => tables[1][0], 'type' => tables[1][1], 'schema' => tables[1][2], 'count' => tables[1][3], 'created_at' => tables[1][4], 'updated_at' => tables[1][5]},
-          {'name' => tables[2][0], 'type' => tables[2][1], 'schema' => tables[2][2], 'count' => tables[2][3], 'created_at' => tables[2][4], 'updated_at' => tables[2][5]},
-          {'name' => tables[3][0], 'type' => tables[3][1], 'schema' => tables[3][2], 'count' => tables[3][3], 'created_at' => tables[3][4], 'updated_at' => tables[3][5]}
+          {
+            'name' => tables[0][0], 
+            'type' => tables[0][1], 
+            'schema' => tables[0][2], 
+            'count' => tables[0][3], 
+            'created_at' => tables[0][4], 
+            'updated_at' => tables[0][5], 
+            'user_id' => tables[0][6], 
+            'description' => tables[0][7]
+          },
+          {
+            'name' => tables[1][0], 
+            'type' => tables[1][1], 
+            'schema' => tables[1][2], 
+            'count' => tables[1][3], 
+            'created_at' => tables[1][4], 
+            'updated_at' => tables[1][5], 
+            'user_id' => tables[1][6], 
+            'description' => tables[1][7]
+          },
+          {
+            'name' => tables[2][0], 
+            'type' => tables[2][1], 
+            'schema' => tables[2][2], 
+            'count' => tables[2][3], 
+            'created_at' => tables[2][4], 
+            'updated_at' => tables[2][5], 
+            'user_id' => tables[2][6], 
+            'description' => tables[2][7]
+          },
+          {
+            'name' => tables[3][0], 
+            'type' => tables[3][1], 
+            'schema' => tables[3][2], 
+            'count' => tables[3][3], 
+            'created_at' => tables[3][4], 
+            'updated_at' => tables[3][5], 
+            'user_id' => tables[3][6], 
+            'description' => tables[3][7]
+          }
         ]}.to_json)
-
       table_list = client.tables(db_name).sort_by { |e| e.name }
 
       db_count = 0
@@ -169,6 +242,9 @@ describe 'Table API' do
         expect(table_list[i].count).to          eq(tables[i][3])
         expect(table_list[i].created_at).to     eq(Time.parse(tables[i][4]))
         expect(table_list[i].updated_at).to     eq(Time.parse(tables[i][5]))
+        expect(table_list[i].user_id).to        eq(tables[i][6])
+        expect(table_list[i].description).to    eq(tables[i][7])
+
 
         # REST API call to fetch the database permission
         stub_api_request(:get, "/v3/database/list").
