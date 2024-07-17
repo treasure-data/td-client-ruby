@@ -391,8 +391,9 @@ class Client
   # @return [Array<Schedule>]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,retry_limit,org_name|
-      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, org_name)
+    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,retry_limit,org_name, id, executing_user_id, description|
+      Schedule.new(self, name, cron, query, database, result_url, timezone, 
+                   delay, next_time, priority, retry_limit, org_name, id, executing_user_id, description)
     }
   end
 
