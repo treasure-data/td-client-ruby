@@ -700,8 +700,11 @@ class Schedule < Model
   # @param [String] priority
   # @param [String] retry_limit
   # @param [String] org_name
+  # @param [Fixnum] id
+  # @param [Fixnum] executing_user_id 
+  # @param [String] description
   def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil,
-                 priority=nil, retry_limit=nil, org_name=nil)
+                 priority=nil, retry_limit=nil, org_name=nil, id=nil, executing_user_id=nil,description=nil)
     super(client)
     @name = name
     @cron = cron
@@ -713,6 +716,9 @@ class Schedule < Model
     @next_time = next_time
     @priority = priority
     @retry_limit = retry_limit
+    @id = id
+    @executing_user_id = executing_user_id
+    @description = description
   end
 
   # @!attribute [r] name
@@ -724,7 +730,7 @@ class Schedule < Model
   # @!attribute [r] priority
   # @!attribute [r] retry_limit
   # @!attribute [r] org_name
-  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :retry_limit, :org_name
+  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :retry_limit, :org_name, :id, :executing_user_id, :description
 
   # @return [Time, nil]
   def next_time
