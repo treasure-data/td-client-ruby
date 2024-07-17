@@ -17,6 +17,8 @@ module Table
     js["tables"].map {|m|
       name = m['name']
       type = (m['type'] || '?').to_sym
+      user_id = m['user_id']
+      description = m['description']
       count = (m['count'] || 0).to_i  # TODO?
       created_at = m['created_at']
       updated_at = m['updated_at']
@@ -26,7 +28,20 @@ module Table
       schema = JSON.parse(m['schema'] || '[]')
       expire_days = m['expire_days']
       include_v = m['include_v']
-      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v]
+      result[name] = [
+        type, 
+        schema, 
+        count, 
+        created_at, 
+        updated_at, 
+        estimated_storage_size, 
+        last_import, 
+        last_log_timestamp, 
+        expire_days, 
+        include_v,
+        user_id,
+        description
+      ]
     }
     return result
   end
