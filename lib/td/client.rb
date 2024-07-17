@@ -63,8 +63,8 @@ class Client
   # @return [Array] databases
   def databases
     m = @api.list_databases
-    m.map {|db_name,(count, created_at, updated_at, org, permission)|
-      Database.new(self, db_name, nil, count, created_at, updated_at, org, permission)
+    m.map {|db_name,(count, created_at, updated_at, org, permission, id, user_id, description)|
+      Database.new(self, db_name, nil, count, created_at, updated_at, org, permission, id, user_id, description)
     }
   end
 
@@ -72,9 +72,9 @@ class Client
   # @return [Database]
   def database(db_name)
     m = @api.list_databases
-    m.each {|name,(count, created_at, updated_at, org, permission)|
+    m.each {|name,(count, created_at, updated_at, org, permission, id, user_id, description)|
       if name == db_name
-        return Database.new(self, name, nil, count, created_at, updated_at, org, permission)
+        return Database.new(self, name, nil, count, created_at, updated_at, org, permission, id, user_id, description)
       end
     }
     raise NotFoundError, "Database '#{db_name}' does not exist"
