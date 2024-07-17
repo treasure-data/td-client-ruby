@@ -745,16 +745,18 @@ class Result < Model
   # @param [String] name
   # @param [String] url
   # @param [String] org_name
-  def initialize(client, name, url, org_name)
+  def initialize(client, name, url, org_name, id, user_id)
     super(client)
     @name = name
     @url = url
+    @id = id
+    @user_id = user_id
   end
 
   # @!attribute [r] name
   # @!attribute [r] url
   # @!attribute [r] org_name
-  attr_reader :name, :url, :org_name
+  attr_reader :name, :url, :org_name, :id, :user_id
 end
 
 
