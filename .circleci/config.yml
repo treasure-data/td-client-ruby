@@ -8,13 +8,14 @@ orbs:
 commands:
   install_windows_requirements:
     description: "Install windows requirements"
-    shell: powershell.exe
     steps:
       - run:
           name: "Install MSYS2"
+          shell: powershell.exe
           command: choco install msys2 -y
       - run:
           name: "Install Ruby devkit"
+          shell: powershell.exe
           command: ridk install 2 3
   bundle-install:
     description: "Install dependencies"
