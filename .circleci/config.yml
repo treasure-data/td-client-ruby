@@ -28,6 +28,12 @@ commands:
     description: "Run tests"
     steps:
       - run:
+          name: Echo test certs
+          command: |
+            echo $TEST_ROOT_CA | base64 -d > ./spec/td/client/testRootCA.crt
+            echo $TEST_SERVER_CRT | base64 -d > ./spec/td/client/testServer.crt
+            echo $TEST_SERVER_KEY | base64 -d > ./spec/td/client/testServer.key
+      - run:
           name: Run tests
           command: bundle exec rake spec
   run-tests-flow:
