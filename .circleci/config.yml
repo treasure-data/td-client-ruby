@@ -8,6 +8,7 @@ orbs:
 commands:
   install_windows_requirements:
     description: "Install windows requirements"
+    shell: powershell.exe
     steps:
       - run:
           name: "Install MSYS2"
@@ -72,12 +73,11 @@ jobs:
   win_ruby:
     executor:
       name: win/default
-      shell: powershell.exe
+      shell: bash.exe
     steps:
       - install_windows_requirements
       - run:
           name: "Install bundler"
-          shell: powershell.exe
           command: gem install bundler
       - run-tests-flow
   
