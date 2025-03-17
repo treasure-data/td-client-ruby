@@ -11,9 +11,11 @@ commands:
     steps:
       - run:
           name: "Install MSYS2"
+          shell: powershell.exe
           command: choco install msys2 -y
       - run:
           name: "Install Ruby devkit"
+          shell: powershell.exe
           command: ridk install 2 3
   bundle-install:
     description: "Install dependencies"
@@ -27,6 +29,12 @@ commands:
   run-tests:
     description: "Run tests"
     steps:
+      - run:
+          name: Echo test certs
+          command: |
+            echo $TEST_ROOT_CA | base64 -d > ./spec/td/client/testRootCA.crt
+            echo $TEST_SERVER_CRT | base64 -d > ./spec/td/client/testServer.crt
+            echo $TEST_SERVER_KEY | base64 -d > ./spec/td/client/testServer.key
       - run:
           name: Run tests
           command: bundle exec rake spec
@@ -66,12 +74,11 @@ jobs:
   win_ruby:
     executor:
       name: win/default
-      shell: powershell.exe
+      shell: bash.exe
     steps:
       - install_windows_requirements
       - run:
           name: "Install bundler"
-          shell: powershell.exe
           command: gem install bundler
       - run-tests-flow
   
