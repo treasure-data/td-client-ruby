@@ -63,8 +63,8 @@ class Client
   # @return [Array] databases
   def databases
     m = @api.list_databases
-    m.map {|db_name,(count, created_at, updated_at, org, permission, id, user_id, description)|
-      Database.new(self, db_name, nil, count, created_at, updated_at, org, permission, id, user_id, description)
+    m.map {|db_name,(count, created_at, updated_at, org, permission)|
+      Database.new(self, db_name, nil, count, created_at, updated_at, org, permission)
     }
   end
 
@@ -72,9 +72,9 @@ class Client
   # @return [Database]
   def database(db_name)
     m = @api.list_databases
-    m.each {|name,(count, created_at, updated_at, org, permission, id, user_id, description)|
+    m.each {|name,(count, created_at, updated_at, org, permission)|
       if name == db_name
-        return Database.new(self, name, nil, count, created_at, updated_at, org, permission, id, user_id, description)
+        return Database.new(self, name, nil, count, created_at, updated_at, org, permission)
       end
     }
     raise NotFoundError, "Database '#{db_name}' does not exist"
@@ -137,9 +137,10 @@ class Client
   # @return [Array] Tables
   def tables(db_name)
     m = @api.list_tables(db_name)
-    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v, user_id, description)|
+    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v)|
       schema = Schema.new.from_json(schema)
-      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v, user_id, description)
+      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at,
+        estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v)
     }
   end
 
@@ -390,9 +391,8 @@ class Client
   # @return [Array<Schedule>]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,retry_limit,org_name, id, executing_user_id, description|
-      Schedule.new(self, name, cron, query, database, result_url, timezone, 
-                   delay, next_time, priority, retry_limit, org_name, id, executing_user_id, description)
+    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,retry_limit,org_name|
+      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, org_name)
     }
   end
 
@@ -451,8 +451,8 @@ class Client
   # @return [Array<Result>]
   def results
     results = @api.list_result
-    rs = results.map {|name,url,organizations, id, user_id|
-      Result.new(self, name, url, organizations, id, user_id)
+    rs = results.map {|name,url,organizations|
+      Result.new(self, name, url, organizations)
     }
     return rs
   end

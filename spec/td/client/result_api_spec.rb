@@ -54,19 +54,9 @@ describe 'Result API' do
 
   describe 'list_result' do
     it 'should return name and url' do
-      response = {
-        results: [
-          {
-            name: 'name',
-            url: 'url',
-            id: 1,
-            user_id: 1
-          }
-        ]
-      }
       stub_api_request(:get, '/v3/result/list').
-        to_return(:body => response.to_json)
-      expect(api.list_result).to eq([['name', 'url', nil, 1, 1]])
+        to_return(:body => {'results' => [{'name' => 'name', 'url' => 'url'}]}.to_json)
+      expect(api.list_result).to eq([['name', 'url', nil]])
     end
   end
 

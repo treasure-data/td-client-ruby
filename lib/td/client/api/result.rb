@@ -14,7 +14,7 @@ module Result
     js = checked_json(body, %w[results])
     result = []
     js['results'].map {|m|
-      result << [m['name'], m['url'], nil, m['id'], m['user_id']] # same as database
+      result << [m['name'], m['url'], nil] # same as database
     }
     return result
   end
