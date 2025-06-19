@@ -8,6 +8,10 @@ orbs:
 commands:
   install_windows_requirements:
     description: "Install windows requirements"
+    parameters:
+      ruby_version:
+        type: string
+        default: "latest"
     steps:
       - run:
           name: "Install MSYS2"
@@ -17,6 +21,13 @@ commands:
           name: "Install Ruby devkit"
           shell: powershell.exe
           command: ridk install 2 3
+      - run:
+          name: "Install Ruby version"
+          shell: powershell.exe
+          command: choco install ruby --version=<<parameters.ruby_version>>
+      - run:
+          name: "Install bundler"
+          command: gem install bundler
   bundle-install:
     description: "Install dependencies"
     steps:
@@ -26,8 +37,8 @@ commands:
       - run:
           name: Bundle install
           command: bundle install
-  run-tests:
-    description: "Run tests"
+  pre-tests:
+    description: "Prepare for tests"
     steps:
       - run:
           name: Echo test certs
@@ -35,6 +46,9 @@ commands:
             echo $TEST_ROOT_CA | base64 -d > ./spec/td/client/testRootCA.crt
             echo $TEST_SERVER_CRT | base64 -d > ./spec/td/client/testServer.crt
             echo $TEST_SERVER_KEY | base64 -d > ./spec/td/client/testServer.key
+  run-tests:
+    description: "Run tests"
+    steps:
       - run:
           name: Run tests
           command: bundle exec rake spec
@@ -43,6 +57,7 @@ commands:
     steps:
       - checkout
       - bundle-install
+      - pre-tests
       - run-tests
 
 jobs:
@@ -88,10 +103,8 @@ jobs:
       name: win/default
       shell: bash.exe
     steps:
-      - install_windows_requirements
-      - run:
-          name: "Install bundler"
-          command: gem install bundler
+      - install_windows_requirements:
+          ruby_version: "3.4.4"
       - run-tests-flow
   
   jruby_latest:
