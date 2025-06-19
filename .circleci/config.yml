@@ -63,7 +63,14 @@ commands:
     description: "Single flow for running tests on Windows"
     steps:
       - checkout
-      - bundle-install
+      - run:
+          name: Which bundler?
+          shell: powershell.exe
+          command: ruby -v; bundle -v
+      - run:
+          name: Bundle install
+          shell: powershell.exe
+          command: bundle install
       - pre-tests
       - run:
           name: Run tests
