@@ -59,6 +59,16 @@ commands:
       - bundle-install
       - pre-tests
       - run-tests
+  run-windows-tests-flow:
+    description: "Single flow for running tests on Windows"
+    steps:
+      - checkout
+      - bundle-install
+      - pre-tests
+      - run:
+          name: Run tests
+          shell: powershell.exe
+          command: bundle exec rake spec
 
 jobs:
 
@@ -105,7 +115,7 @@ jobs:
     steps:
       - install_windows_requirements:
           ruby_version: "3.4.4.2"
-      - run-tests-flow
+      - run-windows-tests-flow
   
   jruby_latest:
     docker:
