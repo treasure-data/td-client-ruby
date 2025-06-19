@@ -104,7 +104,7 @@ jobs:
       shell: bash.exe
     steps:
       - install_windows_requirements:
-          ruby_version: "3.4.4"
+          ruby_version: "3.4.4.2"
       - run-tests-flow
   
   jruby_latest:
