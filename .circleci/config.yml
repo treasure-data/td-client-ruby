@@ -3,11 +3,15 @@ version: 2.1
 
 orbs:
   ruby: circleci/ruby@2.0.0
-  win: circleci/windows@5.0.0
+  win: circleci/windows@5.1.0
 
 commands:
   install_windows_requirements:
     description: "Install windows requirements"
+    parameters:
+      ruby_version:
+        type: string
+        default: "latest"
     steps:
       - run:
           name: "Install MSYS2"
@@ -17,6 +21,13 @@ commands:
           name: "Install Ruby devkit"
           shell: powershell.exe
           command: ridk install 2 3
+      - run:
+          name: "Install Ruby version"
+          shell: powershell.exe
+          command: choco install ruby --version=<<parameters.ruby_version>>
+      - run:
+          name: "Install bundler"
+          command: gem install bundler
   bundle-install:
     description: "Install dependencies"
     steps:
@@ -26,8 +37,8 @@ commands:
       - run:
           name: Bundle install
           command: bundle install
-  run-tests:
-    description: "Run tests"
+  pre-tests:
+    description: "Prepare for tests"
     steps:
       - run:
           name: Echo test certs
@@ -35,6 +46,9 @@ commands:
             echo $TEST_ROOT_CA | base64 -d > ./spec/td/client/testRootCA.crt
             echo $TEST_SERVER_CRT | base64 -d > ./spec/td/client/testServer.crt
             echo $TEST_SERVER_KEY | base64 -d > ./spec/td/client/testServer.key
+  run-tests:
+    description: "Run tests"
+    steps:
       - run:
           name: Run tests
           command: bundle exec rake spec
@@ -43,7 +57,25 @@ commands:
     steps:
       - checkout
       - bundle-install
+      - pre-tests
       - run-tests
+  run-windows-tests-flow:
+    description: "Single flow for running tests on Windows"
+    steps:
+      - checkout
+      - run:
+          name: Which bundler?
+          shell: powershell.exe
+          command: ruby -v; bundle -v
+      - run:
+          name: Bundle install
+          shell: powershell.exe
+          command: bundle install
+      - pre-tests
+      - run:
+          name: Run tests
+          shell: powershell.exe
+          command: bundle exec rake spec
 
 jobs:
 
@@ -71,16 +103,26 @@ jobs:
     steps:
       - run-tests-flow
 
+  ruby_33:
+    docker:
+      - image: cimg/ruby:3.3.8
+    steps:
+      - run-tests-flow
+
+  ruby_34:
+    docker:
+      - image: cimg/ruby:3.4.4
+    steps:
+      - run-tests-flow
+
   win_ruby:
     executor:
       name: win/default
       shell: bash.exe
     steps:
-      - install_windows_requirements
-      - run:
-          name: "Install bundler"
-          command: gem install bundler
-      - run-tests-flow
+      - install_windows_requirements:
+          ruby_version: "3.4.4.2"
+      - run-windows-tests-flow
   
   jruby_latest:
     docker:
@@ -95,5 +137,7 @@ workflows:
       - ruby_30
       - ruby_31
       - ruby_32
+      - ruby_33
+      - ruby_34
       - jruby_latest
       - win_ruby
