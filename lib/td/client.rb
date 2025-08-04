@@ -277,17 +277,6 @@ class Client
     Job.new(self, job_id, :result_export, nil)
   end
 
-  # @param [String] db_name
-  # @param [String] table_name
-  # @param [Fixnum] to
-  # @param [Fixnum] from
-  # @param [Hash] opts
-  # @return [Job]
-  def partial_delete(db_name, table_name, to, from, opts={})
-    job_id = @api.partial_delete(db_name, table_name, to, from, opts)
-    Job.new(self, job_id, :partialdelete, nil)
-  end
-
   # @param [String] name
   # @param [String] database
   # @param [String] table
