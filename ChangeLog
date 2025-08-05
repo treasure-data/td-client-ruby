@@ -6,8 +6,6 @@
 
 * Clean up test certs (#149)
 
-* Update API responses with new  id, user_id, and description properties for table list, schedule list, result list, database list APIs (#148, #147, #146, #145, #151)
-
 == 2023-07-11 version 2.0.0
 
 * v3 core utilization API removal
