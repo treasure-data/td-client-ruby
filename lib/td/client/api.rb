@@ -7,7 +7,6 @@ require 'td/client/api/database'
 require 'td/client/api/export'
 require 'td/client/api/import'
 require 'td/client/api/job'
-require 'td/client/api/partial_delete'
 require 'td/client/api/result'
 require 'td/client/api/schedule'
 require 'td/client/api/server_status'
@@ -27,7 +26,6 @@ class API
   include API::Export
   include API::Import
   include API::Job
-  include API::PartialDelete
   include API::Result
   include API::Schedule
   include API::ServerStatus

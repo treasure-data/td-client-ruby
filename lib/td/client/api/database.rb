@@ -13,18 +13,15 @@ module Database
     end
     js = checked_json(body, %w[databases])
     result = {}
-    js['databases'].each do |m|
+    js["databases"].each {|m|
       name = m['name']
       count = m['count']
-      id = m['id']
-      user_id = m['user_id']
-      description = m['description']
       created_at = m['created_at']
       updated_at = m['updated_at']
       permission = m['permission']
-      result[name] = [count, created_at, updated_at, nil, permission, id, user_id, description] # set nil to org for API compatibiilty
-    end 
-    result
+      result[name] = [count, created_at, updated_at, nil, permission] # set nil to org for API compatibiilty
+    }
+    return result
   end
 
   # @param [String] db

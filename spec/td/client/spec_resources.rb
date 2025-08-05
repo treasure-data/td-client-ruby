@@ -57,8 +57,7 @@ shared_context 'job resources' do
     [
       ['HiveJob', 'hive'],
       ['ExportJob', 'export'],
-      ['BulkImportJob', 'bulk_import'],
-      ['PartialDeleteJob', 'partialdelete']
+      ['BulkImportJob', 'bulk_import']
     ]
   end
 

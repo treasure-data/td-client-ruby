@@ -63,8 +63,8 @@ class Client
   # @return [Array] databases
   def databases
     m = @api.list_databases
-    m.map {|db_name,(count, created_at, updated_at, org, permission, id, user_id, description)|
-      Database.new(self, db_name, nil, count, created_at, updated_at, org, permission, id, user_id, description)
+    m.map {|db_name,(count, created_at, updated_at, org, permission)|
+      Database.new(self, db_name, nil, count, created_at, updated_at, org, permission)
     }
   end
 
@@ -72,9 +72,9 @@ class Client
   # @return [Database]
   def database(db_name)
     m = @api.list_databases
-    m.each {|name,(count, created_at, updated_at, org, permission, id, user_id, description)|
+    m.each {|name,(count, created_at, updated_at, org, permission)|
       if name == db_name
-        return Database.new(self, name, nil, count, created_at, updated_at, org, permission, id, user_id, description)
+        return Database.new(self, name, nil, count, created_at, updated_at, org, permission)
       end
     }
     raise NotFoundError, "Database '#{db_name}' does not exist"
@@ -137,9 +137,10 @@ class Client
   # @return [Array] Tables
   def tables(db_name)
     m = @api.list_tables(db_name)
-    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v, user_id, description)|
+    m.map {|table_name, (type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v)|
       schema = Schema.new.from_json(schema)
-      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v, user_id, description)
+      Table.new(self, db_name, table_name, type, schema, count, created_at, updated_at,
+        estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v)
     }
   end
 
@@ -182,7 +183,7 @@ class Client
   def query(db_name, q, result_url=nil, priority=nil, retry_limit=nil, opts={})
     # for compatibility, assume type is hive unless specifically specified
     type = opts[:type] || opts['type'] || :hive
-    raise ArgumentError, "The specified query type is not supported: #{type}" unless [:hive, :pig, :impala, :presto].include?(type)
+    raise ArgumentError, "The specified query type is not supported: #{type}" unless [:hive, :pig, :impala, :presto, :trino].include?(type)
     job_id = @api.query(q, type, db_name, result_url, priority, retry_limit, opts)
     Job.new(self, job_id, type, q)
   end
@@ -274,17 +275,6 @@ class Client
   def result_export(target_job_id, opts={})
     job_id = @api.result_export(target_job_id, opts)
     Job.new(self, job_id, :result_export, nil)
-  end
-
-  # @param [String] db_name
-  # @param [String] table_name
-  # @param [Fixnum] to
-  # @param [Fixnum] from
-  # @param [Hash] opts
-  # @return [Job]
-  def partial_delete(db_name, table_name, to, from, opts={})
-    job_id = @api.partial_delete(db_name, table_name, to, from, opts)
-    Job.new(self, job_id, :partialdelete, nil)
   end
 
   # @param [String] name
@@ -390,9 +380,8 @@ class Client
   # @return [Array<Schedule>]
   def schedules
     result = @api.list_schedules
-    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,retry_limit,org_name, id, executing_user_id, description|
-      Schedule.new(self, name, cron, query, database, result_url, timezone, 
-                   delay, next_time, priority, retry_limit, org_name, id, executing_user_id, description)
+    result.map {|name,cron,query,database,result_url,timezone,delay,next_time,priority,retry_limit,org_name|
+      Schedule.new(self, name, cron, query, database, result_url, timezone, delay, next_time, priority, retry_limit, org_name)
     }
   end
 
@@ -451,8 +440,8 @@ class Client
   # @return [Array<Result>]
   def results
     results = @api.list_result
-    rs = results.map {|name,url,organizations, id, user_id|
-      Result.new(self, name, url, organizations, id, user_id)
+    rs = results.map {|name,url,organizations|
+      Result.new(self, name, url, organizations)
     }
     return rs
   end

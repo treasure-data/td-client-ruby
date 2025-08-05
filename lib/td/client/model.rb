@@ -69,10 +69,7 @@ class Database < Model
   # @param [String] updated_at
   # @param [String] org_name
   # @param [String] permission
-  # @param [Fixnum] id
-  # @param [Fixnum] user_id
-  # @param [String] description
-  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil, permission=nil, id=nil, user_id=nil, description=nil)
+  def initialize(client, db_name, tables=nil, count=nil, created_at=nil, updated_at=nil, org_name=nil, permission=nil)
     super(client)
     @db_name = db_name
     @tables = tables
@@ -80,23 +77,16 @@ class Database < Model
     @created_at = created_at
     @updated_at = updated_at
     @permission = permission.to_sym
-    @id = id
-    @user_id = user_id
-    @description = description
   end
 
   # @!attribute [r] org_name
   # @!attribute [r] permission
   # @!attribute [r] count
-  attr_reader :org_name, :permission, :count, :id, :user_id
+  attr_reader :org_name, :permission, :count
 
   # @return [String] db_name
   def name
     @db_name
-  end
-
-  def description
-    @description
   end
 
   # @return [Array<Table>]
@@ -163,10 +153,7 @@ class Table < Model
   # @param [String] last_import
   # @param [String] last_log_timestamp
   # @param [Fixnum, String] expire_days
-  def initialize(client, db_name, table_name, type, schema, count, 
-                 created_at=nil, updated_at=nil, estimated_storage_size=nil, 
-                 last_import=nil, last_log_timestamp=nil, expire_days=nil, 
-                 include_v=false, user_id=nil, description=nil)
+  def initialize(client, db_name, table_name, type, schema, count, created_at=nil, updated_at=nil, estimated_storage_size=nil, last_import=nil, last_log_timestamp=nil, expire_days=nil, include_v=false)
     super(client)
     @database = nil
     @db_name = db_name
@@ -181,8 +168,6 @@ class Table < Model
     @last_log_timestamp = last_log_timestamp
     @expire_days = expire_days
     @include_v = include_v
-    @user_id = user_id
-    @description = description
   end
 
   # @!attribute [r] type
@@ -191,7 +176,7 @@ class Table < Model
   # @!attribute [r] schema
   # @!attribute [r] count
   # @!attribute [r] estimated_storage_size
-  attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size, :include_v, :user_id, :description
+  attr_reader :type, :db_name, :table_name, :schema, :count, :estimated_storage_size, :include_v
 
   alias database_name db_name
   alias name table_name
@@ -705,11 +690,8 @@ class Schedule < Model
   # @param [String] priority
   # @param [String] retry_limit
   # @param [String] org_name
-  # @param [Fixnum] id
-  # @param [Fixnum] executing_user_id 
-  # @param [String] description
   def initialize(client, name, cron, query, database=nil, result_url=nil, timezone=nil, delay=nil, next_time=nil,
-                 priority=nil, retry_limit=nil, org_name=nil, id=nil, executing_user_id=nil,description=nil)
+                 priority=nil, retry_limit=nil, org_name=nil)
     super(client)
     @name = name
     @cron = cron
@@ -721,9 +703,6 @@ class Schedule < Model
     @next_time = next_time
     @priority = priority
     @retry_limit = retry_limit
-    @id = id
-    @executing_user_id = executing_user_id
-    @description = description
   end
 
   # @!attribute [r] name
@@ -735,7 +714,7 @@ class Schedule < Model
   # @!attribute [r] priority
   # @!attribute [r] retry_limit
   # @!attribute [r] org_name
-  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :retry_limit, :org_name, :id, :executing_user_id, :description
+  attr_reader :name, :cron, :query, :database, :result_url, :timezone, :delay, :priority, :retry_limit, :org_name
 
   # @return [Time, nil]
   def next_time
@@ -756,18 +735,16 @@ class Result < Model
   # @param [String] name
   # @param [String] url
   # @param [String] org_name
-  def initialize(client, name, url, org_name, id, user_id)
+  def initialize(client, name, url, org_name)
     super(client)
     @name = name
     @url = url
-    @id = id
-    @user_id = user_id
   end
 
   # @!attribute [r] name
   # @!attribute [r] url
   # @!attribute [r] org_name
-  attr_reader :name, :url, :org_name, :id, :user_id
+  attr_reader :name, :url, :org_name
 end
 
 
