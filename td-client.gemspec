@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "httpclient", ">= 2.7"
   gem.add_development_dependency "rspec", "~> 3.0"
   gem.add_development_dependency 'coveralls_reborn'
-  gem.add_development_dependency "webmock", ">= 3.18.1"
+  gem.add_development_dependency "webmock", "~> 3.25.1"
   gem.add_development_dependency "mutex_m"
   gem.add_development_dependency 'simplecov', '>= 0.21.2'
   gem.add_development_dependency 'rake'
