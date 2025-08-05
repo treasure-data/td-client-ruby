@@ -6,12 +6,7 @@
 
 * Clean up test certs (#149)
 
-* Update API responses for table list, schedule list, result list, database list APIs (#148, #147, #146, #145, #151)
-
-* Add id, user_id, and description to the /database/list API (#145)
-
-* Update webmock requirement from ~> 3.18.1 to ~> 3.25.1 (#150)
-
+* Update API responses with new  id, user_id, and description properties for table list, schedule list, result list, database list APIs (#148, #147, #146, #145, #151)
 
 == 2023-07-11 version 2.0.0
 
