@@ -1,8 +1,8 @@
-== 2025-01-XX version 3.0.0
+== 2025-08-05 version 3.0.0
 
 * Remove partial_delete API (#153)
 
-* Support trino type query. Add CI test for Ruby 3.3 & 3.4 (#152)
+* Support trino type query (#152)
 
 * Clean up test certs (#149)
 
@@ -11,10 +11,6 @@
 * Add id, user_id, and description to the /database/list API (#145)
 
 * Update webmock requirement from ~> 3.18.1 to ~> 3.25.1 (#150)
-
-* Remove old CI badges from README (#143)
-
-* Add Circleci with coveralls support (#141)
 
 
 == 2023-07-11 version 2.0.0
