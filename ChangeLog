@@ -4,8 +4,6 @@
 
 * Support trino type query (#152)
 
-* Clean up test certs (#149)
-
 == 2023-07-11 version 2.0.0
 
 * v3 core utilization API removal
