@@ -284,7 +284,7 @@ class Schema
     # @param [String] type
     # @param [String] sql_alias
     def initialize(name, type, sql_alias=nil)
-      if name == 'v' || name == 'time'
+      if name == 'time'
         raise ParameterValidationError, "Column name '#{name}' is reserved."
       end
       API.validate_column_name(name)

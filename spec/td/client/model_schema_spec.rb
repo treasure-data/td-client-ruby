@@ -3,11 +3,6 @@ require 'td/client/spec_resources'
 
 describe 'TreasureData::Schema::Field' do
   describe '.new' do
-    context 'name="v"' do
-      it 'raises ParameterValidationError' do
-        expect{ Schema::Field.new('v', 'int') }.to raise_error(ParameterValidationError)
-      end
-    end
     context 'name="time"' do
       it 'raises ParameterValidationError' do
         expect{ Schema::Field.new('time', 'int') }.to raise_error(ParameterValidationError)
