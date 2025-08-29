@@ -25,8 +25,7 @@ module Table
       estimated_storage_size = m['estimated_storage_size'].to_i
       schema = JSON.parse(m['schema'] || '[]')
       expire_days = m['expire_days']
-      include_v = m['include_v']
-      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days, include_v]
+      result[name] = [type, schema, count, created_at, updated_at, estimated_storage_size, last_import, last_log_timestamp, expire_days]
     }
     return result
   end
@@ -89,7 +88,6 @@ module Table
   # @param [String] db
   # @param [String] table
   # @option params [Fixnum] :expire_days days to expire table
-  # @option params [Boolean] :include_v (true) include v column on Hive
   # @option params [Boolean] :detect_schema (true) detect schema on import
   # @return [true]
   def update_table(db, table, params={})
