@@ -1,3 +1,9 @@
+== 2026-09-10 version 3.0.1
+
+* Drop column name validation for name "v" (#156)
+
+* Remove the deprecated has_rdoc attribute from the gemspec (it fails to load under RubyGems 3.x)
+
 == 2025-08-05 version 3.0.0
 
 * Remove partial_delete API (#153)
