@@ -1,5 +1,6 @@
 # Treasure Data API library for Ruby
 
+[![Gem](https://img.shields.io/gem/v/td-client)](https://rubygems.org/gems/td-client) [![Gem](https://img.shields.io/gem/dt/td-client)](https://rubygems.org/gems/td-client)
 [<img src="https://coveralls.io/repos/treasure-data/td-client-ruby/badge.svg?branch=master&service=github" alt="Coverage Status" />](https://coveralls.io/github/treasure-data/td-client-ruby?branch=master)
 
 ## Getting Started
