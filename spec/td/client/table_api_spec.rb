@@ -32,9 +32,9 @@ describe 'Table API' do
 
     it 'should create a new table with params' do
       stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
-        with(:body => {'include_v' => 'false'}).
-        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log', 'include_v' => 'false'}.to_json)
-      expect(api.create_log_table(db_name, table_name, include_v: false)).to be true
+        with(:body => {'expire_days' => 3}).
+        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log', 'expire_days' => 3}.to_json)
+      expect(api.create_log_table(db_name, table_name, expire_days: 3)).to be true
     end
 
     it 'should return 400 error with invalid name' do
@@ -78,9 +78,9 @@ describe 'Table API' do
 
     it 'should create a new table with params' do
       stub_api_request(:post, "/v3/table/create/#{e db_name}/#{e(table_name)}/log").
-        with(:body => {'include_v' => 'false'}).
-        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log', 'include_v' => 'false'}.to_json)
-      expect(client.create_log_table(db_name, table_name, include_v: false)).to be true
+        with(:body => {'expire_days' => 3}).
+        to_return(:body => {'database' => db_name, 'table' => table_name, 'type' => 'log', 'expire_days' => 3}.to_json)
+      expect(client.create_log_table(db_name, table_name, expire_days: 3)).to be true
     end
 
     it 'should return 400 error with invalid name' do
@@ -232,32 +232,7 @@ describe 'Table API' do
     end
   end
 
-  describe 'handle include_v' do
-    it 'should set/unset include_v flag' do
-      stub_api_request(:get, '/v3/table/list/db').
-        to_return(:body => {'tables' => [
-          {'name' => 'table', 'type' => 'log', 'include_v' => true},
-        ]}.to_json)
-
-      table = client.table('db', 'table')
-      expect(table.include_v).to eq true
-
-      stub_api_request(:get, '/v3/table/list/db').
-        to_return(:body => {'tables' => [
-          {'name' => 'table', 'type' => 'log', 'include_v' => false},
-        ]}.to_json)
-
-      stub_api_request(:post, '/v3/table/update/db/table').
-        with(:body => {'include_v' => "false"}).
-        to_return(:body => {"database"=>"db","table"=>"table","type"=>"log"}.to_json)
-      api.update_table('db', 'table', include_v: "false")
-
-      table = client.table('db', 'table')
-      expect(table.include_v).to eq false
-    end
-  end
-
-  describe 'tail' do
+describe 'tail' do
     let :packed do
       s = StringIO.new
       pk = MessagePack::Packer.new(s)
