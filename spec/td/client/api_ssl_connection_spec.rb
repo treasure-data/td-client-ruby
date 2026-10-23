@@ -72,6 +72,28 @@ describe 'API SSL connection' do
     }.to raise_error TreasureData::NotFoundError
   end
 
+  it 'should use ssl_ca_file for bulk load requests' do
+    @server = setup_server(:TLSv1_2)
+    api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false)
+    api.ssl_ca_file = File.join(DIR, 'testRootCA.crt')
+
+    expect(api.bulk_load_list).to eq([])
+  end
+
+  it 'should apply verify false to bulk load requests' do
+    @server = setup_server(:TLSv1_2)
+    api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false, :verify => false)
+
+    expect(api.bulk_load_list).to eq([])
+  end
+
+  it 'should use the verify CA file for bulk load requests' do
+    @server = setup_server(:TLSv1_2)
+    api = API.new(nil, :endpoint => "https://localhost:#{@serverport}", :retry_post_requests => false, :verify => File.join(DIR, 'testRootCA.crt'))
+
+    expect(api.bulk_load_list).to eq([])
+  end
+
   def setup_server(ssl_version, port = 1000 + rand(1000))
     logger = Logger.new(STDERR)
     logger.level = Logger::Severity::FATAL  # avoid logging SSLError (ERROR level)
@@ -91,6 +113,10 @@ describe 'API SSL connection' do
       '/hello',
       WEBrick::HTTPServlet::ProcHandler.new(method(:do_hello).to_proc)
     )
+    @server.mount_proc('/v3/bulk_loads') do |_req, res|
+      res['content-type'] = 'application/json'
+      res.body = '[]'
+    end
     @server.ssl_context.ssl_version = ssl_version
     @server_thread = start_server_thread(@server)
     return @server

@@ -59,6 +59,9 @@ E.g.
 
 ### SSL
 
+td-client does not bundle CA certificates and uses HTTPClient's default TLS
+trust configuration. Use `:verify` or `API#ssl_ca_file=` to supply a CA file.
+
 The `:ssl` key specifies whether SSL communication ought to be used when
 communicating with the default or custom endpoint.
 
@@ -77,7 +80,7 @@ E.g.
     # You can disable verification
     opts.merge({:endpoint => "https://api.treasuredata.com", :verify => false})
 
-    # You can use your own certificate
+    # You can supply a CA file
     opts.merge({:endpoint => "https://api.treasuredata.com", :verify => "/path/to/cert"})
 
 ### Proxy

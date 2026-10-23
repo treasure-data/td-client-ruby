@@ -239,9 +239,11 @@ class API
     io.string
   end
 
-  # @param [String] ssl_ca_file
+  # @param [String, nil] ssl_ca_file nil restores HTTPClient's default CA source
   def ssl_ca_file=(ssl_ca_file)
     @ssl_ca_file = ssl_ca_file
+    @api.reset_all
+    @api = api_client("#{@ssl ? 'https' : 'http'}://#{@host}:#{@port}")
   end
 
 private
@@ -517,21 +519,7 @@ private
   def new_client(opts = {})
     client = HTTPClient.new(@http_proxy, @user_agent)
     client.connect_timeout = @connect_timeout
-
-    if @ssl
-      client.ssl_config.add_trust_ca(ssl_ca_file)
-      client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      # Disable SSLv3 connection in favor of POODLE Attack protection
-      client.ssl_config.options |= OpenSSL::SSL::OP_NO_SSLv3
-    end
-
-    # allow users to use their own custom ca
-    # or disable verification
-    if @verify == false
-      client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    elsif @verify.is_a? String
-      client.ssl_config.add_trust_ca(@verify)
-    end
+    configure_ssl(client)
 
     header = {}
     if @apikey
@@ -553,9 +541,26 @@ private
     client.connect_timeout = @connect_timeout
     client.send_timeout = @send_timeout
     client.receive_timeout = @read_timeout
+    configure_ssl(client)
     client.transparent_gzip_decompression = true
     client.debug_dev = STDOUT unless ENV['TD_CLIENT_DEBUG'].nil?
     client
+  end
+
+  def configure_ssl(client)
+    if @ssl
+      # Leave CA selection to HTTPClient unless the caller supplies a CA file.
+      ca_file = ssl_ca_file
+      client.ssl_config.add_trust_ca(ca_file) if ca_file
+      # Disable SSLv3 connection in favor of POODLE Attack protection
+      client.ssl_config.options |= OpenSSL::SSL::OP_NO_SSLv3
+    end
+
+    if @verify == false
+      client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    elsif @verify.is_a? String
+      client.ssl_config.add_trust_ca(@verify)
+    end
   end
 
   def api(opt = {:retry_request => true}, &block)
@@ -606,7 +611,7 @@ private
   end
 
   def ssl_ca_file
-    @ssl_ca_file ||= File.join(File.dirname(__FILE__), '..', '..', '..', 'data', 'ca-bundle.crt')
+    @ssl_ca_file
   end
 
   # @param [response] res

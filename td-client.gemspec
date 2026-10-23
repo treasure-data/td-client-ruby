@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = "http://treasuredata.com/"
   gem.version       = TreasureData::Client::VERSION
   gem.test_files    = Dir["spec/**/*_spec.rb"]
-  gem.files         = Dir["lib/**/*", "ext/**/*", "data/**/*", "spec/**/*.rb"]
+  gem.files         = Dir["lib/**/*", "ext/**/*", "spec/**/*.rb"]
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths = ["lib"]
   gem.required_ruby_version = '>= 2.1' if RUBY_ENGINE != 'jruby'
