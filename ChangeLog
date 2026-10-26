@@ -1,3 +1,14 @@
+== Unreleased
+
+* Breaking: Remove the bundled CA certificates and delegate default CA selection
+  to HTTPClient. Regular API requests can trust a different set of issuers after
+  upgrading; review custom endpoints and TLS inspection proxies.
+
+* Apply explicit CA files and the verify option to bulk load requests as well as
+  regular API requests. Updating ssl_ca_file closes existing bulk load
+  connections; setting it to nil restores HTTPClient's default CA selection
+  unless a verify CA file is configured.
+
 == 2026-09-10 version 3.0.1
 
 * Drop column name validation for name "v" (#156)
