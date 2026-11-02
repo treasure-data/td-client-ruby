@@ -1,5 +1,8 @@
 == Unreleased
 
+* Require HTTPClient 2.10.0 or later for its compromised eMudhra intermediate CA
+  public key rejection and updated CA bundle.
+
 * Breaking: Remove the bundled CA certificates and delegate default CA selection
   to HTTPClient. Regular API requests can trust a different set of issuers after
   upgrading; review custom endpoints and TLS inspection proxies.
