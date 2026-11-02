@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.license       = "Apache-2.0"
 
   gem.add_dependency "msgpack", ">= 0.5.6", "< 2"
-  gem.add_dependency "httpclient", ">= 2.7"
+  gem.add_dependency "httpclient", ">= 2.10.0"
   gem.add_development_dependency "rspec", "~> 3.0"
   gem.add_development_dependency 'coveralls_reborn'
   gem.add_development_dependency "webmock", "~> 3.25.1"
